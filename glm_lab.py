@@ -210,7 +210,9 @@ def execute(run, prompt, ngen, extra, coli_dir='~/Code/colibri', model='~/colibr
             no_base=False, ram=18, ctx=1024, timeout=3600):
     """One Colibri run with the best exact settings plus `extra`; the log goes to RAW_LOGS."""
     prompt = PROMPTS.get(prompt, prompt)
-    env = dict(os.environ, **({} if no_base else BEST), **extra)
+    env = {**os.environ, **({} if no_base else BEST), **extra}
+    for k in [k for k, v in extra.items() if v == '']:   # --env KEY= unsets KEY (e.g. the engine's own thread team)
+        env.pop(k)
     env.setdefault('RAM_GB', str(ram))
     coli = Path(coli_dir).expanduser()
     coli = (coli if coli.is_absolute() else ROOT / coli) / 'c' / 'coli'

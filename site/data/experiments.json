@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-10-23",
+ "generated": "2026-11-03",
  "scoreboard": {
   "target_tok_s": 5.0,
   "best_exact": {
@@ -1673,11 +1673,12 @@
    "runs": [],
    "lossy": false,
    "date": "2026-10-18",
-   "conclusion": "Not run: lossy and needs re-converting 409 GB; papers report large losses at 2-bit.",
+   "conclusion": "Not run: lossy and needs re-converting 409 GB; papers report large losses at 2-bit. Scan 2026-11: ProQuant (arXiv 2610.30779) gives each expert 0, 2 or 3 bits and keeps most quality at a 2-2.5 bit average on Qwen3-30B-A3B (74.5 vs 68.6 for GPTQ at 2.0 bits): ~40-50% fewer expert bytes. Still needs a GLM conversion tool and the quality bench.",
    "tradeoffs": "",
    "verdict": "not run",
    "sources": [
-    "https://arxiv.org/pdf/2605.23078"
+    "https://arxiv.org/pdf/2605.23078",
+    "https://arxiv.org/abs/2610.30779"
    ],
    "metrics": {
     "measured": false
@@ -3186,6 +3187,289 @@
     "prefill_change_pct": null,
     "rss_change_pct": null,
     "output": "n/a"
+   },
+   "effects": []
+  },
+  {
+   "id": "guard-704a3f68",
+   "title": "Colibri v2.1.0 with the old settings: refuses to start (new RAM guard)",
+   "category": "build",
+   "change": "Colibri v2.1.0 (704a3f68), best exact settings, RAM 18 GB, default pinning",
+   "hypothesis": "v2.1.0 (2026-10-31) is 387 PRs past v2.0.0 and ~1000 commits past dev 16239caa: hot OpenMP team (decode up to +13%), M6 thread fix (#2194), Metal slab-lock fix, decode attention by KV head. Check it does not regress int4 Metal GLM before stacking.",
+   "ref": "r2-p0-sky-exact",
+   "runs": [
+    "x-guard-704a3f68"
+   ],
+   "lossy": false,
+   "date": "2026-11-03",
+   "conclusion": "v2.1.0 adds a RAM guard (#653): with RAM_GB=18 it clamps the budget to the MemAvailable snapshot (17.8 GB), auto-pins 0.3 GB of experts, projects an 18.1 GB peak and refuses to start. The same command passed minutes later with more free RAM. Not a speed result; it means the old command line can fail to start on v2.1.0 when the Mac is busy.",
+   "tradeoffs": "Fix: PIN_GB=0 (as the reference runs, which pinned nothing), close apps, or COLI_RAM_OVERCOMMIT=1 to keep the old behaviour.",
+   "sources": [
+    "https://github.com/JustVugg/colibri/releases/tag/v2.1.0"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 1,
+    "failed_runs": [
+     "x-guard-704a3f68"
+    ],
+    "tok_s": null,
+    "prefill_s": null,
+    "rss_gb": null,
+    "hit_pct": null,
+    "ref_tok_s": 0.44,
+    "ref_prefill_s": 23.46,
+    "ref_rss_gb": 7.72,
+    "speed_change_pct": null,
+    "prefill_change_pct": null,
+    "rss_change_pct": null,
+    "output": "n/a"
+   },
+   "verdict": "failed",
+   "effects": []
+  },
+  {
+   "id": "baseline-704a3f68",
+   "title": "Baseline Colibri v2.1.0 (704a3f68, includes the M6 thread fix)",
+   "category": "build",
+   "change": "PIN_GB=0",
+   "hypothesis": "v2.1.0 (2026-10-31): hot OpenMP team (decode up to +13%), M6 thread fix (#2194), Metal slab-lock fix, decode attention by KV head. Check it does not regress int4 Metal GLM before stacking. PIN_GB=0 matches the reference runs (0 pinned) and fits v2.1.0's new RAM guard.",
+   "ref": "r2-p0-sky-exact",
+   "runs": [
+    "x-baseline-704a3f68"
+   ],
+   "lossy": false,
+   "date": "2026-11-03",
+   "conclusion": "Colibri v2.1.0 gives 0.43 tok/s exact vs 0.44 on the installed v2.0.0, identical text, same 74% SSD wait: no exact gain from upgrading. Single runs on the everyday (busy) Mac, 2026-11-03; differences under ~10% are noise.",
+   "tradeoffs": "Needs PIN_GB=0 or enough free RAM to pass the new RAM guard (see guard-704a3f68).",
+   "sources": [
+    "https://github.com/JustVugg/colibri/releases/tag/v2.1.0"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 1,
+    "failed_runs": [],
+    "tok_s": 0.43,
+    "prefill_s": 23.49,
+    "rss_gb": 7.38,
+    "hit_pct": 2.1,
+    "ref_tok_s": 0.44,
+    "ref_prefill_s": 23.46,
+    "ref_rss_gb": 7.72,
+    "speed_change_pct": -2.3,
+    "prefill_change_pct": 0.1,
+    "rss_change_pct": -4.4,
+    "output": "identical"
+   },
+   "verdict": "no clear change",
+   "effects": []
+  },
+  {
+   "id": "stack-skip050-704a3f68",
+   "title": "Stack: skip < 0.5 + 12 threads on Colibri v2.1.0",
+   "category": "lossy-routing",
+   "change": "PIN_GB=0 DEGRADE_ZERO=1 DEGRADE_TAU=0.50",
+   "hypothesis": "Lossy runs are attention/CPU-overhead bound; v2.1.0's hot OpenMP team (decode up to +13%) and decode attention by KV head could move the best usable lossy stack.",
+   "ref": "r2-k-sky-skip050-t12",
+   "runs": [
+    "x-stack-skip050-704a3f68"
+   ],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "1.91 tok/s with skip 0.5 + 12 threads on v2.1.0 vs 1.87 on v2.0.0 (and 1.89 on dev 16239caa): no clear change. Attention is still 36% of the time; v2.1.0's decode-attention and OpenMP work did not move the attention-bound lossy stack. Single runs on the everyday (busy) Mac, 2026-11-03; differences under ~10% are noise.",
+   "tradeoffs": "Changes output (lossy).",
+   "sources": [
+    "https://github.com/JustVugg/colibri/releases/tag/v2.1.0"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 1,
+    "failed_runs": [],
+    "tok_s": 1.91,
+    "prefill_s": 23.7,
+    "rss_gb": 6.93,
+    "hit_pct": 35.8,
+    "ref_tok_s": 1.87,
+    "ref_prefill_s": 23.46,
+    "ref_rss_gb": 7.59,
+    "speed_change_pct": 2.1,
+    "prefill_change_pct": 1.0,
+    "rss_change_pct": -8.7,
+    "output": "identical"
+   },
+   "verdict": "no clear change",
+   "effects": []
+  },
+  {
+   "id": "omp-default-skip050-704a3f68",
+   "title": "v2.1.0's own thread team (M6 fix, no OMP_NUM_THREADS), skip < 0.5",
+   "category": "threads",
+   "change": "OMP_NUM_THREADS= PIN_GB=0 DEGRADE_ZERO=1 DEGRADE_TAU=0.50",
+   "hypothesis": "colibri#2194 fix (171f03fc, in v2.1.0): on an M6 the default team is the Super + Performance tiers (6 threads), not 2. If it matches 12 threads, OMP_NUM_THREADS=12 is no longer needed.",
+   "ref": "x-stack-skip050-704a3f68",
+   "runs": [
+    "x-omp-default-skip050-704a3f68"
+   ],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "colibri#2194 is fixed in v2.1.0: without OMP_NUM_THREADS the engine now picks 6 threads on the M6 (Super + Performance cores) instead of 2, and runs at 1.87 tok/s vs 1.91 with 12 threads: the same within noise. On v2.1.0, OMP_NUM_THREADS=12 is no longer needed. Single runs on the everyday (busy) Mac, 2026-11-03; differences under ~10% are noise.",
+   "tradeoffs": "6 threads leave the efficiency cores free (less heat). Changes output (lossy, skip 0.5).",
+   "sources": [
+    "https://github.com/JustVugg/colibri/commit/171f03fc",
+    "https://github.com/JustVugg/colibri/issues/2194"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 1,
+    "failed_runs": [],
+    "tok_s": 1.87,
+    "prefill_s": 23.56,
+    "rss_gb": 7.43,
+    "hit_pct": 35.8,
+    "ref_tok_s": 1.91,
+    "ref_prefill_s": 23.7,
+    "ref_rss_gb": 6.93,
+    "speed_change_pct": -2.1,
+    "prefill_change_pct": -0.6,
+    "rss_change_pct": 7.2,
+    "output": "identical"
+   },
+   "verdict": "no clear change",
+   "effects": []
+  },
+  {
+   "id": "everyday-skip030-704a3f68",
+   "title": "Everyday setting (skip < 0.3 + 12 threads) on Colibri v2.1.0",
+   "category": "lossy-routing",
+   "change": "PIN_GB=0 DEGRADE_ZERO=1 DEGRADE_TAU=0.30",
+   "hypothesis": "The owner's everyday setting is more SSD-bound than skip 0.5; check v2.1.0 keeps or improves it before suggesting the upgrade.",
+   "ref": "r2-k-sky-skip030-t12",
+   "runs": [
+    "x-everyday-skip030-704a3f68",
+    "x-everyday-skip030-704a3f68-r2"
+   ],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "Everyday setting on v2.1.0: 1.01 and 0.98 tok/s (two runs) vs 0.92 on v2.0.0, identical text. About +8%, consistent across the repeat but under the 10% noise threshold, and the reference is from an earlier day. Attention share fell from 24% to 19-20%, which fits v2.1.0's decode attention by KV head. Likely a small real gain; confirm in a quiet run before calling it. Single runs on the everyday (busy) Mac, 2026-11-03; differences under ~10% are noise.",
+   "tradeoffs": "Changes output (lossy, skip 0.3), the same text as v2.0.0. Upgrading the installed engine is the owner's call.",
+   "sources": [
+    "https://github.com/JustVugg/colibri/releases/tag/v2.1.0"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 2,
+    "failed_runs": [],
+    "tok_s": 0.995,
+    "prefill_s": 23.465,
+    "rss_gb": 8.34,
+    "hit_pct": 11.9,
+    "ref_tok_s": 0.92,
+    "ref_prefill_s": 23.45,
+    "ref_rss_gb": 7.72,
+    "speed_change_pct": 8.2,
+    "prefill_change_pct": 0.1,
+    "rss_change_pct": 8.0,
+    "output": "identical"
+   },
+   "verdict": "no clear change",
+   "effects": []
+  },
+  {
+   "id": "omp-default-skip030-704a3f68",
+   "title": "v2.1.0's own thread team (no OMP_NUM_THREADS), skip < 0.3",
+   "category": "threads",
+   "change": "OMP_NUM_THREADS= PIN_GB=0 DEGRADE_ZERO=1 DEGRADE_TAU=0.30",
+   "hypothesis": "Same as the skip 0.5 check, at the owner's everyday setting: does the fixed default team (6 threads) match 12?",
+   "ref": "x-everyday-skip030-704a3f68",
+   "runs": [
+    "x-omp-default-skip030-704a3f68"
+   ],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "At the everyday setting v2.1.0's own 6-thread team gives 0.99 tok/s vs 1.01 with 12 threads: the same. OMP_NUM_THREADS=12 can be dropped on v2.1.0. Single runs on the everyday (busy) Mac, 2026-11-03; differences under ~10% are noise.",
+   "tradeoffs": "Changes output (lossy, skip 0.3).",
+   "sources": [
+    "https://github.com/JustVugg/colibri/commit/171f03fc"
+   ],
+   "metrics": {
+    "measured": true,
+    "n_runs": 1,
+    "failed_runs": [],
+    "tok_s": 0.99,
+    "prefill_s": 23.52,
+    "rss_gb": 7.57,
+    "hit_pct": 11.9,
+    "ref_tok_s": 1.01,
+    "ref_prefill_s": 23.48,
+    "ref_rss_gb": 8.16,
+    "speed_change_pct": -2.0,
+    "prefill_change_pct": 0.2,
+    "rss_change_pct": -7.2,
+    "output": "identical"
+   },
+   "verdict": "no clear change",
+   "effects": []
+  },
+  {
+   "id": "psr-bounded-misses",
+   "title": "Prefetch-steered routing: at most n expert misses per layer",
+   "category": "lossy-routing",
+   "change": "Engine patch (clone): pick experts from the cache plus at most n new ones per layer, chosen by the next layer router; compare n=1,2,4 against skip 0.3/0.5 at equal bytes per token (sky, 48 tokens, ref x-everyday-skip030-704a3f68)",
+   "hypothesis": "PSR (arXiv 2610.34721) bounds expert insertions per layer and reports 2.2x over exact routing + LRU at small quality cost. A bounded miss budget is a direct SSD byte budget per token; unlike DEGRADE_ZERO it keeps 8 experts by substituting cached ones.",
+   "ref": null,
+   "runs": [],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "Planned: an engine patch in a separate clone (no Colibri knob exists; CACHE_ROUTE only reorders within top-M and found ~0% swaps at cap 1), then the quality bench. Only tested up to 35B on GPUs, not SSD.",
+   "tradeoffs": "",
+   "verdict": "not run",
+   "sources": [
+    "https://arxiv.org/abs/2610.34721"
+   ],
+   "metrics": {
+    "measured": false
+   },
+   "effects": []
+  },
+  {
+   "id": "static-topk",
+   "title": "Static top-k cut (8 to 6 or 7 experts per token) vs weight skipping",
+   "category": "lossy-routing",
+   "change": "Engine patch (clone): override num_experts_per_tok (e.g. 6, renormalized) with no DEGRADE_ZERO; compare speed and quality bench with skip 0.3 at equal bytes per token",
+   "hypothesis": "\"Don't Skip the Baseline\" (arXiv 2610.28369) finds a fixed, uniform top-k cut hard to beat by dynamic skipping methods. Our skip only drops missed experts below a weight; a static k gives predictable bytes and may hold quality as well.",
+   "ref": null,
+   "runs": [],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "Planned: a small engine patch in a clone (TOPK in v2.1.0 is the sampler, not the router) and the quality bench (lossy).",
+   "tradeoffs": "",
+   "verdict": "not run",
+   "sources": [
+    "https://arxiv.org/abs/2610.28369"
+   ],
+   "metrics": {
+    "measured": false
+   },
+   "effects": []
+  },
+  {
+   "id": "kv-mla-6bit",
+   "title": "6-bit MLA latent KV cache for attention-bound lossy runs",
+   "category": "lossy-routing",
+   "change": "Engine patch (clone): store the MLA latent KV at 6 bits; measure attention share and tok/s at skip 0.5 (ref x-stack-skip050-704a3f68)",
+   "hypothesis": "Lossy runs spend ~36% of each token on attention. The sushi runtime stores GLM's MLA latent at 6 bits; fewer bytes per attention read could cut that share. v2.1.0 already has float16 KV (#2326) for long contexts; at ctx 1024 the gain may be small.",
+   "ref": null,
+   "runs": [],
+   "lossy": true,
+   "date": "2026-11-03",
+   "conclusion": "Planned: first check whether attention time at ctx 1024 is bandwidth- or dispatch-bound (PROF breakdown); then an engine patch in a clone. Unverified source (third-party runtime release notes).",
+   "tradeoffs": "",
+   "verdict": "not run",
+   "sources": [
+    "https://github.com/beamivalice/sushi/releases"
+   ],
+   "metrics": {
+    "measured": false
    },
    "effects": []
   }
