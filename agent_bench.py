@@ -90,7 +90,7 @@ def run(args):
             'started': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'model': args.model, 'thinking': args.thinking,
             'pi_version': subprocess.run(['pi', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
-            'timeout_s': args.timeout, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
+            'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
     for i, name in enumerate(names, 1):
         task = T.TASKS[name]
@@ -107,8 +107,10 @@ def run(args):
         cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
                '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
                '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-               '--no-prompt-templates', '--mode', 'json', task['instruction'] + SUFFIX]
+               '--no-prompt-templates', *(['-e', args.extension] if args.extension else []), '--mode', 'json', task['instruction'] + SUFFIX]
         env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home))
+        if args.extension:  # the guard's own log of what it did, kept with the run (written where the sandbox allows)
+            env['PI_GUARD_LOG'] = str(home / f'guard-{args.name}-{name}.jsonl')
         t0 = time.time()
         with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
             try:
@@ -123,6 +125,11 @@ def run(args):
         (tdir / 'hidden.txt').write_text(hid_out)
         (tdir / 'changes.diff').write_text(diff(task, ws))
         stats = summarize(tdir / 'pi.jsonl')
+        guard_log = home / f'guard-{args.name}-{name}.jsonl'
+        if guard_log.exists():
+            guard_log.replace(tdir / 'guard.jsonl')
+            events = [json.loads(l) for l in (tdir / 'guard.jsonl').read_text().splitlines() if l.strip()]
+            stats['guard'] = {k: sum(e['event'] == k for e in events) for k in ('adjusted', 'repaired', 'nudged', 'stall', 'out-of-nudges')}
         tests_changed = any(rel.startswith('test_') and Path(ws, rel).read_text() != text
                             for rel, text in task['files'].items() if Path(ws, rel).exists())
         rec = dict(task=name, area=task['area'], model=args.model, thinking=args.thinking, exit=exit_code,
@@ -180,6 +187,7 @@ def main():
     r.add_argument('--only', default='')
     r.add_argument('--timeout', type=int, default=1200)
     r.add_argument('--no-lock', action='store_true', help=argparse.SUPPRESS)
+    r.add_argument('--extension', default='', help='a pi extension to load for the run, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
     p.add_argument('--out', required=True)
