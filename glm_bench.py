@@ -7,6 +7,7 @@ processing, generation, output text and a pass/fail grade.
     .venv/bin/python glm_bench.py run --name NAME [--configs exact,d030,d050] [--styles normal,terse]
     .venv/bin/python glm_bench.py run --name NAME --backend ollama --ollama-model qwen3.8:27b-mlx --configs exact
     .venv/bin/python glm_bench.py run --name NAME --backend openai --openai-url http://127.0.0.1:8771 --openai-model M --configs exact
+    .venv/bin/python glm_bench.py run --name NAME --backend ollama --ollama-model M --prompts benches/coding-v1.json --styles normal --ngen 2048
     .venv/bin/python glm_bench.py report --name NAME
 
 Runs are resumable: a finished (prompt, style, config) is skipped. Every run uses
@@ -37,6 +38,8 @@ CONFIGS = {
 OLLAMA_CONFIGS = {
     'exact': {'think': False, 'options': {'temperature': 0}},
     'native': {'options': {}, 'num_predict': 4096},
+    # native with room for long thinking plus code (coding benches), so cut-off answers do not decide the grade
+    'native-long': {'options': {}, 'num_predict': 12000},
 }
 ENGINE_LINE = re.compile(r'^(\[[A-Z][A-Z0-9_ -]*\]|PROFIL|PROFILE:|ATTENTION:|P0-EXEC:|METAL|PILOT|DEGRADE_ZERO )')
 
@@ -181,7 +184,8 @@ def rerun_archive(out_dir, keys):
 
 
 def run(args):
-    spec = json.loads((ROOT / 'glm-prompts.json').read_text())
+    prompts = getattr(args, 'prompts', 'glm-prompts.json')
+    spec = json.loads((ROOT / prompts).read_text())
     out_dir = ROOT / 'results' / f'glm-bench-{args.name}'
     out_dir.mkdir(parents=True, exist_ok=True)
     lock = (ROOT / '.bench.lock').open('w')
@@ -215,7 +219,7 @@ def run(args):
                                     **engine, 'base_env': {} if ollama or openai else BASE_ENV,
                                     'configs': {} if ollama or openai else {c: CONFIGS[c] for c in configs},
                                     'styles': {s: spec['styles'][s] for s in styles},
-                                    'ram': args.ram, 'ctx': args.ctx, 'ngen': args.ngen}, indent=1))
+                                    'prompts': prompts, 'ram': args.ram, 'ctx': args.ctx, 'ngen': args.ngen}, indent=1))
     if getattr(args, 'rerun', False):
         rerun_archive(out_dir, [f"{i['id']}__{st}__{c}" for st in styles for i in items for c in configs])
     total = len(items) * len(styles) * len(configs)
@@ -357,6 +361,7 @@ def main():
     r.add_argument('--configs', default='exact,d030,d050')
     r.add_argument('--styles', default='normal,terse')
     r.add_argument('--only', default='')
+    r.add_argument('--prompts', default='glm-prompts.json', help='prompt file, relative to the lab (e.g. benches/coding-v1.json)')
     r.add_argument('--ngen', type=int, default=128)
     r.add_argument('--ram', default='18')
     r.add_argument('--ctx', default='1024')

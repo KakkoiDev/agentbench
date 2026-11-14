@@ -1,0 +1,134 @@
+{
+ "note": "coding-v1: 18 coding tasks graded by running hidden tests (built by benches/coding-v1/build.py).",
+ "styles": {
+  "normal": ""
+ },
+ "prompts": [
+  {
+   "id": "code-merge-intervals",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function merge_intervals(intervals) that takes a list of [start, end] pairs (in any order) and returns a new list of merged, sorted, non-overlapping [start, end] pairs. Intervals that touch, such as [1, 2] and [2, 3], are merged. An empty list returns [].\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert merge_intervals([])==[]\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]])==[[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,2],[2,3]])==[[1,3]]\nassert merge_intervals([[5,7],[1,2]])==[[1,2],[5,7]]\nassert merge_intervals([[1,10],[2,3],[4,5]])==[[1,10]]\nx=[[3,4],[1,2]]\nmerge_intervals(x)\nassert x==[[3,4],[1,2]], 'input must not be changed'"
+  },
+  {
+   "id": "code-lru-cache",
+   "kind": "code",
+   "area": "data structures",
+   "prompt": "Write a Python class LRUCache with __init__(self, capacity), get(self, key) and put(self, key, value). get returns the value or -1 if the key is missing, and counts as a use. put inserts or updates the value and counts as a use; when the cache is over capacity it removes the least recently used key. Both operations must be O(1) on average.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "c=LRUCache(2)\nc.put(1,1); c.put(2,2)\nassert c.get(1)==1\nc.put(3,3)\nassert c.get(2)==-1\nc.put(4,4)\nassert c.get(1)==-1 and c.get(3)==3 and c.get(4)==4\nc=LRUCache(1)\nc.put('a',1); c.put('a',2)\nassert c.get('a')==2\nc.put('b',3)\nassert c.get('a')==-1 and c.get('b')==3\nc=LRUCache(2)\nc.put(1,1); c.put(2,2); c.put(1,10); c.put(3,3)\nassert c.get(1)==10 and c.get(2)==-1"
+  },
+  {
+   "id": "code-eval-expr",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function eval_expr(s) that evaluates an arithmetic expression string with non-negative integer or decimal numbers, + - * /, parentheses, unary minus (such as '-3' or '2*-(1+1)') and arbitrary spaces. Use normal precedence and left-to-right associativity; / is true division. Return a float. Do not use eval, exec or ast.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "import math\nfor s,v in [('1+2*3',7),('(1+2)*3',9),('10/4',2.5),(' 2 * ( 3 + 4 ) - 5 ',9),('-3+5',2),('2*-(1+1)',-4),('8-3-2',3),('16/4/2',2),('1.5*2',3),('--4',4),('2*(3+(4-1))*2',24)]:\n    assert math.isclose(eval_expr(s),v), (s, eval_expr(s))\nimport inspect, re\nsrc=inspect.getsource(eval_expr)\nassert not re.search(r'\\beval\\(|\\bexec\\(|import ast', src)"
+  },
+  {
+   "id": "code-parse-duration",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function parse_duration(s) that converts strings like '1h30m', '45s', '2h5s' or '1d2h3m4s' to a number of seconds (int). Units are d, h, m, s, each at most once and in that order; numbers are non-negative integers. Raise ValueError for anything else, including '', '1x', '30m1h', '1h1h', 'h' and ' 1h'.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert parse_duration('1h30m')==5400\nassert parse_duration('45s')==45\nassert parse_duration('2h5s')==7205\nassert parse_duration('1d2h3m4s')==93784\nassert parse_duration('0s')==0\nfor bad in ['', '1x', '30m1h', '1h1h', 'h', ' 1h', '1.5h', '-1h', '1h ']:\n    try:\n        parse_duration(bad)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError(bad)"
+  },
+  {
+   "id": "code-roman",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write two Python functions: to_roman(n) for 1 <= n <= 3999 returning the standard Roman numeral (subtractive forms such as IV, IX, XL, XC, CD, CM), and from_roman(s) that converts a valid Roman numeral back to an int. to_roman raises ValueError outside 1..3999.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "for n,r in [(1,'I'),(4,'IV'),(9,'IX'),(14,'XIV'),(40,'XL'),(90,'XC'),(400,'CD'),(1994,'MCMXCIV'),(3999,'MMMCMXCIX'),(2024,'MMXXIV')]:\n    assert to_roman(n)==r and from_roman(r)==n, n\nassert all(from_roman(to_roman(n))==n for n in range(1,4000))\nfor bad in (0,4000,-5):\n    try: to_roman(bad)\n    except ValueError: pass\n    else: raise AssertionError(bad)"
+  },
+  {
+   "id": "code-topo-sort",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function topo_sort(deps) where deps maps each task name (str) to a list of task names it depends on. Dependencies may name tasks that are not keys; treat them as tasks with no dependencies. Return a list of all tasks in an order where every task comes after its dependencies; when several tasks are ready, pick them in alphabetical order. Raise ValueError if there is a cycle.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert topo_sort({})==[]\nassert topo_sort({'b':['a'],'a':[]})==['a','b']\nassert topo_sort({'c':['a','b'],'b':['a']})==['a','b','c']\nassert topo_sort({'x':[],'b':[],'a':[]})==['a','b','x']\nassert topo_sort({'app':['lib','util'],'lib':['util'],'test':['app']})==['util','lib','app','test']\nfor cyc in ({'a':['b'],'b':['a']},{'a':['a']},{'a':['b'],'b':['c'],'c':['a'],'d':[]}):\n    try: topo_sort(cyc)\n    except ValueError: pass\n    else: raise AssertionError(cyc)"
+  },
+  {
+   "id": "code-dijkstra",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function shortest_path(graph, start, end) where graph maps a node to a dict of {neighbour: non-negative edge weight} (directed edges). Return a tuple (cost, path) with the minimum total weight and the list of nodes from start to end inclusive. If end is unreachable return (float('inf'), []). If start == end return (0, [start]). Nodes may appear only as neighbours.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "g={'a':{'b':1,'c':4},'b':{'c':2,'d':5},'c':{'d':1},'d':{}}\nassert shortest_path(g,'a','d')==(4,['a','b','c','d'])\nassert shortest_path(g,'a','a')==(0,['a'])\nassert shortest_path(g,'d','a')==(float('inf'),[])\nassert shortest_path({'a':{'z':3}},'a','z')==(3,['a','z'])\nassert shortest_path({'s':{'x':0,'y':5},'x':{'y':1}},'s','y')==(1,['s','x','y'])\nbig={i:{i+1:1,i+2:3} for i in range(20000)}\nc,p=shortest_path(big,0,20000)\nassert c==20000 and len(p)==20001"
+  },
+  {
+   "id": "code-flatten-json",
+   "kind": "code",
+   "area": "data processing",
+   "prompt": "Write a Python function flatten(obj) that flattens nested dicts and lists into a single dict with dotted keys. List items use their index as the key part. For example flatten({'a': {'b': 1, 'c': [10, {'d': 2}]}}) returns {'a.b': 1, 'a.c.0': 10, 'a.c.1.d': 2}. Empty dicts and empty lists are kept as values at their key, such as {'x': {}} -> {'x': {}}. A top-level non-container returns {'': obj}.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert flatten({'a':{'b':1,'c':[10,{'d':2}]}})=={'a.b':1,'a.c.0':10,'a.c.1.d':2}\nassert flatten({'x':{}, 'y':[]})=={'x':{}, 'y':[]}\nassert flatten({})=={}\nassert flatten([1,[2,3]])=={'0':1,'1.0':2,'1.1':3}\nassert flatten(5)=={'':5}\nassert flatten({'a':None,'b':{'c':False}})=={'a':None,'b.c':False}"
+  },
+  {
+   "id": "code-fix-binary-search",
+   "kind": "code",
+   "area": "bug fixing",
+   "prompt": "This function should return the index of target in the sorted list xs, or -1 if it is absent, but it has bugs. Fix it and keep the name and signature.\n\n```python\ndef binary_search(xs, target):\n    lo, hi = 0, len(xs)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if xs[mid] == target:\n            return mid\n        elif xs[mid] < target:\n            lo = mid\n        else:\n            hi = mid - 1\n    return -1\n```\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "import random\nassert binary_search([],1)==-1\nassert binary_search([1],1)==0\nassert binary_search([1,3],3)==1\nassert binary_search([1,3],2)==-1\nfor n in range(0,40):\n    xs=list(range(0,2*n,2))\n    for t in range(-1,2*n+1):\n        r=binary_search(xs,t)\n        assert r==(xs.index(t) if t in xs else -1),(xs,t,r)"
+  },
+  {
+   "id": "code-fix-moving-average",
+   "kind": "code",
+   "area": "bug fixing",
+   "prompt": "These functions have bugs. chunk(lst, n) should split lst into consecutive lists of length n (the last may be shorter) and raise ValueError if n < 1. moving_average(xs, k) should return the list of averages of every window of k consecutive values (len(xs) - k + 1 results, [] if k > len(xs)) and raise ValueError if k < 1. Fix both and keep the names and signatures.\n\n```python\ndef chunk(lst, n):\n    return [lst[i:i + n] for i in range(0, len(lst) - n, n)]\n\ndef moving_average(xs, k):\n    out = []\n    total = sum(xs[:k])\n    for i in range(k, len(xs)):\n        out.append(total / k)\n        total += xs[i] - xs[i - k + 1]\n    return out\n```\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert chunk([1,2,3,4,5],2)==[[1,2],[3,4],[5]]\nassert chunk([1,2,3,4],2)==[[1,2],[3,4]]\nassert chunk([],3)==[]\nassert chunk([1],5)==[[1]]\nfor bad in (0,-1):\n    try: chunk([1],bad)\n    except ValueError: pass\n    else: raise AssertionError\nassert moving_average([1,2,3,4,5],2)==[1.5,2.5,3.5,4.5]\nassert moving_average([1,2,3],3)==[2.0]\nassert moving_average([1,2],3)==[]\nassert moving_average([5],1)==[5.0]\ntry: moving_average([1],0)\nexcept ValueError: pass\nelse: raise AssertionError"
+  },
+  {
+   "id": "code-wrap-text",
+   "kind": "code",
+   "area": "strings",
+   "prompt": "Write a Python function wrap(text, width) that splits text into words on whitespace and returns a list of lines, each at most width characters. Fill lines greedily, joining words with single spaces. A word longer than width is split into pieces of exactly width characters (the last piece may be shorter), and those pieces fill lines like words. Empty or blank text returns []. Raise ValueError if width < 1.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert wrap('the quick brown fox',10)==['the quick','brown fox']\nassert wrap('',5)==[] and wrap('   ',5)==[]\nassert wrap('a b c d',3)==['a b','c d']\nassert wrap('abcdefghij',4)==['abcd','efgh','ij']\nassert wrap('hi abcdefgh yo',4)==['hi','abcd','efgh','yo']\nassert wrap('one\\ntwo  three',9)==['one two','three']\nassert all(len(l)<=7 for l in wrap('lorem ipsum dolor sit amet consectetur adipiscing',7))\ntry: wrap('x',0)\nexcept ValueError: pass\nelse: raise AssertionError"
+  },
+  {
+   "id": "code-csv-line",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function parse_csv_line(line) that splits one CSV line into a list of field strings, without using the csv module. Fields are separated by commas. A field may be wrapped in double quotes; inside quotes, commas are literal and two double quotes \"\" stand for one double quote. Unquoted fields are taken as-is (no trimming). An empty line gives ['']. Raise ValueError for an unterminated quote.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert parse_csv_line('a,b,c')==['a','b','c']\nassert parse_csv_line('')==['']\nassert parse_csv_line('a,,c,')==['a','','c','']\nassert parse_csv_line('\"x,y\",z')==['x,y','z']\nassert parse_csv_line('\"say \"\"hi\"\"\",2')==['say \"hi\"','2']\nassert parse_csv_line(' a , b ')==[' a ',' b ']\nassert parse_csv_line('\"\"')==['']\ntry: parse_csv_line('\"abc')\nexcept ValueError: pass\nelse: raise AssertionError\nimport inspect\nassert 'csv' not in inspect.getsource(parse_csv_line).replace('parse_csv_line','')"
+  },
+  {
+   "id": "code-rate-limiter",
+   "kind": "code",
+   "area": "data structures",
+   "prompt": "Write a Python class RateLimiter with __init__(self, max_calls, period) and allow(self, t) where t is a timestamp in seconds (float, non-decreasing across calls). allow returns True and records the call if fewer than max_calls calls were allowed in the half-open window (t - period, t]; otherwise it returns False and records nothing. It must stay fast when called millions of times.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "r=RateLimiter(2,10)\nassert r.allow(0) and r.allow(1) and not r.allow(2)\nassert not r.allow(9.99)\nassert r.allow(10)\nassert not r.allow(10.5)\nassert r.allow(11)\nr=RateLimiter(1,1)\nassert r.allow(0) and not r.allow(0.5) and r.allow(1) and r.allow(2)\nimport time\nr=RateLimiter(100,1.0); t0=time.time()\nfor i in range(300000): r.allow(i*0.001)\nassert time.time()-t0<3, 'too slow'"
+  },
+  {
+   "id": "code-count-primes",
+   "kind": "code",
+   "area": "performance",
+   "prompt": "Write a Python function count_primes(n) that returns how many prime numbers are strictly less than n, for 0 <= n <= 5_000_000. It must finish count_primes(5_000_000) in under 3 seconds in plain CPython.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "import time\nassert [count_primes(n) for n in (0,1,2,3,10,100)]==[0,0,0,1,4,25]\nt=time.time(); assert count_primes(5_000_000)==348513; assert time.time()-t<3, time.time()-t"
+  },
+  {
+   "id": "code-lcs",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function lcs(a, b) that returns one longest common subsequence of strings a and b (characters in order, not necessarily contiguous). It must handle strings of 2000 characters each in a few seconds.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "def is_sub(s,t):\n    it=iter(t); return all(c in it for c in s)\nfor a,b,n in [('ABCBDAB','BDCABA',4),('','abc',0),('abc','abc',3),('abc','def',0),('AGGTAB','GXTXAYB',4)]:\n    r=lcs(a,b); assert len(r)==n and is_sub(r,a) and is_sub(r,b),(a,b,r)\nimport random, time\nrandom.seed(1); a=''.join(random.choice('ACGT') for _ in range(2000)); b=''.join(random.choice('ACGT') for _ in range(2000))\nt=time.time(); r=lcs(a,b); assert is_sub(r,a) and is_sub(r,b) and len(r)==1299, len(r); assert time.time()-t<8"
+  },
+  {
+   "id": "code-spiral",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function spiral(matrix) that returns the elements of a rectangular list-of-lists matrix in clockwise spiral order, starting at the top-left. An empty matrix ([] or [[]]) returns [].\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert spiral([[1,2,3],[4,5,6],[7,8,9]])==[1,2,3,6,9,8,7,4,5]\nassert spiral([[1,2,3,4],[5,6,7,8],[9,10,11,12]])==[1,2,3,4,8,12,11,10,9,5,6,7]\nassert spiral([])==[] and spiral([[]])==[]\nassert spiral([[1],[2],[3]])==[1,2,3]\nassert spiral([[1,2,3]])==[1,2,3]\nassert spiral([[1,2],[3,4],[5,6]])==[1,2,4,6,5,3]"
+  },
+  {
+   "id": "code-anagram-groups",
+   "kind": "code",
+   "area": "strings",
+   "prompt": "Write a Python function group_anagrams(words) that groups words that are anagrams of each other, ignoring letter case. Each group keeps the original words in their input order; groups are ordered by the position of their first word in the input. Return a list of lists.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert group_anagrams(['eat','tea','tan','ate','nat','bat'])==[['eat','tea','ate'],['tan','nat'],['bat']]\nassert group_anagrams([])==[]\nassert group_anagrams(['Listen','Silent','enlist','x'])==[['Listen','Silent','enlist'],['x']]\nassert group_anagrams(['a','a'])==[['a','a']]"
+  },
+  {
+   "id": "code-regex-match",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function is_match(s, p) that returns whether the whole string s matches pattern p, where '.' matches any single character and '*' means zero or more of the preceding element. Do not use the re module. Patterns are always valid.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "cases=[('aa','a',False),('aa','a*',True),('ab','.*',True),('aab','c*a*b',True),('mississippi','mis*is*p*.',False),('','',True),('','a*b*',True),('a','',False),('abcd','.*d',True),('ab','.*c',False),('aaa','a*a',True),('aaa','ab*a*c*a',True)]\nfor s,p,v in cases: assert is_match(s,p)==v,(s,p)\nassert is_match('a'*30,'a*'*15+'b')==False\nimport inspect\nsrc=inspect.getsource(is_match)\nassert 'import re' not in src and 're.' not in src"
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+(version 1)
+; Sandbox for agent_bench.py runs (pi working on a task copy). Reads are open (node, pi and ollama
+; config need them) except secrets; writes are limited to the workspace, the
+; worker's own session folder and temp dirs; network is limited to localhost.
+; WORKSPACE, SESSIONS and HOME are passed in with sandbox-exec -D.
+(allow default)
+
+(deny file-write*)
+(allow file-write*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath "/private/tmp")
+  (subpath "/private/var/folders")
+  (literal "/dev/null")
+  (regex #"^/dev/tty")
+  (regex #"^/dev/fd/"))
+
+(deny file-read*
+  (subpath (string-append (param "HOME") "/.ssh"))
+  (subpath (string-append (param "HOME") "/.gnupg"))
+  (subpath (string-append (param "HOME") "/.aws"))
+  (subpath (string-append (param "HOME") "/.config/gh"))
+  (subpath (string-append (param "HOME") "/.local/state/dropbox-agent"))
+  (subpath (string-append (param "HOME") "/Library/Keychains"))
+  (literal (string-append (param "HOME") "/.pi/agent/auth.json")))
+
+(deny network-outbound)
+(allow network-outbound
+  (remote ip "localhost:*")
+  (remote unix-socket))
