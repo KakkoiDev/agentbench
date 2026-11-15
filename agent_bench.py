@@ -97,14 +97,15 @@ def diff(task, workspace):
     return ''.join(out)
 
 
-def attempt(args, task, name, tdir, home, exts, extra_env=None):
+def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None):
     """One pi run of one task in tdir/workspace; returns its result record."""
     key = f'{args.name}-{name}-{time.time_ns()}'  # log names stay apart when attempts run at once
+    model = model or args.model
     ws = tdir / 'workspace'
     ws.mkdir(parents=True)
     T.write_files(task, ws)
     cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
-           '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
+           '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', model, '--thinking', args.thinking, '--offline',
            '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
            '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', task['instruction'] + SUFFIX]
     env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), **(extra_env or {}))
@@ -137,7 +138,7 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None):
         stats['boost'] = {k: sum(e['event'] == k for e in events) for k in sorted({e['event'] for e in events})}
     tests_changed = any(rel.startswith('test_') and Path(ws, rel).read_text() != text
                         for rel, text in task['files'].items() if Path(ws, rel).exists())
-    rec = dict(task=name, area=task['area'], model=args.model, thinking=args.thinking, exit=exit_code,
+    rec = dict(task=name, area=task['area'], model=model, thinking=args.thinking, exit=exit_code,
                timed_out=timed_out, wall_s=round(wall, 1), visible_pass=vis_ok, hidden_passed=passed,
                hidden_total=total, solved=bool(total) and passed == total, original_tests_changed=tests_changed, **stats)
     return rec
@@ -146,6 +147,7 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None):
 def several(args, task, name, tdir, home, exts):
     """--attempts N: N runs at once, keep the first whose visible tests pass (hidden tests are never used to pick).
     --escalate EFFORT: when no kept run passes its visible tests, run once more at that gpt-oss reasoning effort.
+    --escalate-model MODEL: the same, handing that one more run to another model.
     Time is the wall time of the whole thing; tool calls and tokens are summed over every run."""
     tdir.mkdir(parents=True)
     t0 = time.time()
@@ -153,15 +155,16 @@ def several(args, task, name, tdir, home, exts):
         recs = list(ex.map(lambda k: attempt(args, task, name, tdir / f'try{k}', home, exts), range(1, args.attempts + 1)))
     pick = next((r for r in recs if r['visible_pass']), recs[0])
     escalated = False
-    if args.escalate and not pick['visible_pass']:
-        r = attempt(args, task, name, tdir / 'escalated', home, exts, {'PI_GUARD_GPT_OSS_EFFORT': args.escalate})
+    if (args.escalate or args.escalate_model) and not pick['visible_pass']:
+        r = attempt(args, task, name, tdir / 'escalated', home, exts,
+                    {'PI_GUARD_GPT_OSS_EFFORT': args.escalate} if args.escalate else None, args.escalate_model or None)
         recs.append(r)
         escalated = True
         if r['visible_pass']:
             pick = r
     rec = dict(pick, wall_s=round(time.time() - t0, 1), tool_calls=sum(r['tool_calls'] for r in recs),
                output_tokens=sum(r['output_tokens'] for r in recs), picked=recs.index(pick) + 1, escalated=escalated,
-               runs=[dict(solved=r['solved'], visible_pass=r['visible_pass'], wall_s=r['wall_s']) for r in recs])
+               runs=[dict(model=r['model'], solved=r['solved'], visible_pass=r['visible_pass'], wall_s=r['wall_s']) for r in recs])
     return rec
 
 
@@ -176,7 +179,7 @@ def run(args):
     meta = out_dir / 'meta.json'
     if not meta.exists():
         meta.write_text(json.dumps({
-            'started': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'bench': args.bench, 'model': args.model, 'thinking': args.thinking,
+            'started': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'bench': args.bench, 'model': args.model, 'escalate_model': args.escalate_model or None, 'thinking': args.thinking,
             'pi_version': subprocess.run(['pi', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
@@ -199,7 +202,7 @@ def run(args):
         if tdir.exists():  # an interrupted attempt: keep it under attempts/
             (out_dir / 'attempts').mkdir(exist_ok=True)
             tdir.replace(out_dir / 'attempts' / f'{name}-{time.time_ns()}')
-        if args.attempts > 1 or args.escalate:
+        if args.attempts > 1 or args.escalate or args.escalate_model:
             rec = several(args, task, name, tdir, home, exts)
         else:
             rec = attempt(args, task, name, tdir, home, exts)
@@ -264,6 +267,7 @@ def main():
     r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
     r.add_argument('--attempts', type=int, default=1, help='runs per task at once; keep the first that passes its visible tests')
     r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
+    r.add_argument('--escalate-model', default='', help='another pi model (e.g. ollama/qwen3.8:27b-mlx) for one more run when visible tests still fail')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
