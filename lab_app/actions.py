@@ -21,7 +21,7 @@ STATE = ROOT / 'results' / 'lab-app'
 LOGS = STATE / 'logs'
 PY = str(ROOT / '.venv' / 'bin' / 'python')
 SAFE = re.compile(r'^[A-Za-z0-9._-]{1,80}$')
-GPU_KINDS = {'planned', 'bench', 'quiet', 'suite', 'concurrency'}
+GPU_KINDS = {'planned', 'bench', 'quiet', 'suite', 'concurrency', 'coding', 'agentic'}
 SUITE_BENCHES = {'speed', 'threads', 'ram'}
 QUIET_FLAGS = {'ram-sweep', 'skip-original', 'experiments-only', 'skip-experiments'}
 _lock = threading.RLock()
@@ -102,6 +102,25 @@ def ollama_models():
     return {l.split()[0] for l in out.splitlines()[1:] if l.strip()}
 
 
+CODING_CONFIGS = {'exact', 'native-long'}
+AGENTIC_THINKING = ('off', 'minimal', 'low', 'medium', 'high')
+# pi-core's local-model guard (github.com/KakkoiDev/pi-core); PI_CORE_DIR points elsewhere if needed
+GUARD_EXTENSION = Path(os.environ.get('PI_CORE_DIR', Path.home() / 'Code' / 'pi-core')) / 'local-model-guard' / 'index.ts'
+
+
+def model_slug(om):
+    """qwen3.8:27b-mlx -> qwen3-8-27b-mlx (the coding and agentic results folders use this)."""
+    return re.sub(r'[^A-Za-z0-9_-]', '-', om)
+
+
+def coding_bench_name(om):
+    return 'coding-v1-' + model_slug(om)
+
+
+def agentic_run_name(om, thinking, guard=False):
+    return f"{model_slug(om)}-{thinking}" + ('-guard' if guard else '')
+
+
 def build_command(kind, args):
     """Validated argv for a lab job, plus a human title."""
     args = args or {}
@@ -138,6 +157,28 @@ def build_command(kind, args):
             argv.append('--rerun')
             again = ' · run again'
         return argv, f"Quality bench {name}{label}: {', '.join(configs)} · {', '.join(styles)}{again}"
+    if kind == 'coding':
+        om, configs = args.get('ollama_model', ''), args.get('configs') or []
+        if om not in ollama_models():
+            raise ActionError(f'not an installed Ollama model: {om}')
+        if not configs or any(c not in CODING_CONFIGS for c in configs):
+            raise ActionError(f'coding settings must be from {sorted(CODING_CONFIGS)}')
+        argv = [PY, 'glm_bench.py', 'run', '--name', coding_bench_name(om), '--backend', 'ollama', '--ollama-model', om,
+                '--prompts', 'benches/coding-v1.json', '--styles', 'normal', '--configs', ','.join(configs), '--ngen', '2048', '--timeout', '1800']
+        if args.get('rerun') is True:
+            argv.append('--rerun')
+        return argv, f"Coding bench on Ollama {om}: {', '.join(configs)}"
+    if kind == 'agentic':
+        om, thinking, guard = args.get('ollama_model', ''), args.get('thinking', 'off'), args.get('guard') is True
+        if om not in ollama_models():
+            raise ActionError(f'not an installed Ollama model: {om}')
+        if thinking not in AGENTIC_THINKING:
+            raise ActionError(f'thinking must be one of {AGENTIC_THINKING}')
+        if guard and not GUARD_EXTENSION.exists():
+            raise ActionError(f'the local-model guard is not installed at {GUARD_EXTENSION}')
+        argv = [PY, 'agent_bench.py', 'run', '--name', agentic_run_name(om, thinking, guard), '--model', 'ollama/' + om,
+                '--thinking', thinking, '--timeout', '900'] + (['--extension', str(GUARD_EXTENSION)] if guard else []) + (['--rerun'] if args.get('rerun') is True else [])
+        return argv, f"Agentic coding bench on Ollama {om}: thinking {thinking}" + (' · local-model guard' if guard else '')
     if kind == 'concurrency':
         model = args.get('ollama_model', '')
         style, profile = args.get('style', 'terse'), args.get('profile', 'native')

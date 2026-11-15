@@ -92,6 +92,12 @@ def run(args):
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
+    if args.rerun:  # measure again: earlier task runs move to attempts/rerun-<time>/ (kept, never deleted)
+        dest = out_dir / 'attempts' / f'rerun-{time.strftime("%Y%m%dT%H%M%S")}'
+        for name in names:
+            if (out_dir / name).exists():
+                dest.mkdir(parents=True, exist_ok=True)
+                (out_dir / name).replace(dest / name)
     for i, name in enumerate(names, 1):
         task = T.TASKS[name]
         tdir = out_dir / name
@@ -187,6 +193,7 @@ def main():
     r.add_argument('--only', default='')
     r.add_argument('--timeout', type=int, default=1200)
     r.add_argument('--no-lock', action='store_true', help=argparse.SUPPRESS)
+    r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
     r.add_argument('--extension', default='', help='a pi extension to load for the run, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)

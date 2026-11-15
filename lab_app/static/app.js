@@ -1,7 +1,7 @@
 /* GLM lab control app. All data comes from lab_app/server.py's /api/*; the design system is
    lab.css (documented in docs/lab-app/design-system.md). Text from the lab (answers, logs,
    titles) is always inserted as text, never as HTML.
-   Main tasks get the primary navigation: Run benchmarks, Results, Models. Everything else
+   Main tasks get the primary navigation: Compare models, Run a benchmark, Results, Models, Add a test. Everything else
    lives under "More tools". */
 (function () {
   'use strict';
@@ -15,13 +15,14 @@
     benches: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', runs: 'M4 17l6-5-6-5M12 19h8',
     research: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',
     queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16',
-    settings: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4'
+    settings: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4',
+    compare: 'M4 20V10M10 20V4M16 20v-7M22 20H2', run: 'M7 4l12 8-12 8z', guide: 'M12 5v14M5 12h14'
   };
-  var SCREENS = [['dashboard', 'Run benchmarks'], ['results', 'Results'], ['models', 'Models'], ['phone', 'Open on phone']];
-  var ADVANCED = [['queue', 'Queue and logs'], ['now', 'Machine status'], ['runs', 'Engine runs'],
+  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
+  var ADVANCED = [['dashboard', 'Status and bench grid'], ['queue', 'Queue and logs'], ['now', 'Machine status'], ['runs', 'Engine runs'],
                   ['leaderboard', 'Leaderboard'], ['experiments', 'Experiments'], ['research', 'Research'], ['settings', 'Settings']];
   var CFG = { exact: 'exact', d030: 'skip 0.3', d050: 'skip 0.5', d030t12: 'skip 0.3 · 12 threads', d040t12: 'skip 0.4 · 12 threads',
-              native: 'Ollama defaults (thinking on)' };
+              native: 'Ollama defaults (thinking on)', 'native-long': 'Own thinking, room to finish' };
   var timer = null;
 
   // ---------- tiny DOM helpers ----------
@@ -303,7 +304,7 @@
         h('span', { class: 'num hint', style: 'white-space:nowrap', text: '~' + dur(q.est_s) + (q.starts_in_s != null ? ' · starts ~' + at(q.starts_in_s) : '') })));
     });
     var ready = tl.ready_not_queued || [];
-    return card([h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'Up next · timeline' }), h('span', { class: 'row', style: 'gap:12px' }, h('a', { href: '#dashboard', text: 'Start benches' }), h('a', { href: '#queue', text: 'Queue · ' + tl.queue.length + ' waiting' + (tl.paused ? ' · paused' : '') }))),
+    return card([h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'Up next · timeline' }), h('span', { class: 'row', style: 'gap:12px' }, h('a', { href: '#run', text: 'Start benches' }), h('a', { href: '#queue', text: 'Queue · ' + tl.queue.length + ' waiting' + (tl.paused ? ' · paused' : '') }))),
       rows.length ? h('ol', { class: 'stack', style: 'margin:0;padding:0;list-style:none;gap:6px;font-size:13px' }, rows) : h('p', { class: 'muted', text: 'Nothing running and nothing queued.' }),
       tl.queue.length ? h('span', { class: 'hint', text: tl.total_s != null ? 'Everything queued done ~' + at(tl.total_s) + ' (estimates from past answer and run times).' : 'Times appear once the current job reports progress.' })
         : h('span', { class: 'hint', text: 'Nothing queued after the current job.' }),
@@ -364,12 +365,12 @@
         var label = [c.t, c.u ? h('span', { class: 'u', text: c.u }) : null];
         if (!c.id || c.sortable === false) return h('th', { scope: 'col', class: c.n ? 'n' : null }, label);
         var sorted = st.key === c.id;
-        return h('th', { scope: 'col', class: (c.n ? 'n ' : '') + 'sort-th', 'aria-sort': sorted ? (st.dir === 'asc' ? 'ascending' : 'descending') : null },
+        return h('th', { scope: 'col', class: (c.n ? 'n ' : '') + 'sort-th', style: c.help ? 'position:relative' : null, 'aria-sort': sorted ? (st.dir === 'asc' ? 'ascending' : 'descending') : null },
           h('button', { type: 'button', class: 'sort', onclick: function () {
             if (st.key === c.id) st.dir = st.dir === 'asc' ? 'desc' : 'asc'; else { st.key = c.id; st.dir = c.n ? (c.best === 'min' ? 'asc' : 'desc') : 'asc'; }
             draw(); if (o.onSort) o.onSort(st.key, st.dir);
             var b = wrap.querySelector('th[aria-sort] .sort'); if (b) b.focus({ preventScroll: true }); reveal();
-          } }, h('span', {}, label)));
+          } }, h('span', {}, label)), c.help ? helpBubble('What is ' + c.t.toLowerCase() + '?', c.help) : null);
       }))));
       var tb = h('tbody');
       if (!rows.length) tb.appendChild(h('tr', {}, h('td', { colspan: o.cols.length }, h('span', { class: 'muted', text: o.emptyText || 'No rows match these filters.' }))));
@@ -421,8 +422,8 @@
     return f;
   }
   function screenResults(main, tab) {
-    tab = tab === 'parallel' || tab === 'speed' || tab === 'coverage' ? tab : 'quality';
-    return Promise.all([api('/api/benches'), api('/api/runs'), api('/api/models'), api('/api/concurrency')]).then(function (res) {
+    tab = tab === 'parallel' || tab === 'speed' || tab === 'coverage' || tab === 'agentic' ? tab : 'quality';
+    return Promise.all([api('/api/benches'), api('/api/runs'), api('/api/models'), api('/api/concurrency'), api('/api/agentic-runs')]).then(function (res) {
       var d = res[0], runs = res[1].runs, models = res[2].models;
       var benchModel = {};
       models.forEach(function (m) { benchModel[m.id] = m.name; (m.bench_names || []).forEach(function (n) { benchModel[n] = m.name; }); });
@@ -439,18 +440,18 @@
             answer_s: s.answer_s, prefill_s: s.prefill_s, tokens: s.output_tokens, tok_s: s.decode_tok_s, runs: s.runs });
         });
       });
-      var tabs = h('nav', { class: 'tabs', 'aria-label': 'Result views' }, [['quality', 'Answer quality', quality.length], ['speed', 'Speed runs', runs.length], ['coverage', 'Coverage', d.models.length], ['parallel', 'Parallel requests', (res[3].campaigns || []).length]].map(function (t) {
+      var tabs = h('nav', { class: 'tabs', 'aria-label': 'Result views' }, [['quality', 'Answer quality', quality.length], ['agentic', 'Agentic coding', res[4].runs.length], ['speed', 'Speed runs', runs.length], ['coverage', 'Coverage', d.models.length], ['parallel', 'Parallel requests', (res[3].campaigns || []).length]].map(function (t) {
         return h('a', { class: 'tab', href: '#results' + (t[0] === 'quality' ? '' : '/' + t[0]), 'aria-current': t[0] === tab ? 'page' : null }, t[1], h('span', { class: 'count', text: t[2] }));
       }));
-      var body = tab === 'parallel' ? concurrencyView(res[3].campaigns || []) : tab === 'quality' ? qualityView(quality, d) : tab === 'speed' ? speedView(runs) : coverageView(d);
+      var body = tab === 'agentic' ? agenticView(res[4].runs) : tab === 'parallel' ? concurrencyView(res[3].campaigns || []) : tab === 'quality' ? qualityView(quality, d) : tab === 'speed' ? speedView(runs) : coverageView(d);
       put(main, header('Results', 'Measured values from saved benchmark runs. Every number is a single run on this Mac unless marked otherwise.',
-        h('a', { class: 'btn', href: '#dashboard', text: 'Run a benchmark' })), tabs, body);
+        h('div', { class: 'row' }, h('a', { class: 'btn', href: '#compare', text: 'Compare models' }), h('a', { class: 'btn', href: '#run', text: 'Run a benchmark' }))), tabs, body);
     });
   }
 
   function concurrencyView(campaigns) {
     var box = h('div', { class: 'stack' }, h('p', { class: 'hint', text: 'One model, multiple clients. Total tokens/s includes all requests and waiting; per-request rate includes latency. Decode speed comes separately from server telemetry. Overlapping output streams are evidence of overlap, not proof of GPU batching. Memory sums the server process tree.' }));
-    if (!campaigns.length) box.appendChild(h('p', { text: 'No parallel-request tests yet. Select Parallel capability + stress in Run benchmarks.' }));
+    if (!campaigns.length) box.appendChild(h('p', { text: 'No parallel-request tests yet. Select Parallel capability + stress in the Status and bench grid.' }));
     campaigns.forEach(function (c) {
       if (c.parallel) {
         var p = c.parallel, rows = (p.capability ? [p.capability] : []).concat(p.stress || []);
@@ -487,14 +488,19 @@
         rowClass: function (r) { return r.lossy ? 'lossy' : null; },
         cols: [
           { id: 'model', t: 'Model', u: 'bench · answer style', key: 'model', cell: function (r) { return h('div', { class: 'cell-name' }, h('strong', { text: r.model }), h('span', { class: 'hint', text: r.bench + ' · ' + r.style })); } },
-          { id: 'config', t: 'Setting', key: function (r) { return CFG[r.config] || r.config; }, cell: function (r) { return h('div', { class: 'cell-setting' }, h('span', { text: CFG[r.config] || r.config }), r.lossy ? lossyTag() : r.config === 'exact' ? exactTag() : null); } },
+          { id: 'config', t: 'Setting', key: function (r) { return (PLAIN[r.config] || [r.config])[0]; }, cell: function (r) { return h('div', { class: 'cell-setting' }, plain(r.config), r.lossy ? lossyTag() : null); } },
           { id: 'pct', t: 'Correct', u: '% graded', n: 1, best: 'max', key: 'pctCorrect', cell: function (r) { return h('span', {}, h('strong', { text: f2(r.pctCorrect, 0) + '%' }), h('span', { class: 'hint', text: ' ' + r.correct + '/' + r.graded })); } },
-          { id: 'tok_s', t: 'Speed', u: 'tok/s', n: 1, best: 'max', key: 'tok_s', cell: function (r) { return f2(r.tok_s); } },
+          { id: 'tok_s', t: 'Writing speed', u: 'tok/s', n: 1, best: 'max', key: 'tok_s', help: GLOSSARY[7][2], cell: function (r) { return f2(r.tok_s); } },
           { id: 'answer', t: 'Answer time', u: 's, mean', n: 1, best: 'min', key: 'answer_s', cell: function (r) { return f2(r.answer_s, 1); } },
-          { id: 'same', t: 'Same as exact', u: 'answers', n: 1, key: function (r) { return r.ok ? r.same / r.ok : null; }, cell: function (r) { return r.config === 'exact' ? h('span', { class: 'hint', text: 'reference' }) : r.same + '/' + r.ok; } },
-          { id: 'prefill', t: 'Prompt read', u: 's', n: 1, best: 'min', key: 'prefill_s', cell: function (r) { return f2(r.prefill_s, 1); } },
+          { id: 'same', t: 'Same as thinking off', u: 'answers', n: 1, help: GLOSSARY[8][2], key: function (r) { return r.ok ? r.same / r.ok : null; }, cell: function (r) { return r.config === 'exact' ? h('span', { class: 'hint', text: 'reference' }) : r.same + '/' + r.ok; } },
+          { id: 'prefill', t: 'Reading time', u: 's', n: 1, best: 'min', key: 'prefill_s', help: GLOSSARY[6][2], cell: function (r) { return f2(r.prefill_s, 1); } },
           { id: 'tokens', t: 'Output', u: 'tokens', n: 1, key: 'tokens', cell: function (r) { return f2(r.tokens, 0); } },
-          { t: 'Answers', cell: function (r) { return h('a', { href: '#bench/' + encodeURIComponent(r.bench) + '?style=' + encodeURIComponent(r.style) + '&config=' + encodeURIComponent(r.config), 'aria-label': 'Answers for ' + r.model + ', ' + (CFG[r.config] || r.config) + ', ' + r.style, text: 'Answers (' + r.runs + ')' }); } }
+          { t: 'Answers', cell: function (r) {
+            var href = '#bench/' + encodeURIComponent(r.bench) + '?style=' + encodeURIComponent(r.style) + '&config=' + encodeURIComponent(r.config);
+            var failed = r.graded - r.correct;
+            return h('span', { class: 'stack', style: 'gap:2px' }, h('a', { href: href, 'aria-label': 'Answers for ' + r.model + ', ' + (CFG[r.config] || r.config) + ', ' + r.style, text: 'Answers (' + r.runs + ')' }),
+              failed > 0 ? h('a', { href: href + '&grade=false', class: 'hint', text: failed + ' failed · see why' }) : null);
+          } }
         ] }));
     }
     var order = orderField('f-quality-order', [['quality', 'Correct: highest first'], ['fastest', 'Speed: fastest first'], ['slowest', 'Speed: slowest first']], st.qSort, function () { draw(); });
@@ -518,7 +524,7 @@
           r.notes.length ? h('p', { class: 'hint', text: 'Notes in the results folder: ' + r.notes.join(', ') }) : null));
       function modelOf2(x) { var m = rows.filter(function (q) { return q.bench === x.name; })[0]; return m ? m.model : x.name; }
     })));
-    put(out, filters, count, tblBox,
+    put(out, glossaryPanel(false), filters, count, tblBox,
       h('p', { class: 'hint', text: 'Correct: automatic grading (facts and logic by expected answer, maths by final number, code by running tests). Normal answers are capped at 128 tokens, so long answers can be under-counted. Rows marked "changes output" use lossy settings.' }),
       settings);
     return out;
@@ -605,7 +611,8 @@
             h('p', { class: 'hint', style: 'white-space:normal;max-width:60ch', text: a.prompt || '' }), h('pre', { class: 'ans', text: a.text || '(no answer: the run failed or was refused)' }));
           return h('tr', { class: lossy ? 'lossy' : null }, td(h('span', { class: 'mono', style: 'white-space:nowrap', text: a.id })), td(a.style), td(h('span', { class: 'row', style: 'gap:6px;flex-wrap:nowrap' }, CFG[a.config] || a.config, lossy ? lossyTag() : null)),
             td(a.correct === true ? h('span', { class: 'verdict v-improves', text: '✓ Correct' }) : a.correct === false ? h('span', { class: 'verdict v-worse', text: '✗ Incorrect (auto)' }) : h('span', { class: 'verdict v-pending', text: 'Not graded' })),
-            td(f2(a.answer_s, 1), 'n'), td(a.output_tokens == null ? '—' : a.output_tokens, 'n'), td(det));
+            td(f2(a.answer_s, 1), 'n'), td(a.output_tokens == null ? '—' : a.output_tokens, 'n'),
+            td([det, a.correct === false && /^code-/.test(a.id) ? h('a', { href: '#task/coding/' + encodeURIComponent(name) + '/' + encodeURIComponent(a.id) + '?config=' + encodeURIComponent(a.config), text: 'Why it failed' }) : null]));
         }), 'Answers of bench ' + name));
       }
       var filters = h('div', { class: 'filters', role: 'group', 'aria-label': 'Filter answers' },
@@ -763,7 +770,7 @@
           group('g-ready', 'st-done', 'ready', 'Ready to run ', ready, qAll, quietHint(nr) + ' The quiet run also picks up ready experiments.', readyRow),
           group('g-needs', 'st-blocked', 'needs something', 'Needs something first ', needs, null, null, needsRow),
           group('g-ideas', 'st-idea', 'idea', 'Ideas ', ideas, h('span', { class: 'hint', text: 'Not runnable unattended yet: each says what it is waiting for.' }), null, ideaRow),
-          h('p', { class: 'hint' }, 'Standard benches an installed model has never had show as “never run” in the ', h('a', { href: '#dashboard', text: 'Run benchmarks' }), ' grid.'));
+          h('p', { class: 'hint' }, 'Standard benches an installed model has never had show as “never run” in the ', h('a', { href: '#dashboard', text: 'Status and bench grid' }), '.'));
       }
       function drawDone() {
         var head = h('div', { class: 'tr', role: 'row', style: 'grid-template-columns:' + DONE_COLS },
@@ -1347,7 +1354,7 @@
 
       var fin = h('div');
       var matrix = h('div', { id: 'run-matrix' });
-      put(main, header('Run benchmarks', 'Pick what to measure in the grid, then Run. Jobs run one at a time, in order.'),
+      put(main, header('Status and bench grid', 'Every bench for every model in one grid, including the GLM engine tests. For the usual case, use Run a benchmark. Jobs run one at a time, in order.'),
         tiles, matrix, live, fin);
       var lastQueue = queue.items.length + '|' + ((gpuJob() || {}).pid || '');
       drawMatrix(matrix, refreshLive);
@@ -1357,36 +1364,501 @@
   }
 
 
+  // ---------- v2 screens: Compare, Run, task pages, guide (2026-11 redesign; styles under .v2 in lab.css) ----------
+  var PLAIN = { exact: ['Thinking off', 'exact'], native: ['Own thinking', 'native'], 'native-long': ['Own thinking, room to finish', 'native-long'],
+                d030: ['Engine shortcut · skip 0.3', 'd030'], d050: ['Engine shortcut · skip 0.5', 'd050'], d030t12: ['Engine shortcut · skip 0.3 · 12 threads', 'd030t12'],
+                d040t12: ['Engine shortcut · skip 0.4 · 12 threads', 'd040t12'], off: ['Thinking off', 'off'], medium: ['Own thinking', 'medium'] };
+  var GLOSSARY = [
+    ['Thinking off', 'exact', 'Answers straight away at temperature 0 with a short answer limit. Repeatable: the same run gives the same answer.'],
+    ['Own thinking', 'native · native-long', 'The model’s default thinking and sampling, with 4,096 / 12,000 tokens of room. One sample, so it varies a little between runs.'],
+    ['As written / Brief', 'normal · terse', 'The prompt unchanged, or with “answer as briefly as possible” added.'],
+    ['Engine shortcut', 'skip 0.3 · d030t12', 'GLM engine settings that skip some expert work for speed. They change the output, so they carry the hatched tag.'],
+    ['Correct / Solved', '', 'Share of prompts graded correct. For code, the hidden tests passed.'],
+    ['Answer time', '', 'Seconds from sending the prompt to the last word.'],
+    ['Reading time', 'prefill', 'Seconds the model spent reading the prompt before writing (was “Prompt read”).'],
+    ['Writing speed', 'decode tok/s', 'Tokens written per second once it starts answering (was “Speed”).'],
+    ['Same as thinking off', '', 'How many answers match the thinking-off answer word for word. It matters for engine shortcuts, where a change means quality loss.'],
+    ['Cut off', 'truncated', 'The answer hit its token limit before finishing.']
+  ];
+  function plain(config) {
+    var p = PLAIN[config] || [config, ''];
+    return h('span', {}, h('span', { class: 'plain', text: p[0] }), p[1] && p[1] !== p[0] ? h('span', { class: 'code-name', text: p[1] }) : null);
+  }
+  function helpBubble(label, text) {
+    var tip = h('span', { class: 'tip', role: 'tooltip', hidden: '', text: text });
+    var b = h('button', { type: 'button', class: 'help-btn', 'aria-label': label, 'aria-expanded': 'false', text: '?', onclick: function (e) {
+      e.stopPropagation(); var open = tip.hasAttribute('hidden'); if (open) tip.removeAttribute('hidden'); else tip.setAttribute('hidden', '');
+      b.setAttribute('aria-expanded', String(open));
+    } });
+    return h('span', { class: 'help' }, b, tip);
+  }
+  function glossaryPanel(open) {
+    return h('div', { class: 'v2' }, h('details', { class: 'x', open: open ? '' : null }, h('summary', { text: 'What do these numbers mean?' }),
+      h('div', { class: 'inner' }, h('dl', { class: 'gloss' }, GLOSSARY.map(function (g) {
+        return h('div', {}, h('dt', {}, g[0], g[1] ? h('code', { text: g[1] }) : null), h('dd', { text: g[2] }));
+      })))));
+  }
+  function shortName(m) { var s = String(m).split(':'); return s[0].charAt(0).toUpperCase() + s[0].slice(1) + (s[1] ? ' ' + s[1].replace(/-mlx$/, '').toUpperCase() : ''); }
+  function hashParams() { var q = (location.hash.split('?')[1] || ''); return new URLSearchParams(q); }
+  function signif(gap, total) {
+    if (gap === 0) return ['No difference', 'noise'];
+    if (gap <= 1 || total <= 8 && gap <= 2) return [gap + ' task' + (gap > 1 ? 's' : '') + ' · within noise', 'noise'];
+    if (gap <= 3) return ['Small lead · ' + gap + ' tasks', 'clear'];
+    return ['Clear lead · ' + gap + ' tasks', 'clear'];
+  }
+  function perTime(c, agentic) {
+    if (!c) return '';
+    return agentic ? f2((c.per_repo_s || 0) / 60, 1) + ' min per repo' : (c.answer_s == null ? '' : (c.answer_s < 10 ? f2(c.answer_s, 1) : f2(c.answer_s, 0)) + ' s per answer');
+  }
+  function timeOf(c, agentic) { return c ? (agentic ? c.per_repo_s : c.answer_s) : null; }
+
+  function screenCompare(main) {
+    main.classList.add('v2');
+    var params = hashParams(), chosen = (params.get('models') || '').split(',').filter(Boolean);
+    return api('/api/compare?models=' + encodeURIComponent(chosen.join(','))).then(function (d) {
+      var avail = d.available.map(function (a) { return a.model; });
+      if (!chosen.length) {   // default: the two models with the most coding and agentic results
+        chosen = d.available.slice().sort(function (a, b) { return b.has.length - a.has.length; }).slice(0, 2).map(function (a) { return a.model; });
+        if (['qwen3.8:27b-mlx', 'gemma4:26b-mlx'].every(function (m) { return avail.indexOf(m) >= 0; })) chosen = ['qwen3.8:27b-mlx', 'gemma4:26b-mlx'];
+        if (chosen.length) return api('/api/compare?models=' + encodeURIComponent(chosen.join(','))).then(draw);
+      }
+      return draw(d);
+    });
+    function draw(d) {
+      var models = d.models, keys = ['key-a', 'key-b', 'key-c', 'key-d'];
+      function go(list) { location.hash = '#compare?models=' + encodeURIComponent(list.join(',')); }
+      var addSel = h('select', { class: 'input', id: 'add-model', onchange: function () { if (addSel.value) go(models.concat([addSel.value])); } },
+        h('option', { value: '', text: '+ Add a model…' }), d.available.filter(function (a) { return models.indexOf(a.model) < 0; }).map(function (a) {
+          return h('option', { value: a.model, text: a.model + ' · ' + a.has.join(', ') });
+        }));
+      var bar = h('div', { class: 'model-bar', role: 'group', 'aria-label': 'Models compared' }, models.map(function (m, i) {
+        return h('span', { class: 'model-pill' }, h('span', { class: 'key ' + keys[i], 'aria-hidden': 'true' }), m,
+          h('button', { type: 'button', 'aria-label': 'Remove ' + m, text: '×', onclick: function () { go(models.filter(function (x) { return x !== m; })); } }));
+      }), models.length < 4 ? [h('label', { class: 'sr-only', for: 'add-model', text: 'Add a model' }), addSel] : null);
+      put(main, h('header', { class: 'head' }, h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 'eyebrow', text: 'Compare models' }),
+          h('h1', { text: 'Which model is better for coding?' }),
+          h('p', { class: 'muted', text: 'Pick two or more models. Each row is one family of tests; each number is how many tasks the model solved, from one run per task.' })),
+        h('a', { class: 'btn', href: '#run?models=' + encodeURIComponent(models.join(',')), text: 'Run the missing benches' })), bar);
+      if (models.length < 1 || !d.rows.length) {
+        put(main, empty('No comparable results for these models yet. Run the coding bench for them first.', h('a', { class: 'btn btn-primary', href: '#run', text: 'Run a benchmark' })));
+        return;
+      }
+      var A = models[0], B = models[1], coding = d.rows.filter(function (r) { return r.family === 'coding'; })[0];
+      if (A && B && coding) put(main, verdictBlock(coding, d.rows, A, B));
+      put(main, scorecard(d.rows, models), h('div', { class: 'well' }, h('h2', { text: 'How sure is this?' }),
+        h('p', { style: 'font-size:14px;max-width:80ch' }, 'Every task ran once per setting. With 18 coding tasks, one task is about 6 points, so a 1-task gap is ',
+          h('b', { text: 'within noise' }), ' and a 2–3 task gap is a ', h('b', { text: 'small lead' }), '. A ', h('b', { text: 'clear lead' }),
+          ' needs 4 or more tasks, or the same winner in every family. Underlined = better value in that pair. Speed comes from this Mac only.'),
+        h('p', { class: 'row', style: 'font-size:14px' }, h('a', { href: '#results', text: 'See every result row' }), h('span', { class: 'muted', text: '·' }),
+          h('a', { href: '#results/agentic', text: 'Agentic runs' }), h('span', { class: 'muted', text: '·' }), h('a', { href: '#guide', text: 'Add a test' }))));
+    }
+    function verdictBlock(coding, rows, A, B) {
+      var a = coding.cells[A] || {}, b = coding.cells[B] || {};
+      var set = a.own && b.own ? 'own' : 'off', ca = a[set], cb = b[set];
+      if (!ca || !cb) return null;
+      var gap = ca.solved - cb.solved, lead = gap > 0 ? A : B, slow = ca.answer_s > cb.answer_s ? A : B, fast = slow === A ? B : A;
+      var ratio = Math.max(ca.answer_s, cb.answer_s) / Math.max(0.01, Math.min(ca.answer_s, cb.answer_s));
+      var s1 = gap === 0 ? shortName(A) + ' and ' + shortName(B) + ' solved the same number of coding tasks' : shortName(lead) + ' solved ' + Math.abs(gap) + ' more coding task' + (Math.abs(gap) > 1 ? 's' : '');
+      var s2 = ratio >= 1.15 ? '; ' + shortName(fast) + ' was ' + f2(ratio, 1) + '× faster.' : ', at about the same speed.';
+      var sg = signif(Math.abs(gap), ca.total);
+      var facts = [];
+      rows.forEach(function (r) {
+        var x = r.cells[A] || {}, y = r.cells[B] || {}, ag = r.family === 'agentic';
+        ['off', 'own'].forEach(function (k) {
+          if (!x[k] || !y[k]) return;
+          var g = x[k].solved - y[k].solved;
+          if (g === 0 && r.family !== 'coding' && !ag) return;
+          facts.push(h('p', {}, h('b', { text: r.title + ', ' + (k === 'off' ? 'thinking off' : 'own thinking') + ': ' }),
+            g === 0 ? 'same score' : shortName(g > 0 ? A : B) + ' +' + Math.abs(g) + (ag ? ' repo' + (Math.abs(g) > 1 ? 's' : '') : ' task' + (Math.abs(g) > 1 ? 's' : '')),
+            ', ' + perTime(x[k], ag) + ' vs ' + perTime(y[k], ag) + '.'));
+        });
+        if (ag && (x.guard || y.guard)) facts.push(h('p', {}, h('b', { text: 'Agentic coding with the local-model guard: ' }),
+          shortName(A) + ' ' + (x.guard ? x.guard.solved + '/' + x.guard.total : 'not run') + ', ' + shortName(B) + ' ' + (y.guard ? y.guard.solved + '/' + y.guard.total : 'not run') + '.'));
+      });
+      var same = rows.filter(function (r) { return r.family !== 'coding' && r.family !== 'agentic'; }).every(function (r) {
+        var x = r.cells[A] || {}, y = r.cells[B] || {};
+        return ['off', 'own'].every(function (k) { return !x[k] || !y[k] || x[k].solved === y[k].solved; });
+      });
+      if (same) facts.push(h('p', {}, h('b', { text: 'Facts, maths, logic, small code, explain: ' }), 'no difference in score.'));
+      return h('section', { class: 'v2-verdict', 'aria-label': 'Summary' },
+        h('div', { class: 'stack', style: 'gap:8px' }, h('span', { class: 'eyebrow', text: 'In one sentence' }), h('p', { class: 'big', text: s1 + s2 }),
+          h('p', { class: 'muted', style: 'font-size:14px', text: 'With ' + (set === 'own' ? 'its own thinking on' : 'thinking off') + ', ' + shortName(A) + ' solved ' + ca.solved + ' of ' + ca.total +
+            ' coding tasks and ' + shortName(B) + ' ' + cb.solved + '. ' + (Math.abs(gap) <= 1 ? 'That gap is within noise: one more run could move it by a task either way.' : sg[0] + '.') })),
+        h('div', { class: 'facts' }, h('span', { class: 'eyebrow', text: 'Worth it?' }), facts));
+    }
+    function scorecard(rows, models) {
+      var two = models.length === 2;
+      var t = h('table', { class: 'v2-score' }, h('caption', { class: 'hint', text: 'Tasks solved per family. Thinking off is repeatable (temperature 0); the model’s own thinking varies a little between runs. Time is the median per answer (per repo for agentic). Quality families use brief answers; coding uses the prompt as written.' }));
+      t.appendChild(h('thead', {}, h('tr', {}, h('th', { scope: 'col', rowspan: 2, style: 'vertical-align:bottom', text: 'Test family' }),
+        h('th', { scope: 'colgroup', colspan: models.length, class: 'grp' }, 'Thinking off', helpBubble('What is thinking off?', GLOSSARY[0][2])),
+        h('th', { scope: 'colgroup', colspan: models.length, class: 'grp sep' }, 'The model’s own thinking', helpBubble('What is the model’s own thinking?', GLOSSARY[1][2])),
+        two ? h('th', { scope: 'col', rowspan: 2, class: 'sep', style: 'vertical-align:bottom', text: 'What it means' }) : null),
+        h('tr', {}, ['off', 'own'].map(function (k) { return models.map(function (m, i) { return h('th', { scope: 'col', class: i === 0 && k === 'own' ? 'sep' : null, text: shortName(m) }); }); }))));
+      var tb = h('tbody');
+      rows.forEach(function (r) {
+        var ag = r.family === 'agentic', tr = h('tr');
+        var hint = ag ? 'repos, the model uses tools' : r.family === 'coding' ? 'tasks, hidden tests' : 'prompts';
+        var anyTotal = models.map(function (m) { var c = r.cells[m] || {}; return (c.off || c.own || {}).total; }).filter(Boolean)[0];
+        var link = r.family === 'coding' ? '#results' : ag ? '#results/agentic' : null;
+        tr.appendChild(h('th', { scope: 'row' }, link ? h('a', { href: link, text: r.title }) : r.title, h('span', { class: 'hint', text: (anyTotal || '') + ' ' + hint })));
+        ['off', 'own'].forEach(function (k) {
+          var cs = models.map(function (m) { return (r.cells[m] || {})[k]; });
+          var bestSolved = Math.max.apply(null, cs.map(function (c) { return c ? c.solved : -1; }));
+          var times = cs.map(function (c) { return timeOf(c, ag); }).filter(function (v) { return v != null; });
+          var bestTime = times.length > 1 ? Math.min.apply(null, times) : null;
+          var unique = cs.filter(function (c) { return c && c.solved === bestSolved; }).length === 1;
+          models.forEach(function (m, i) {
+            var c = cs[i];
+            var cell = !c ? h('span', { class: 'hint', text: 'not run' }) : h('div', { class: 'cell' },
+              h('span', { class: 'solved' }, c.solved === bestSolved && unique ? h('b', { class: 'best', text: String(c.solved) }) : String(c.solved), ' ', h('span', { class: 'of', text: '/ ' + c.total })),
+              h('span', { class: 'bar' + (i % 2 ? ' b' : '') }, h('span', { style: 'width:' + pct(c.solved, c.total) + '%' })),
+              h('span', { class: 'time' }, timeOf(c, ag) === bestTime ? h('span', { class: 'best', text: perTime(c, ag) }) : perTime(c, ag)),
+              ag && c.runs > 1 ? h('span', { class: 'note', text: c.runs + ' runs: ' + c.each.join(', ') + ' solved' }) : null,
+              ag && c.timeouts ? h('span', { class: 'note', text: c.timeouts + ' timed out' }) : null,
+              !ag && c.cut_off ? h('span', { class: 'note', text: c.cut_off + ' cut off' }) : null,
+              r.family === 'coding' && c.bench ? h('a', { class: 'note', href: '#bench/' + encodeURIComponent(c.bench) + '?grade=false', text: 'failures' }) : null,
+              ag && c.names ? h('a', { class: 'note', href: '#agentic/' + encodeURIComponent(c.names[c.names.length - 1]), text: 'repos' }) : null);
+            tr.appendChild(h('td', { class: i === 0 && k === 'own' ? 'sep' : null, 'data-label': shortName(m) + ' · ' + (k === 'off' ? 'thinking off' : 'own thinking') }, cell));
+          });
+        });
+        if (two) {
+          var x = r.cells[models[0]] || {}, y = r.cells[models[1]] || {}, gaps = [], parts = [];
+          ['off', 'own'].forEach(function (k) {
+            if (!x[k] || !y[k]) return;
+            gaps.push(Math.abs(x[k].solved - y[k].solved));
+            var g = x[k].solved - y[k].solved, tx = timeOf(x[k], ag), ty = timeOf(y[k], ag);
+            parts.push((k === 'off' ? 'Thinking off: ' : 'Own thinking: ') + (g === 0 ? 'same' : shortName(g > 0 ? models[0] : models[1]) + ' +' + Math.abs(g)) +
+              (tx && ty && Math.max(tx, ty) / Math.min(tx, ty) >= 1.15 ? ', ' + shortName(tx < ty ? models[0] : models[1]) + ' ' + f2(Math.max(tx, ty) / Math.min(tx, ty), 1) + '× faster' : ''));
+          });
+          var maxGap = gaps.length ? Math.max.apply(null, gaps) : null, sg = maxGap == null ? null : signif(maxGap, (x.off || x.own || {}).total || 0);
+          var guard = ag && (x.guard || y.guard) ? 'With the local-model guard: ' + shortName(models[0]) + ' ' + (x.guard ? x.guard.solved + '/' + x.guard.total : '—') + ', ' + shortName(models[1]) + ' ' + (y.guard ? y.guard.solved + '/' + y.guard.total : '—') + '.' : null;
+          tr.appendChild(h('td', { class: 'sep diffcell' }, h('p', { class: 'diff' }, parts.map(function (p) { return [p, h('br')]; }), guard ? [guard, h('br')] : null,
+            sg ? h('span', { class: 'sig ' + sg[1], text: sg[0] }) : h('span', { class: 'hint', text: 'Run both models to compare' }))));
+        }
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb);
+      return h('div', { class: 'table-wrap' }, t);
+    }
+  }
+
+  // Run a benchmark: models, then tests, then how the model answers; the plan shows the cost before anything is queued.
+  function screenRun(main) {
+    main.classList.add('v2');
+    var params = hashParams();
+    return Promise.all([api('/api/bench-catalog'), api('/api/queue'), api('/api/now')]).then(function (res) {
+      var cat = res[0], queue = res[1], now = res[2];
+      var byId = {}; cat.items.forEach(function (i) { byId[i.id] = i; });
+      var models = cat.groups.filter(function (g) { return g.kind === 'model' && (g.engine === 'Ollama' || (g.main && !g.install)); });
+      var sel = { models: {}, tests: { coding: true }, off: true, own: true, style: 'normal', guard: false, again: false };
+      (params.get('models') || '').split(',').filter(Boolean).forEach(function (m) { sel.models['ollama:' + m] = true; });
+      var hasGuard = cat.items.some(function (i) { return /:guard$/.test(i.id); });
+      var TESTS = [
+        ['coding', 'Coding', '18 coding tasks (algorithms, parsing, bug fixes, speed), checked by hidden tests.', 'about 5–30 min per model and setting'],
+        ['agentic', 'Agentic coding', '5 small repositories the model fixes or extends with its own tools in pi, in a sandbox. Checked by hidden tests.', 'about 5–60 min per model and setting'],
+        ['quality', 'Quality', '24 everyday prompts: facts, maths, logic, small code, explanations.', 'a few minutes per model and setting']];
+      function idsFor(g, test, mode) {
+        var m = g.id.replace(/^(ollama|model):/, ''), ollama = g.engine === 'Ollama';
+        if (test === 'coding') return ollama ? ['coding:' + m + ':' + (mode === 'off' ? 'exact' : 'native-long')] : [];
+        if (test === 'agentic') return ollama ? ['agentic:' + m + ':' + (mode === 'off' ? 'off' : 'medium') + (sel.guard ? ':guard' : '')] : [];
+        if (test === 'quality') return ollama ? ['ollama:' + m + ':' + (mode === 'off' ? 'exact' : 'native') + ':' + sel.style] : mode === 'off' ? ['quality:' + m + ':exact:' + sel.style] : [];
+        return [];
+      }
+      function plan() {
+        var chosen = [], skipped = [], again = [];
+        models.forEach(function (g) {
+          if (!sel.models[g.id]) return;
+          TESTS.forEach(function (t) {
+            if (!sel.tests[t[0]]) return;
+            ['off', 'own'].forEach(function (mode) {
+              if (!sel[mode]) return;
+              idsFor(g, t[0], mode).forEach(function (id) {
+                var it = byId[id];
+                if (!it) skipped.push([g.title + ' · ' + t[1] + ' · ' + (mode === 'off' ? 'thinking off' : 'own thinking'), 'not available for this model']);
+                else if (!it.available) skipped.push([g.title + ' · ' + it.title, it.why_not]);
+                else if (it.complete && !sel.again) again.push(it);
+                else chosen.push(it);
+              });
+            });
+          });
+        });
+        return { chosen: chosen, skipped: skipped, done: again };
+      }
+      var planBox = h('aside', { class: 'plan', 'aria-labelledby': 'plan-h' });
+      function drawPlan() {
+        var p = plan(), est = p.chosen.reduce(function (s, i) { return s + (i.est_s || 0); }, 0);
+        var jobs = {}; p.chosen.forEach(function (i) { jobs[i.kind === 'coding' ? 'coding:' + i.job.args.ollama_model : i.id] = 1; });
+        var nJobs = Object.keys(jobs).length, waiting = (queue.items || []).length;
+        var queuedS = (queue.items || []).reduce(function (s, q) { return s + (q.est_s || 0); }, 0);
+        var running = (now.jobs || []).filter(function (j) { return j.gpu; })[0], runLeft = running && running.progress ? running.progress.eta_s || 0 : 0;
+        var startIn = queuedS + runLeft;
+        var saved = p.chosen.reduce(function (s, i) { return s + (i.done || 0); }, 0), total = p.chosen.reduce(function (s, i) { return s + (i.total || 0); }, 0);
+        planBox.textContent = '';
+        put(planBox, h('span', { class: 'eyebrow', text: 'The plan' }),
+          h('h2', { id: 'plan-h', style: 'font-size:20px;line-height:26px', text: nJobs ? nJobs + ' job' + (nJobs > 1 ? 's' : '') + ' to queue' : 'Nothing chosen yet' }),
+          h('dl', {}, [['Jobs', String(nJobs)], ['Estimated time', est ? 'about ' + dur(est) : '—'], ['Already saved', total ? saved + ' of ' + total + ' answers' : '—'],
+            ['Queue position', waiting ? 'after ' + waiting + ' job' + (waiting > 1 ? 's' : '') : running ? 'after the running job' : 'starts now'],
+            ['Expected start', nJobs ? at(startIn) : '—'], ['Expected end', nJobs ? at(startIn + est) : '—']].map(function (x) { return [h('dt', { text: x[0] }), h('dd', { text: x[1] })]; })),
+          p.chosen.length ? h('ol', {}, p.chosen.map(function (i) { return h('li', { text: (i.group.replace(/^(ollama|model):/, '')) + ' · ' + i.title + (i.complete ? ' · run again' : '') + ' · ~' + dur(i.est_s) }); })) : null,
+          p.done.length ? h('p', { class: 'hint', text: p.done.length + ' already finished and left out. Tick “Run finished ones again” to measure them afresh.' }) : null,
+          p.skipped.length ? h('details', { class: 'x' }, h('summary', { text: p.skipped.length + ' cannot be queued' }), h('div', { class: 'inner' },
+            h('ul', { class: 'hint' }, p.skipped.map(function (s) { return h('li', { text: s[0] + ': ' + s[1] }); })))) : null,
+          h('p', { class: 'hint', text: 'Runs one at a time on the GPU. One run per task: treat a 1-task gap as noise.' }),
+          h('button', { type: 'button', class: 'btn btn-primary btn-lg', disabled: nJobs ? null : '', text: nJobs ? 'Queue ' + nJobs + ' job' + (nJobs > 1 ? 's' : '') : 'Choose models and tests', onclick: function (e) {
+            e.target.disabled = true;
+            post('/api/queue/add-selection', { ids: p.chosen.map(function (i) { return i.id; }) }).then(function (r) {
+              toast('Queued ' + r.queued.length + ' job' + (r.queued.length > 1 ? 's' : '') + '.' + (r.paused ? ' The queue is paused.' : ''), false, ['#queue', 'See the queue']);
+              route();
+            }, function (er) { e.target.disabled = false; toast(er.message, true); });
+          } }));
+      }
+      function pick(on, input, title, what, meta, disabled) {
+        var l = h('label', { class: 'pick' + (on ? ' on' : '') + (disabled ? ' off-limits' : '') }, input, h('span', {}, title), what ? h('span', { class: 'what', text: what }) : null,
+          meta && meta.length ? h('span', { class: 'meta' }, meta.map(function (x) { return h('span', { text: x }); })) : null);
+        input.addEventListener('change', function () { l.classList.toggle('on', input.checked); });
+        return l;
+      }
+      function box(checked, onchange, label) {
+        var i = h('input', { type: 'checkbox', checked: checked ? '' : null, 'aria-label': label || null });
+        i.addEventListener('change', function () { onchange(i.checked); drawPlan(); drawCounts(); });
+        return i;
+      }
+      function haveText(g) {
+        var mine = cat.items.filter(function (i) { return i.group === g.id && (i.kind === 'coding' || i.kind === 'agentic'); });
+        var c = mine.filter(function (i) { return i.kind === 'coding'; }), a = mine.filter(function (i) { return i.kind === 'agentic' && !/:guard$/.test(i.id); });
+        var st = function (list) { return !list.length ? null : list.every(function (i) { return i.complete; }) ? 'done' : list.some(function (i) { return i.done; }) ? 'partly done' : 'missing'; };
+        return [g.engine === 'Ollama' ? 'Ollama' : 'GLM engine', c.length ? 'Coding ' + st(c) : 'Quality only', a.length ? 'Agentic ' + st(a) : null].filter(Boolean);
+      }
+      var counts = {};
+      function drawCounts() {
+        counts.m.textContent = Object.keys(sel.models).filter(function (k) { return sel.models[k]; }).length + ' chosen';
+        counts.t.textContent = Object.keys(sel.tests).filter(function (k) { return sel.tests[k]; }).length + ' chosen';
+        counts.s.textContent = (sel.off && sel.own) ? 'both' : sel.off ? 'thinking off' : sel.own ? 'own thinking' : 'none';
+      }
+      counts.m = h('span', { class: 'hint' }); counts.t = h('span', { class: 'hint' }); counts.s = h('span', { class: 'hint' });
+      function step(n, id, title, count, body) {
+        return h('section', { class: 'v2-step', 'aria-labelledby': id }, h('span', { class: 'v2-step-n', 'aria-hidden': 'true', text: String(n) }),
+          h('div', { class: 'step-body' }, h('div', { class: 'row between' }, h('h2', { id: id, text: title }), count), body));
+      }
+      var running = (now.jobs || []).filter(function (j) { return j.gpu; })[0];
+      put(main, h('header', { class: 'head' }, h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 'eyebrow', text: 'Run a benchmark' }),
+          h('h1', { text: 'Start a run in three steps' }),
+          h('p', { class: 'muted', text: 'Choose models, then tests, then how the model should answer. The plan shows how long it takes before you queue anything.' })),
+        h('a', { class: 'btn', href: '#dashboard', text: 'All benches (grid)' })),
+        h('section', { class: 'tiles', 'aria-label': 'Lab status' },
+          h('div', { class: 'tile' }, h('span', { class: 'hint', text: 'Running now' }), h('span', { class: 'v', text: running ? jobParts(running.title).what : 'Nothing' }),
+            running && running.progress ? meter(running.progress.done || 0, running.progress.total || 1, 'Progress of the running job') : null,
+            h('span', { class: 'hint', text: running ? running.title : 'The GPU is free.' })),
+          h('div', { class: 'tile' }, h('span', { class: 'hint', text: 'Up next' }), h('span', { class: 'v', text: (queue.items || []).length + ' job' + ((queue.items || []).length === 1 ? '' : 's') }),
+            h('a', { class: 'hint', href: '#queue', text: 'Queue and logs' })),
+          h('div', { class: 'tile' }, h('span', { class: 'hint', text: 'Compare' }), h('span', { class: 'v', text: 'Results' }), h('a', { class: 'hint', href: '#compare', text: 'Compare models' }))),
+        h('div', { class: 'run-layout' }, h('div', { class: 'v2-steps' },
+          step(1, 's1', 'Choose models', counts.m, h('fieldset', { class: 'pick-grid' }, h('legend', { class: 'sr-only', text: 'Models' }), models.map(function (g) {
+            return pick(sel.models[g.id], box(sel.models[g.id], function (v) { sel.models[g.id] = v; }), h('b', { class: 'mono', style: 'font-size:13px', text: g.title }), null, haveText(g));
+          }))),
+          step(2, 's2', 'Choose tests', counts.t, [h('fieldset', { class: 'stack', style: 'gap:8px' }, h('legend', { class: 'group-label', text: 'Compare models for real work' }),
+            h('div', { class: 'pick-grid' }, TESTS.map(function (t) {
+              return pick(sel.tests[t[0]], box(sel.tests[t[0]], function (v) { sel.tests[t[0]] = v; }), h('b', { text: t[1] }), t[2], [t[3]]);
+            }))),
+            h('details', { class: 'x' }, h('summary', { text: 'Make GLM faster (engine tests)' }), h('div', { class: 'inner' },
+              h('p', { class: 'hint', text: 'Speed reference (~10 min), quiet comparison (~45 min), RAM sweep (~10 min) and thread sweep (~15 min) are for the GLM engine only. ' }),
+              h('a', { href: '#dashboard', text: 'Open the full bench grid' })))]),
+          step(3, 's3', 'How should the model answer?', counts.s, [h('fieldset', { class: 'pick-grid' }, h('legend', { class: 'sr-only', text: 'Answer settings' }),
+            pick(sel.off, box(sel.off, function (v) { sel.off = v; }), [h('b', { text: 'Thinking off' }), ' ', h('code', { class: 'muted', text: 'exact · off' })], 'Answers straight away, temperature 0. Repeatable: the same run gives the same answer.', ['Fast']),
+            pick(sel.own, box(sel.own, function (v) { sel.own = v; }), [h('b', { text: 'The model’s own thinking' }), ' ', h('code', { class: 'muted', text: 'native-long · medium' })], 'The model thinks first, with its default sampling and room to finish (12,000 tokens). Varies a little between runs.', ['About 3–6× slower']),
+            hasGuard ? pick(sel.guard, box(sel.guard, function (v) { sel.guard = v; }), h('b', { text: 'Use the local-model guard (agentic)' }), 'Loads pi-core’s guard: request fixes, repair of tool calls written as text, nudges and a stall watch. Results go to a separate “-guard” run.', ['Agentic coding only']) : null,
+            pick(sel.again, box(sel.again, function (v) { sel.again = v; }), h('b', { text: 'Run finished ones again' }), 'Measure tests that already have results afresh. Earlier results are kept under attempts/.', null)),
+            h('details', { class: 'x' }, h('summary', { text: 'Prompt style for Quality · ' + (sel.style === 'normal' ? 'As written' : 'Brief') }), h('div', { class: 'inner' },
+              h('div', { class: 'row' }, [['normal', 'As written'], ['terse', 'Ask for brief answers']].map(function (o) {
+                var r = h('input', { type: 'radio', name: 'run-style', value: o[0], checked: sel.style === o[0] ? '' : null, onchange: function () { sel.style = o[0]; drawPlan(); } });
+                return h('label', { class: 'row', style: 'gap:6px' }, r, o[1]);
+              })),
+              h('p', { class: 'hint', text: '“As written” sends the prompt unchanged (normal). “Brief” adds “answer as briefly as possible” (terse). Coding and agentic always use the prompt as written.' })))])),
+        planBox));
+      drawCounts(); drawPlan();
+    });
+  }
+
+  var REASONS = [['failed-test', 'Failed test'], ['too-slow', 'Too slow'], ['cut-off', 'Cut off at token limit'], ['no-code', 'No code found'], ['crashed', 'Crashed']];
+  function screenTaskCoding(main, bench, id) {
+    main.classList.add('v2');
+    var params = hashParams();
+    return api('/api/coding-task?bench=' + encodeURIComponent(bench) + '&id=' + encodeURIComponent(id)).then(function (d) {
+      var configs = d.answers.map(function (a) { return a.config; });
+      var cfg = params.get('config') && configs.indexOf(params.get('config')) >= 0 ? params.get('config') : (d.answers.filter(function (a) { return a.correct === false; })[0] || d.answers[0] || {}).config;
+      var a = d.answers.filter(function (x) { return x.config === cfg; })[0];
+      var base = '#task/coding/' + encodeURIComponent(bench) + '/';
+      put(main, h('nav', { class: 'crumbs', 'aria-label': 'Breadcrumb' }, h('a', { href: '#results', text: 'Results' }), '›', h('a', { href: '#bench/' + encodeURIComponent(bench), text: 'Coding' }), '›',
+          h('span', { text: d.model || bench }), '›', h('span', { 'aria-current': 'page', text: 'Task ' + d.index + ' of ' + d.count })),
+        h('header', { class: 'head' }, h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 'eyebrow' }, 'Coding task · ', h('span', { class: 'mono', text: d.id })),
+          h('h1', { text: cap(d.id.replace(/^code-/, '').replace(/-/g, ' ')) + (d.area ? ' · ' + d.area : '') })),
+          h('div', { class: 'row' }, d.prev ? h('a', { class: 'btn btn-sm', href: base + d.prev + (cfg ? '?config=' + cfg : ''), text: '← Previous' }) : null,
+            d.next ? h('a', { class: 'btn btn-sm', href: base + d.next + (cfg ? '?config=' + cfg : ''), text: 'Next →' }) : null)),
+        h('div', { class: 'row between' }, h('div', { class: 'v2-seg', role: 'group', 'aria-label': 'Setting' }, d.answers.map(function (x) {
+          return h('a', { href: base + d.id + '?config=' + x.config, 'aria-current': x.config === cfg ? 'true' : 'false', text: (PLAIN[x.config] || [x.config])[0] + (x.correct ? ' ✓' : x.correct === false ? ' ✗' : '') });
+        }))));
+      if (!a) { put(main, empty('No saved answer for this task yet.')); return; }
+      var pass = a.correct === true;
+      put(main, h('section', { class: 'grade ' + (pass ? 'pass' : 'fail'), 'aria-labelledby': 'g-h' },
+        h('span', { class: 'chip ' + (pass ? 'st-done' : 'st-failed'), style: 'background:var(--surface)', text: pass ? 'Solved' : 'Not solved' }),
+        h('div', { class: 'why' }, h('h2', { id: 'g-h', text: pass ? 'Passed every hidden test' : (REASONS.filter(function (r) { return r[0] === a.reason; })[0] || [0, 'Not solved'])[1] }),
+          !pass && a.detail.length ? h('pre', { class: 'code', 'aria-label': 'Why it failed', text: a.detail.join('\n') }) : null,
+          !pass ? h('div', { class: 'reasons', 'aria-label': 'Possible failure reasons' }, REASONS.map(function (r) { return h('span', { class: 'reason' + (r[0] === a.reason ? ' on' : ''), text: r[1] }); })) : null,
+          a.regrade_note ? h('p', { class: 'hint', text: 'Regraded: ' + a.regrade_note }) : null)),
+        h('div', { class: 'two' },
+          h('section', { class: 'stack', 'aria-labelledby': 'ins-h' }, h('h2', { id: 'ins-h', text: 'What the model was asked' }),
+            h('div', { class: 'well', style: 'font-size:14px;line-height:21px;white-space:pre-wrap', text: d.prompt }),
+            h('dl', { class: 'stats' }, [['Answer time', f2(a.answer_s, 0), 's'], ['Thinking', a.thinking_chars == null ? '—' : Number(a.thinking_chars).toLocaleString(), 'chars'],
+              ['Answer length', a.output_tokens == null ? '—' : Number(a.output_tokens).toLocaleString(), 'tokens'], ['Writing speed', f2(a.tok_s, 1), 'tok/s'], ['Cut off', a.truncated ? 'Yes' : 'No', '']].map(function (x) {
+              return h('div', {}, h('dt', { text: x[0] }), h('dd', {}, x[1], x[2] ? h('small', { text: ' ' + x[2] }) : null));
+            }))),
+          h('section', { class: 'stack', 'aria-labelledby': 'ans-h' }, h('div', { class: 'row between' }, h('h2', { id: 'ans-h', text: 'The model’s code' }),
+              h('a', { class: 'hint', href: '#bench/' + encodeURIComponent(bench) + '?config=' + cfg, text: 'All answers' })),
+            h('pre', { class: 'code', text: a.code || '(no code)' }), h('p', { class: 'hint', text: 'Code taken from the reply; the full reply is in the bench folder’s .log file.' }))),
+        h('details', { class: 'x' }, h('summary', { text: 'The hidden tests' }), h('div', { class: 'inner' }, h('pre', { class: 'code', text: d.tests }))));
+    });
+  }
+
+  function diffView(text) {
+    return h('pre', { class: 'code', 'aria-label': 'Changes' }, (text || '(no changes)').split('\n').map(function (l) {
+      return h('span', { class: /^\+(?!\+\+)/.test(l) ? 'add' : /^-(?!--)/.test(l) ? 'del' : 'ctx', text: l || ' ' });
+    }));
+  }
+  function screenAgenticTask(main, name, task) {
+    main.classList.add('v2');
+    return api('/api/agentic-task?name=' + encodeURIComponent(name) + '&task=' + encodeURIComponent(task)).then(function (d) {
+      var r = d.result, base = '#task/agentic/' + encodeURIComponent(name) + '/';
+      var mmss = function (s) { return s == null ? '—' : Math.floor(s / 60) + ':' + ('0' + Math.round(s % 60)).slice(-2); };
+      var g = r.guard || {};
+      put(main, h('nav', { class: 'crumbs', 'aria-label': 'Breadcrumb' }, h('a', { href: '#results/agentic', text: 'Results' }), '›', h('a', { href: '#agentic/' + encodeURIComponent(name), text: 'Agentic coding' }), '›',
+          h('span', { text: (r.model || '') + ' · thinking ' + r.thinking + (r.guard ? ' · guard' : '') }), '›', h('span', { 'aria-current': 'page', text: 'Repo ' + d.index + ' of ' + d.count })),
+        h('header', { class: 'head' }, h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 'eyebrow' }, 'Agentic task · ', h('span', { class: 'mono', text: d.task })), h('h1', { text: cap(d.area) })),
+          h('div', { class: 'row' }, d.prev ? h('a', { class: 'btn btn-sm', href: base + d.prev, text: '← Previous' }) : null, d.next ? h('a', { class: 'btn btn-sm', href: base + d.next, text: 'Next →' }) : null)),
+        h('section', { class: 'grade ' + (r.solved ? 'pass' : 'fail'), 'aria-labelledby': 'g-h' },
+          h('span', { class: 'chip ' + (r.solved ? 'st-done' : 'st-failed'), style: 'background:var(--surface)', text: r.solved ? 'Solved' : 'Not solved' }),
+          h('div', { class: 'why' }, h('h2', { id: 'g-h', text: r.solved ? 'All ' + r.hidden_total + ' hidden tests passed' : r.timed_out ? 'Timed out' : r.hidden_total == null ? 'The hidden tests did not finish' : r.hidden_passed + ' of ' + r.hidden_total + ' hidden tests passed' }),
+            h('p', { style: 'font-size:14px', text: 'Finished in ' + mmss(r.wall_s) + ' with ' + r.tool_calls + ' tool calls. ' + (r.original_tests_changed ? 'It changed the repo’s original tests. ' : 'It did not change the repo’s original tests. ') +
+              (r.tool_calls === 0 ? 'It never called a tool' + (r.final_text && /<tool|call:/.test(r.final_text) ? ' (it wrote a tool call as text instead).' : '.') : '') }),
+            d.guard.length || d.adjusted ? h('p', { class: 'hint', text: 'Local-model guard: ' + d.adjusted + ' requests adjusted' + d.guard.map(function (x) { return ', ' + x.event + (x.reason ? ' (' + x.reason + ')' : ''); }).join('') + '.' }) : null)),
+        h('dl', { class: 'stats' }, [['Hidden tests', r.hidden_passed == null ? '—' : r.hidden_passed, '/ ' + (r.hidden_total == null ? '—' : r.hidden_total)], ['Time', mmss(r.wall_s), 'min'],
+          ['Model time', mmss((r.model_ms || 0) / 1000), 'min'], ['Tool calls', r.tool_calls, ''], ['Tokens written', Number(r.output_tokens || 0).toLocaleString(), ''],
+          ['Changed original tests', r.original_tests_changed ? 'Yes' : 'No', '']].map(function (x) { return h('div', {}, h('dt', { text: x[0] }), h('dd', {}, String(x[1]), x[2] ? h('small', { text: ' ' + x[2] }) : null)); })),
+        h('section', { class: 'stack', 'aria-labelledby': 'ins-h' }, h('h2', { id: 'ins-h', text: 'What the model was asked' }), h('div', { class: 'well', style: 'font-size:14px;line-height:21px;white-space:pre-wrap', text: d.instruction })),
+        h('div', { class: 'two' },
+          h('section', { class: 'stack', 'aria-labelledby': 'steps-h' }, h('div', { class: 'row between' }, h('h2', { id: 'steps-h', text: 'Steps the model took' }), h('span', { class: 'hint', text: 'from pi.jsonl' })),
+            d.steps.length ? h('ol', { class: 'timeline' }, d.steps.map(function (s, i) {
+              return h('li', { class: s.failed ? 'failed' : null }, h('span', { class: 'i', text: String(i + 1) }), h('span', { class: 'tool', text: s.tool + (s.repaired ? ' ↺' : '') }),
+                h('span', { class: 'what', title: s.repaired ? 'Repaired by the local-model guard from a tool call written as text' : null }, h('code', { text: s.what })), h('span', { class: 't', text: s.t == null ? '' : mmss(s.t) }));
+            })) : h('p', { class: 'hint', text: 'No tool calls.' }),
+            r.final_text ? h('div', { class: 'well', style: 'font-size:14px' }, h('span', { class: 'eyebrow', text: 'Its final message' }), h('p', { style: 'white-space:pre-wrap', text: r.final_text })) : null),
+          h('section', { class: 'stack', 'aria-labelledby': 'diff-h' }, h('div', { class: 'row between' }, h('h2', { id: 'diff-h', text: 'Files it changed' }),
+              h('span', { class: 'hint', text: (d.diff.match(/^\+\+\+ /gm) || []).length + ' files · +' + (d.diff.match(/^\+(?!\+\+)/gm) || []).length + ' −' + (d.diff.match(/^-(?!--)/gm) || []).length })),
+            diffView(d.diff), h('h3', { style: 'margin-top:8px', text: 'Hidden test output' }),
+            d.hidden_tests.length ? h('ul', { class: 'testlist' }, d.hidden_tests.map(function (t) { return h('li', { class: t.ok ? 'p' : 'f', text: (t.ok ? '✓ ' : '✗ ') + t.name }); })) : null,
+            h('details', { class: 'x' }, h('summary', { text: 'Full hidden and visible test output' }), h('div', { class: 'inner' }, h('pre', { class: 'code', text: d.hidden || '(none)' }), h('pre', { class: 'code', text: d.visible || '(none)' }))))));
+    });
+  }
+
+  function screenAgenticRun(main, name) {
+    main.classList.add('v2');
+    return api('/api/agentic?name=' + encodeURIComponent(name)).then(function (d) {
+      put(main, h('nav', { class: 'crumbs', 'aria-label': 'Breadcrumb' }, h('a', { href: '#results/agentic', text: 'Agentic runs' }), '›', h('span', { 'aria-current': 'page', text: name })),
+        header((d.model || name) + ' · thinking ' + d.thinking + (d.guard ? ' · local-model guard' : ''), 'Agentic coding run ' + name + (d.started ? ', started ' + d.started.replace('T', ' ').replace('Z', ' UTC') : '') + '.'),
+        table(['Repo', 'What it tests', { t: 'Hidden tests', n: 1 }, { t: 'Time', u: 's', n: 1 }, { t: 'Tool calls', n: 1 }, 'Result'], d.tasks.map(function (t) {
+          return h('tr', {}, td(h('a', { href: '#task/agentic/' + encodeURIComponent(name) + '/' + t.task, text: t.task })), td(t.area),
+            td(t.missing ? '—' : (t.hidden_passed == null ? '—' : t.hidden_passed) + ' / ' + (t.hidden_total == null ? '—' : t.hidden_total), 'n'), td(t.missing ? '—' : f2(t.wall_s, 0), 'n'), td(t.missing ? '—' : t.tool_calls, 'n'),
+            td(t.missing ? h('span', { class: 'hint', text: 'not run' }) : t.solved ? h('span', { class: 'chip st-done', text: 'Solved' }) : h('span', { class: 'chip st-failed', text: t.timed_out ? 'Timed out' : 'Not solved' })));
+        }), 'Repos in this run'));
+    });
+  }
+
+  function agenticView(runs) {
+    var box = h('div', { class: 'stack v2' });
+    if (!runs.length) return empty('No agentic runs yet.', h('a', { class: 'btn', href: '#run', text: 'Run a benchmark' }));
+    put(box, table(['Model', 'Setting', { t: 'Solved', u: 'repos', n: 1 }, { t: 'Hidden tests', n: 1 }, { t: 'Time', u: 'total', n: 1 }, { t: 'Timeouts', n: 1 }, 'Run'], runs.map(function (r) {
+      return h('tr', {}, td(h('strong', { text: r.model })), td(h('span', {}, h('span', { class: 'plain', text: (r.thinking === 'off' ? 'Thinking off' : 'Own thinking · ' + r.thinking) + (r.guard ? ' + local-model guard' : '') }), h('span', { class: 'code-name', text: r.name }))),
+        td(r.solved + ' / ' + r.tasks, 'n'), td(r.tests_passed + ' / ' + r.tests_total, 'n'), td(dur(r.wall_s), 'n'), td(r.timeouts, 'n'),
+        td(h('a', { href: '#agentic/' + encodeURIComponent(r.name), text: 'Repos' })));
+    }), 'Agentic coding runs'), h('p', { class: 'hint', text: 'Each run is pi working on 5 small repositories in a sandbox, graded by hidden tests. Runs with the local-model guard load pi-core’s extension.' }));
+    return box;
+  }
+
+  function screenGuide(main) {
+    main.classList.add('v2');
+    var params = hashParams(), kind = params.get('kind') || 'task';
+    function copyBtn(text, label) {
+      return h('button', { type: 'button', class: 'btn btn-sm', style: 'align-self:flex-start', text: label, onclick: function (e) {
+        (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { e.target.textContent = 'Copied'; }, function () { toast('Copy did not work here; select the text instead.', true); });
+      } });
+    }
+    function li(n, title, body) { return h('li', {}, h('span', { class: 'v2-step-n', 'aria-hidden': 'true', text: String(n) }), h('div', { class: 'step-body' }, h('h2', {}, title), body)); }
+    var codingTemplate = 'dict(id=\'your-task-id\', area=\'algorithms\',\n  prompt="Write a Python function f(x) that ... Return ...",\n  tests="assert f(1)==2\\nassert f(0)==0",\n  ref="def f(x):\\n    return x + 1"),';
+    var agenticTemplate = "TASKS['your-repo'] = dict(\n    area='what the task tests',\n    instruction=\"What the agent is asked to do.\",\n    files={'module.py': '...', 'test_module.py': '...'},\n    hidden='''import unittest\\n...''',\n    fix={'module.py': lambda s: s.replace('bug', 'fix')},\n)";
+    var steps = kind === 'agentic' ? [
+      li(1, ['Add a task to ', h('span', { class: 'path', text: 'benches/agentic-v1/tasks.py' })], [h('p', { style: 'font-size:14px', text: 'The files the agent starts with, its instruction, hidden tests that decide the grade, and a reference fix.' }), h('pre', { class: 'code', text: agenticTemplate }), copyBtn(agenticTemplate, 'Copy template')]),
+      li(2, 'Check it', [h('p', { style: 'font-size:14px', text: 'The check makes sure the hidden tests fail on the starting files and pass with the reference fix.' }), h('pre', { class: 'code', text: '.venv/bin/python benches/agentic-v1/tasks.py' }), copyBtn('.venv/bin/python benches/agentic-v1/tasks.py', 'Copy command')]),
+      li(3, 'Run it', [h('p', { style: 'font-size:14px', text: 'The next agentic run includes the new repo. Runs that already exist only need the new task: use “Run finished ones again” or run it on its own with --only.' }), h('a', { class: 'btn btn-primary', href: '#run', style: 'align-self:flex-start', text: 'Go to Run a benchmark' })])
+    ] : kind === 'bench' ? [
+      li(1, ['Describe it in ', h('span', { class: 'path', text: 'benches/suite.json' })], [h('p', { style: 'font-size:14px', text: 'Add an entry with id, name, what it measures, duration and the command that runs it. Coverage shows it as a column for every model.' })]),
+      li(2, 'Make it runnable from the app', [h('p', { style: 'font-size:14px' }, 'Add a job kind with validated arguments in ', h('span', { class: 'path', text: 'lab_app/actions.py' }), ' (build_command) and its items in ', h('span', { class: 'path', text: 'lab_app/bench_catalog.py' }), '. The coding and agentic benches are worked examples.')]),
+      li(3, 'Show its results', [h('p', { style: 'font-size:14px' }, 'Results come from files under ', h('span', { class: 'path', text: 'results/' }), '; ', h('span', { class: 'path', text: 'lab_app/compare.py' }), ' reads them for Compare and the task pages.')])
+    ] : [
+      li(1, ['Add the task to ', h('span', { class: 'path', text: 'benches/coding-v1/build.py' })], [h('p', { style: 'font-size:14px', text: 'Give it a new id. Write the prompt, the hidden tests (plain asserts) and a reference solution. The tests never reach the model.' }), h('pre', { class: 'code', text: codingTemplate }), copyBtn(codingTemplate, 'Copy template')]),
+      li(2, 'Build and check the bench file', [h('p', { style: 'font-size:14px' }, 'This checks every reference against its tests (and that an empty answer fails), then writes ', h('span', { class: 'path', text: 'benches/coding-v1.json' }), '. It writes nothing if a check fails.'),
+        h('pre', { class: 'code', text: '.venv/bin/python benches/coding-v1/build.py' }), copyBtn('.venv/bin/python benches/coding-v1/build.py', 'Copy command')]),
+      li(3, 'For the quality bench instead', [h('p', { style: 'font-size:14px' }, 'Quality prompts live in ', h('span', { class: 'path', text: 'glm-prompts.json' }), ', graded by an expected word (', h('code', { text: 'accept' }), '), a final number (', h('code', { text: 'number' }), ') or tests (', h('code', { text: 'tests' }), ').')]),
+      li(4, 'Run it', [h('p', { style: 'font-size:14px', text: 'The new task shows as missing for every model. Old results stay; only the new task needs a run.' }), h('a', { class: 'btn btn-primary', href: '#run', style: 'align-self:flex-start', text: 'Go to Run a benchmark' })])
+    ];
+    put(main, h('header', { class: 'head' }, h('div', { class: 'stack', style: 'gap:4px' }, h('span', { class: 'eyebrow', text: 'Guide' }), h('h1', { text: 'Add a bench or a test' }),
+        h('p', { class: 'muted', text: 'Tests live in files in the lab folder. Edit the file, check it, and it appears in Run and Coverage on the next refresh. Nothing here starts a run.' }))),
+      h('div', { class: 'v2-seg', role: 'group', 'aria-label': 'What do you want to add?' }, [['task', 'A coding task'], ['agentic', 'An agentic repo'], ['bench', 'A new bench']].map(function (k) {
+        return h('a', { href: '#guide?kind=' + k[0], 'aria-current': k[0] === kind ? 'true' : 'false', text: k[1] });
+      })),
+      h('section', { class: 'stack', 'aria-labelledby': 'where-h' }, h('h2', { id: 'where-h', text: 'Which file holds what' }),
+        table(['Bench', 'Prompts and tasks', 'Reference answers and tests'], [
+          ['Quality', 'glm-prompts.json', 'In the same file (accept / number / tests)'], ['Coding', 'benches/coding-v1.json (built)', 'benches/coding-v1/build.py'],
+          ['Agentic coding', 'benches/agentic-v1/tasks.py', 'Hidden tests and reference fix in the same file'], ['The list of benches', 'benches/suite.json', 'id, name, what it measures, duration, command']
+        ].map(function (r) { return h('tr', {}, td(r[0]), td(h('span', { class: 'path', text: r[1] })), td(/\//.test(r[2]) || /\.py$/.test(r[2]) ? h('span', { class: 'path', text: r[2] }) : r[2])); }), 'Where each bench keeps its tests')),
+      h('ol', { class: 'guide', 'aria-label': 'Steps' }, steps));
+    return Promise.resolve();
+  }
+
   // ---------- router ----------
   var ROUTES = { dashboard: screenDashboard, results: screenResults, models: screenModels, install: screenModels, benches: function (m) { return screenResults(m, 'coverage'); },
                  phone: screenPhone, now: screenNow, queue: screenQueue, settings: screenSettings, runs: screenRuns, experiments: screenExperiments,
-                 leaderboard: screenLeaderboard, research: screenResearch, start: screenDashboard };
-  var NAV_OF = { bench: 'results', benches: 'results', install: 'models', start: 'dashboard' };
+                 leaderboard: screenLeaderboard, research: screenResearch, start: screenDashboard,
+                 compare: screenCompare, run: screenRun, guide: screenGuide };
+  var NAV_OF = { bench: 'results', benches: 'results', install: 'models', start: 'run', task: 'results', agentic: 'results' };
   function route() {
     clearInterval(timer);
-    var hash = (location.hash || '#dashboard').slice(1), parts = hash.split('/'), name = parts[0];
-    var fn = name === 'bench' ? function (m) { return screenBench(m, parts.slice(1).join('/')); }
-      : name === 'results' ? function (m) { return screenResults(m, parts[1]); } : ROUTES[name] || screenDashboard;
-    renderNav(NAV_OF[name] || (ROUTES[name] ? name : 'dashboard'));
-    var title = { dashboard: 'Run benchmarks', results: 'Results', bench: 'Answers', models: 'Models', install: 'Models', phone: 'Open on phone' }[name] ||
+    var hash = (location.hash || '#compare').slice(1), parts = hash.split('?')[0].split('/'), name = parts[0];
+    var dec = function (x) { return decodeURIComponent(x || ''); };
+    var fn = name === 'bench' ? function (m) { return screenBench(m, hash.slice('bench/'.length)); }
+      : name === 'results' ? function (m) { return screenResults(m, parts[1]); }
+      : name === 'task' && parts[1] === 'coding' ? function (m) { return screenTaskCoding(m, dec(parts[2]), dec(parts[3])); }
+      : name === 'task' && parts[1] === 'agentic' ? function (m) { return screenAgenticTask(m, dec(parts[2]), dec(parts[3])); }
+      : name === 'agentic' ? function (m) { return screenAgenticRun(m, dec(parts[1])); } : ROUTES[name] || screenCompare;
+    renderNav(NAV_OF[name] || (ROUTES[name] ? name : 'compare'));
+    var title = { dashboard: 'Status and bench grid', results: 'Results', bench: 'Answers', models: 'Models', install: 'Models', phone: 'Open on phone',
+                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run' }[name] ||
       (ADVANCED.filter(function (s) { return s[0] === name; })[0] || [0, 'Run benchmarks'])[1];
     document.title = title + ' · GLM lab';
     function load(keepScroll, focus) {
       var y = window.scrollY, fresh = h('main', { id: 'main', tabindex: '-1' });
       return fn(fresh).then(function () {
-        if ((location.hash || '#dashboard').slice(1) !== hash) return;
+        if ((location.hash || '#compare').slice(1) !== hash) return;
         fresh.setAttribute('data-ready', ''); fresh.setAttribute('data-route', hash); route.fails = 0;
         var cur = document.getElementById('main'); cur.replaceWith(fresh);
         if (keepScroll) window.scrollTo(0, y);
         else if (focus) { window.scrollTo(0, 0); fresh.focus({ preventScroll: true }); }
       }).catch(function (e) {
-        if ((location.hash || '#dashboard').slice(1) !== hash) return;
+        if ((location.hash || '#compare').slice(1) !== hash) return;
         /* keep trying while this error is on screen: 3 s, 6 s, 12 s, then every 30 s; a successful load ends it */
         var wait = Math.min(30000, 3000 * Math.pow(2, route.fails || 0)); route.fails = (route.fails || 0) + 1;
         var cur = document.getElementById('main'); cur.textContent = ''; cur.setAttribute('data-ready', ''); cur.setAttribute('data-route', hash);
         put(cur, errorBox(e, function () { clearTimeout(route.retryTimer); route(); }, wait));
         clearTimeout(route.retryTimer);
-        route.retryTimer = setTimeout(function () { if ((location.hash || '#dashboard').slice(1) === hash && document.querySelector('#main .err')) route(); }, wait);
+        route.retryTimer = setTimeout(function () { if ((location.hash || '#compare').slice(1) === hash && document.querySelector('#main .err')) route(); }, wait);
       });
     }
     load(false, route.started);

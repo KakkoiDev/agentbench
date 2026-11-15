@@ -26,6 +26,7 @@ HOME = Path.home()
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import actions  # noqa: E402
+import compare  # noqa: E402
 import bench_catalog  # noqa: E402
 RUNNER = {'last': 'not started'}
 PORT = 8766
@@ -119,8 +120,10 @@ def num(v):
 
 # ---------- benches ----------
 
-def bench_prompts():
-    spec = read_json(ROOT / 'glm-prompts.json', {'prompts': [], 'styles': {}})
+def bench_prompts(path='glm-prompts.json'):
+    if not re.fullmatch(r'[A-Za-z0-9_./-]+\.json', path) or '..' in path:
+        path = 'glm-prompts.json'
+    spec = read_json(ROOT / path, {'prompts': [], 'styles': {}})
     return spec['prompts'], spec['styles']
 
 
@@ -172,7 +175,7 @@ def mean_answer_s(style, config, default=None):
 def bench_job_progress(cmd, elapsed_s=None):
     """Progress of a running `glm_bench.py run`: every answer in run order, with ETA."""
     name = arg(cmd, '--name')
-    prompts, styles = bench_prompts()
+    prompts, styles = bench_prompts(arg(cmd, '--prompts') or 'glm-prompts.json')
     configs = (arg(cmd, '--configs') or 'exact,d030,d050').split(',')
     styl = (arg(cmd, '--styles') or 'normal,terse').split(',')
     only = arg(cmd, '--only')
@@ -220,6 +223,13 @@ def estimate_item(item):
                 per = (60 if c == 'native' else 20) if args.get('ollama_model') else mean_answer_s(st, c, 90 if st == 'terse' else 180)  # Ollama answers in seconds
                 total += max(0, n_prompts - have) * per
         return round(total)
+    if kind == 'coding':
+        folder = ROOT / 'results' / f"glm-bench-coding-v1-{actions.model_slug(args.get('ollama_model', ''))}"
+        n = 18
+        return round(sum(max(0, n - (0 if args.get('rerun') else len(glob.glob(str(folder / f'*__normal__{c}.json'))))) * (90 if c == 'native-long' else 12)
+                         for c in args.get('configs', [])))
+    if kind == 'agentic':
+        return (6 if args.get('thinking') == 'off' else 12) * 60 * 5 // (2 if args.get('guard') else 1)
     if kind == 'concurrency':
         return 90 * 60   # full 24 questions x 1/4/10 clients x 3 repeats; model dependent
     if kind == 'quiet':
@@ -287,6 +297,12 @@ def jobs():
                        detail=f"configs {', '.join(prog['configs'])} · styles {', '.join(prog['styles'])}"
                               + (f" · next: {prog['current'].replace('__', ' · ')}" if prog['current'] else ''),
                        progress=prog, gpu=True)
+        elif 'agent_bench.py run' in cmd and is_python(cmd):
+            name = arg(cmd, '--name', '')
+            done = len(glob.glob(str(ROOT / 'results' / f'agentic-v1-{name}' / '*' / 'result.json')))
+            job = dict(kind='Agentic bench', title=f"Agentic {name}: {done}/5",
+                       detail=f"model {arg(cmd, '--model', '')} · thinking {arg(cmd, '--thinking', 'off')}" + (' · local-model guard' if '--extension' in cmd else ''),
+                       progress=dict(done=done, total=5), gpu=True)
         elif 'model_concurrency.py' in cmd and is_python(cmd):
             match = next((r for r in concurrency_results()['campaigns'] if r.get('pid') == p['pid']), {})
             prog = match.get('progress')
@@ -1025,6 +1041,12 @@ API = {
     '/api/queue': lambda q: queue_view(),
     '/api/job-log': lambda q: job_log(q.get('id', [''])[0]),
     '/api/settings': lambda q: settings(),
+    '/api/compare': lambda q: compare.compare(q.get('models', [''])[0].split(',')),
+    '/api/coding-task': lambda q: compare.coding_task(q.get('bench', [''])[0], q.get('id', [''])[0]),
+    '/api/coding-failures': lambda q: compare.coding_failures(q.get('bench', [''])[0]),
+    '/api/agentic': lambda q: compare.agentic(q.get('name', [''])[0]),
+    '/api/agentic-runs': lambda q: compare.agentic_list(),
+    '/api/agentic-task': lambda q: compare.agentic_task(q.get('name', [''])[0], q.get('task', [''])[0]),
     '/api/storage': lambda q: storage(),
 }
 TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',

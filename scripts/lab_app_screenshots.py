@@ -12,7 +12,7 @@ images without alt text, and a sorted table column scrolled off screen (every "S
 import argparse, sys
 from pathlib import Path
 
-PAGES = [('dashboard', 'Run benchmarks'), ('results', 'Results'), ('models', 'Models'), ('queue', 'Queue'),
+PAGES = [('compare', 'Which model is better'), ('run', 'Start a run in three steps'), ('guide', 'Add a bench or a test'), ('dashboard', 'Status and bench grid'), ('results', 'Results'), ('models', 'Models'), ('queue', 'Queue'),
          ('start', 'Select several'), ('bench/v1', 'Bench answers'), ('results/speed', 'Speed runs'), ('results/coverage', 'Coverage')]
 MAX_H = 2400
 SIZES = [('wide', 1440, 1000), ('narrow', 390, 844)]

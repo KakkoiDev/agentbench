@@ -2,7 +2,8 @@
 
 The lab control app (`lab_app/`, served on `http://127.0.0.1:8766`) has three jobs:
 
-1. **Run benchmarks**: pick a model and a benchmark, queue it with one action, see what runs now and what runs next.
+1. **Compare models**: which model is better, how sure that is, and what it costs in time.
+1. **Run benchmarks**: pick models, tests and settings in three steps, queue them with one action, see what runs now and what runs next.
 2. **Results**: compare measured values in tables with units, open the settings and the generated answers.
 3. **Models**: see what is installed, how much disk it uses, download progress, and remove unused models.
 
@@ -16,7 +17,12 @@ The design system lives in one stylesheet, `lab_app/static/lab.css`. The interfa
 
 | Route | Screen | What it shows |
 |---|---|---|
-| `#dashboard` | Run benchmarks | Status tiles, the three-step launch form with a plan panel, a launch confirmation, the running job, the next jobs and recently finished jobs |
+| `#compare?models=A,B` | Compare models (home) | A one-sentence verdict, then a scorecard: one row per test family, thinking off and the model's own thinking side by side, how much each gap matters, and "How sure is this?" |
+| `#run?models=A` | Run a benchmark | Three steps (models, tests, how the model answers) and a plan panel with jobs, time, saved answers, queue position and one Queue button |
+| `#task/coding/<bench>/<id>?config=` | Coding task | The prompt, the model's code, and why it failed (failed test with its assertion, too slow, cut off, no code, crashed) |
+| `#task/agentic/<run>/<task>` · `#agentic/<run>` · `#results/agentic` | Agentic coding | The steps the model took, the files it changed, the hidden test results and what the local-model guard did |
+| `#guide?kind=task\|agentic\|bench` | Add a test | Which file holds what, a template, the check command, then a link to Run |
+| `#dashboard` | Status and bench grid (More tools) | Status tiles, the three-step launch form with a plan panel, a launch confirmation, the running job, the next jobs and recently finished jobs |
 | `#results` | Results · Answer quality | One sortable table with every bench × setting × style, filters, units in headers, links to the answers, and the settings for each bench |
 | `#results/speed` | Results · Speed runs | Every engine run from `results/runs.csv`, searchable and sortable, with engine flags behind "Show" |
 | `#results/coverage` | Results · Coverage | Which standard benches each model has, plus the bench definitions |
@@ -144,3 +150,14 @@ Screenshots and automatic checks:
 ```
 
 The script fails if a page has console errors, horizontal overflow, unlabeled form controls, controls without a name, images without alt text, or a sorted table column that is off screen. Screenshots are in `docs/lab-app/screenshots/`.
+
+
+## v2 screens (2026-11)
+
+Compare, Run, the task pages, the agentic views and the guide come from the "GLM lab redesign" canvas. Their styles
+are the `.v2` section at the end of `lab.css`, scoped to `main.v2` so older screens keep their classes; the four names
+that already existed are prefixed (`v2-verdict`, `v2-score`, `v2-step`, `v2-seg`). The canvas's container queries are
+`@media (max-width:640px)` rules. Data comes from `lab_app/compare.py` (`/api/compare`, `/api/coding-task`,
+`/api/coding-failures`, `/api/agentic`, `/api/agentic-task`, `/api/agentic-runs`); coding and agentic jobs are the
+`coding` and `agentic` kinds in `actions.build_command`. The glossary on Results and the "?" help on renamed columns
+(Writing speed, Reading time, Same as thinking off) share one list, `GLOSSARY` in `app.js`.

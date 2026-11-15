@@ -12,6 +12,7 @@ import actions
 
 ROOT = actions.ROOT
 N_PROMPTS = None
+AGENTIC_TASKS = 5   # benches/agentic-v1/tasks.py
 
 
 def _prompts():
@@ -87,6 +88,23 @@ def items():
                                  quiet=True, done=d, total=N_PROMPTS,
                                  setting=c, style=st))
 
+        # coding (18 tasks, hidden tests) and agentic coding (5 repositories in pi) for local models
+        coding = actions.coding_bench_name(om)
+        n_coding = len(json.loads((ROOT / 'benches' / 'coding-v1.json').read_text())['prompts'])
+        for c in sorted(actions.CODING_CONFIGS):
+            out.append(_item(f'coding:{om}:{c}', gid, f"Coding · {labels.get(c, c)}", suite['coding']['what'],
+                             dict(kind='coding', args=dict(ollama_model=om, configs=[c])), quiet=False,
+                             done=_done(coding, 'normal', c), total=n_coding, setting=c, style='normal'))
+        for t in ('off', 'medium'):
+            for guard in (False, True):
+                if guard and not actions.GUARD_EXTENSION.exists():
+                    continue
+                run = ROOT / 'results' / f'agentic-v1-{actions.agentic_run_name(om, t, guard)}'
+                out.append(_item(f"agentic:{om}:{t}" + (':guard' if guard else ''), gid,
+                                 f"Agentic coding · thinking {t}" + (' · local-model guard' if guard else ''), suite['agentic']['what'],
+                                 dict(kind='agentic', args=dict(ollama_model=om, thinking=t, guard=guard)), quiet=False,
+                                 done=len(list(run.glob('*/result.json'))), total=AGENTIC_TASKS, setting=t, style='normal'))
+
         for st in styles:
             out.append(_item(f'concurrency:{om}:{st}', gid, f'Parallel capability + stress · {st}',
                 'One shared model; 1, 4 and 10 clients, 3 repeats; correctness, total tokens/s and memory. Native thinking, temperature zero, 4096-token budget.',
@@ -140,6 +158,15 @@ def jobs_for(ids):
     jobs, merged = [], {}
     for i in chosen:
         j = i['job']
+        if j['kind'] in ('coding', 'agentic') and i['complete']:
+            j = dict(j, args=dict(j['args'], rerun=True))
+        if j['kind'] == 'coding':   # one job per model runs both settings
+            key = ('coding', j['args']['ollama_model'], i['complete'])
+            if key in merged:
+                merged[key]['args']['configs'].append(j['args']['configs'][0])
+                continue
+            j = dict(j, args=dict(j['args'], configs=list(j['args']['configs'])))
+            merged[key] = j
         if j['kind'] == 'bench':
             a = dict(j['args'], rerun=True) if i['complete'] else j['args']
             key = (a['name'], a['styles'][0], a.get('model'), a.get('ollama_model'), i['complete'])
