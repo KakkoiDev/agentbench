@@ -40,6 +40,8 @@ OLLAMA_CONFIGS = {
     'native': {'options': {}, 'num_predict': 4096},
     # native with room for long thinking plus code (coding benches), so cut-off answers do not decide the grade
     'native-long': {'options': {}, 'num_predict': 12000},
+    # native-long at reasoning effort low: what local-model-guard's gpt-oss profile sends when pi's thinking is off
+    'effort-low': {'think': 'low', 'options': {}, 'num_predict': 12000},
 }
 ENGINE_LINE = re.compile(r'^(\[[A-Z][A-Z0-9_ -]*\]|PROFIL|PROFILE:|ATTENTION:|P0-EXEC:|METAL|PILOT|DEGRADE_ZERO )')
 
