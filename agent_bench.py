@@ -11,7 +11,7 @@ Kept per run, under results/BENCH-NAME/TASK/ (BENCH defaults to agentic-v1): pi.
 pi.stderr, workspace/ (final files), changes.diff, visible.txt, hidden.txt and
 result.json. Runs are resumable and take the lab's .bench.lock (one GPU job at a time).
 """
-import argparse, difflib, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
+import argparse, concurrent.futures, difflib, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -97,6 +97,74 @@ def diff(task, workspace):
     return ''.join(out)
 
 
+def attempt(args, task, name, tdir, home, exts, extra_env=None):
+    """One pi run of one task in tdir/workspace; returns its result record."""
+    key = f'{args.name}-{name}-{time.time_ns()}'  # log names stay apart when attempts run at once
+    ws = tdir / 'workspace'
+    ws.mkdir(parents=True)
+    T.write_files(task, ws)
+    cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
+           '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
+           '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
+           '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', task['instruction'] + SUFFIX]
+    env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), **(extra_env or {}))
+    if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
+        env['PI_GUARD_LOG'] = str(home / f'guard-{key}.jsonl')
+        env['PI_CODING_LOG'] = str(home / f'boost-{key}.jsonl')
+    t0 = time.time()
+    with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
+        try:
+            p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=args.timeout)
+            exit_code, timed_out = p.returncode, False
+        except subprocess.TimeoutExpired:
+            exit_code, timed_out = None, True
+    wall = time.time() - t0
+    vis_ok, vis_out = T.run_visible(ws)
+    passed, total, hid_out = T.run_hidden(task, ws)
+    (tdir / 'visible.txt').write_text(vis_out)
+    (tdir / 'hidden.txt').write_text(hid_out)
+    (tdir / 'changes.diff').write_text(diff(task, ws))
+    stats = summarize(tdir / 'pi.jsonl')
+    guard_log = home / f'guard-{key}.jsonl'
+    if guard_log.exists():
+        guard_log.replace(tdir / 'guard.jsonl')
+        events = [json.loads(l) for l in (tdir / 'guard.jsonl').read_text().splitlines() if l.strip()]
+        stats['guard'] = {k: sum(e['event'] == k for e in events) for k in ('adjusted', 'repaired', 'nudged', 'stall', 'out-of-nudges')}
+    boost_log = home / f'boost-{key}.jsonl'
+    if boost_log.exists():
+        boost_log.replace(tdir / 'boost.jsonl')
+        events = [json.loads(l) for l in (tdir / 'boost.jsonl').read_text().splitlines() if l.strip()]
+        stats['boost'] = {k: sum(e['event'] == k for e in events) for k in sorted({e['event'] for e in events})}
+    tests_changed = any(rel.startswith('test_') and Path(ws, rel).read_text() != text
+                        for rel, text in task['files'].items() if Path(ws, rel).exists())
+    rec = dict(task=name, area=task['area'], model=args.model, thinking=args.thinking, exit=exit_code,
+               timed_out=timed_out, wall_s=round(wall, 1), visible_pass=vis_ok, hidden_passed=passed,
+               hidden_total=total, solved=bool(total) and passed == total, original_tests_changed=tests_changed, **stats)
+    return rec
+
+
+def several(args, task, name, tdir, home, exts):
+    """--attempts N: N runs at once, keep the first whose visible tests pass (hidden tests are never used to pick).
+    --escalate EFFORT: when no kept run passes its visible tests, run once more at that gpt-oss reasoning effort.
+    Time is the wall time of the whole thing; tool calls and tokens are summed over every run."""
+    tdir.mkdir(parents=True)
+    t0 = time.time()
+    with concurrent.futures.ThreadPoolExecutor(args.attempts) as ex:
+        recs = list(ex.map(lambda k: attempt(args, task, name, tdir / f'try{k}', home, exts), range(1, args.attempts + 1)))
+    pick = next((r for r in recs if r['visible_pass']), recs[0])
+    escalated = False
+    if args.escalate and not pick['visible_pass']:
+        r = attempt(args, task, name, tdir / 'escalated', home, exts, {'PI_GUARD_GPT_OSS_EFFORT': args.escalate})
+        recs.append(r)
+        escalated = True
+        if r['visible_pass']:
+            pick = r
+    rec = dict(pick, wall_s=round(time.time() - t0, 1), tool_calls=sum(r['tool_calls'] for r in recs),
+               output_tokens=sum(r['output_tokens'] for r in recs), picked=recs.index(pick) + 1, escalated=escalated,
+               runs=[dict(solved=r['solved'], visible_pass=r['visible_pass'], wall_s=r['wall_s']) for r in recs])
+    return rec
+
+
 def run(args):
     out_dir = ROOT / 'results' / f'{args.bench}-{args.name}'
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -131,46 +199,12 @@ def run(args):
         if tdir.exists():  # an interrupted attempt: keep it under attempts/
             (out_dir / 'attempts').mkdir(exist_ok=True)
             tdir.replace(out_dir / 'attempts' / f'{name}-{time.time_ns()}')
-        ws = tdir / 'workspace'
-        ws.mkdir(parents=True)
-        T.write_files(task, ws)
-        cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
-               '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
-               '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-               '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', task['instruction'] + SUFFIX]
-        env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home))
-        if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
-            env['PI_GUARD_LOG'] = str(home / f'guard-{args.name}-{name}.jsonl')
-            env['PI_CODING_LOG'] = str(home / f'boost-{args.name}-{name}.jsonl')
-        t0 = time.time()
-        with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
-            try:
-                p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=args.timeout)
-                exit_code, timed_out = p.returncode, False
-            except subprocess.TimeoutExpired:
-                exit_code, timed_out = None, True
-        wall = time.time() - t0
-        vis_ok, vis_out = T.run_visible(ws)
-        passed, total, hid_out = T.run_hidden(task, ws)
-        (tdir / 'visible.txt').write_text(vis_out)
-        (tdir / 'hidden.txt').write_text(hid_out)
-        (tdir / 'changes.diff').write_text(diff(task, ws))
-        stats = summarize(tdir / 'pi.jsonl')
-        guard_log = home / f'guard-{args.name}-{name}.jsonl'
-        if guard_log.exists():
-            guard_log.replace(tdir / 'guard.jsonl')
-            events = [json.loads(l) for l in (tdir / 'guard.jsonl').read_text().splitlines() if l.strip()]
-            stats['guard'] = {k: sum(e['event'] == k for e in events) for k in ('adjusted', 'repaired', 'nudged', 'stall', 'out-of-nudges')}
-        boost_log = home / f'boost-{args.name}-{name}.jsonl'
-        if boost_log.exists():
-            boost_log.replace(tdir / 'boost.jsonl')
-            events = [json.loads(l) for l in (tdir / 'boost.jsonl').read_text().splitlines() if l.strip()]
-            stats['boost'] = {k: sum(e['event'] == k for e in events) for k in sorted({e['event'] for e in events})}
-        tests_changed = any(rel.startswith('test_') and Path(ws, rel).read_text() != text
-                            for rel, text in task['files'].items() if Path(ws, rel).exists())
-        rec = dict(task=name, area=task['area'], model=args.model, thinking=args.thinking, exit=exit_code,
-                   timed_out=timed_out, wall_s=round(wall, 1), visible_pass=vis_ok, hidden_passed=passed,
-                   hidden_total=total, solved=bool(total) and passed == total, original_tests_changed=tests_changed, **stats)
+        if args.attempts > 1 or args.escalate:
+            rec = several(args, task, name, tdir, home, exts)
+        else:
+            rec = attempt(args, task, name, tdir, home, exts)
+        passed, total, stats, timed_out = rec['hidden_passed'], rec['hidden_total'], rec, rec['timed_out']
+        vis_ok = rec['visible_pass']
         (tdir / 'result.json').write_text(json.dumps(rec, indent=1))
         print(f"[{i}/{len(names)}] {name}: solved={rec['solved']} hidden={passed}/{total} visible={vis_ok} "
               f"wall={rec['wall_s']}s tools={stats['tool_calls']} out_tokens={stats['output_tokens']} "
@@ -228,6 +262,8 @@ def main():
     r.add_argument('--terse', action='store_true', help="append a terse instruction to pi's system prompt (short reasoning, act, one- or two-line reply)")
     r.add_argument('--ollama-url', default='', help='point pi at another Ollama, e.g. an isolated one on http://127.0.0.1:11500')
     r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
+    r.add_argument('--attempts', type=int, default=1, help='runs per task at once; keep the first that passes its visible tests')
+    r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
