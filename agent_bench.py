@@ -97,17 +97,21 @@ def diff(task, workspace):
     return ''.join(out)
 
 
-def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None):
+def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None, start_from=None, instruction=None):
     """One pi run of one task in tdir/workspace; returns its result record."""
     key = f'{args.name}-{name}-{time.time_ns()}'  # log names stay apart when attempts run at once
     model = model or args.model
     ws = tdir / 'workspace'
-    ws.mkdir(parents=True)
-    T.write_files(task, ws)
+    if start_from:  # carry on from an earlier run's files
+        tdir.mkdir(parents=True)
+        shutil.copytree(start_from, ws)
+    else:
+        ws.mkdir(parents=True)
+        T.write_files(task, ws)
     cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
            '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', model, '--thinking', args.thinking, '--offline',
            '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-           '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', task['instruction'] + SUFFIX]
+           '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', (instruction or task['instruction']) + SUFFIX]
     env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), **(extra_env or {}))
     if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
         env['PI_GUARD_LOG'] = str(home / f'guard-{key}.jsonl')
@@ -144,16 +148,38 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None):
     return rec
 
 
+def discussion(task, other, ok):
+    """Round-2 request for --pair: the task again, plus the colleague's changes and visible test result."""
+    d = (other / 'changes.diff').read_text(errors='replace')
+    v = (other / 'visible.txt').read_text(errors='replace')
+    return (task['instruction'] + "\n\nYou already worked on this task: the files are as you left them. A colleague worked on the same "
+            "task at the same time, separately. Their changes:\n```diff\n" + (d[:6000] or '(no changes)') + "\n```\n"
+            "Their run of the existing tests: " + ('passed' if ok else 'FAILED') + "\n```\n" + v[-1500:] + "\n```\n"
+            "Compare the two solutions: where do they differ, and which handles the request and its edge cases better? "
+            "Then improve your own files: keep what is right, take what is better from your colleague, and fix anything "
+            "either of you missed. Run the tests before you finish.")
+
+
 def several(args, task, name, tdir, home, exts):
     """--attempts N: N runs at once, keep the first whose visible tests pass (hidden tests are never used to pick).
     --escalate EFFORT: when no kept run passes its visible tests, run once more at that gpt-oss reasoning effort.
     --escalate-model MODEL: the same, handing that one more run to another model.
+    --pair: after the 2 runs, each reads the other's changes and test result and revises its own, at once.
     Time is the wall time of the whole thing; tool calls and tokens are summed over every run."""
     tdir.mkdir(parents=True)
     t0 = time.time()
     with concurrent.futures.ThreadPoolExecutor(args.attempts) as ex:
         recs = list(ex.map(lambda k: attempt(args, task, name, tdir / f'try{k}', home, exts), range(1, args.attempts + 1)))
     pick = next((r for r in recs if r['visible_pass']), recs[0])
+    discussed = False
+    if args.pair:
+        discussed = True
+        with concurrent.futures.ThreadPoolExecutor(2) as ex:
+            second = list(ex.map(lambda k: attempt(args, task, name, tdir / f'discuss{k}', home, exts,
+                                                   start_from=tdir / f'try{k}' / 'workspace',
+                                                   instruction=discussion(task, tdir / f'try{3 - k}', recs[2 - k]['visible_pass'])), (1, 2)))
+        recs += second
+        pick = next((r for r in second if r['visible_pass']), pick if pick['visible_pass'] else second[0])
     escalated = False
     if (args.escalate or args.escalate_model) and not pick['visible_pass']:
         r = attempt(args, task, name, tdir / 'escalated', home, exts,
@@ -163,7 +189,7 @@ def several(args, task, name, tdir, home, exts):
         if r['visible_pass']:
             pick = r
     rec = dict(pick, wall_s=round(time.time() - t0, 1), tool_calls=sum(r['tool_calls'] for r in recs),
-               output_tokens=sum(r['output_tokens'] for r in recs), picked=recs.index(pick) + 1, escalated=escalated,
+               output_tokens=sum(r['output_tokens'] for r in recs), picked=next(i for i, r in enumerate(recs) if r is pick) + 1, escalated=escalated, discussed=discussed,
                runs=[dict(model=r['model'], solved=r['solved'], visible_pass=r['visible_pass'], wall_s=r['wall_s']) for r in recs])
     return rec
 
@@ -202,7 +228,9 @@ def run(args):
         if tdir.exists():  # an interrupted attempt: keep it under attempts/
             (out_dir / 'attempts').mkdir(exist_ok=True)
             tdir.replace(out_dir / 'attempts' / f'{name}-{time.time_ns()}')
-        if args.attempts > 1 or args.escalate or args.escalate_model:
+        if args.pair:
+            args.attempts = 2
+        if args.attempts > 1 or args.escalate or args.escalate_model or args.pair:
             rec = several(args, task, name, tdir, home, exts)
         else:
             rec = attempt(args, task, name, tdir, home, exts)
@@ -268,6 +296,7 @@ def main():
     r.add_argument('--attempts', type=int, default=1, help='runs per task at once; keep the first that passes its visible tests')
     r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
     r.add_argument('--escalate-model', default='', help='another pi model (e.g. ollama/qwen3.8:27b-mlx) for one more run when visible tests still fail')
+    r.add_argument('--pair', action='store_true', help='two runs at once, then each sees the other\'s changes and test result and revises its own (2 rounds)')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
