@@ -1,22 +1,31 @@
 """Agentic coding bench: a model works on small repositories with its own tools (pi).
 
-Each task (benches/agentic-v1/tasks.py) is copied to a fresh workspace, pi runs once
+Each task (benches/agentic-v1/tasks.py, or another bench with --bench agentic-v2) is copied to a fresh workspace, pi runs once
 with the task's instruction inside a macOS sandbox (writes only in the workspace,
 no network except localhost), then hidden tests decide the grade.
 
     .venv/bin/python agent_bench.py run --name NAME --model ollama/qwen3.8:27b-mlx [--thinking off]
     .venv/bin/python agent_bench.py report --names A,B --out OUT
 
-Kept per run, under results/agentic-v1-NAME/TASK/: pi.jsonl (every pi event),
+Kept per run, under results/BENCH-NAME/TASK/ (BENCH defaults to agentic-v1): pi.jsonl (every pi event),
 pi.stderr, workspace/ (final files), changes.diff, visible.txt, hidden.txt and
 result.json. Runs are resumable and take the lab's .bench.lock (one GPU job at a time).
 """
-import argparse, difflib, fcntl, json, os, shutil, subprocess, sys, tempfile, time
+import argparse, difflib, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'benches' / 'agentic-v1'))
-import tasks as T  # noqa: E402
+
+
+def load_bench(name):
+    """The task module of a bench folder (benches/<name>/tasks.py): agentic-v1 or the held-out agentic-v2."""
+    spec = importlib.util.spec_from_file_location(f'{name.replace("-", "_")}_tasks', ROOT / 'benches' / name / 'tasks.py')
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+T = load_bench('agentic-v1')  # replaced by --bench in main()
 
 SANDBOX = ROOT / 'benches' / 'agentic-v1' / 'sandbox.sb'
 PI_HOME = ROOT / 'results' / 'agentic-pi-home'
@@ -24,14 +33,24 @@ SUFFIX = ("\n\nWork only in the current folder; it is a fresh copy made for you.
           "When you are finished, reply with a short summary of what you changed.")
 
 
-def pi_home():
-    """A private pi config for the bench, so the user's own pi settings and sessions are not used or changed."""
-    PI_HOME.mkdir(parents=True, exist_ok=True)
+def pi_home(ollama_url=''):
+    """A private pi config for the bench, so the user's own pi settings and sessions are not used or changed.
+
+    With ollama_url (an isolated Ollama, e.g. http://127.0.0.1:11500), a separate home whose ollama
+    provider points there is used instead, so the default home keeps pointing at the system Ollama."""
+    home = PI_HOME
     src = Path.home() / '.pi' / 'agent' / 'models.json'
-    if not (PI_HOME / 'models.json').exists():
-        shutil.copy(src, PI_HOME / 'models.json')
-    (PI_HOME / 'settings.json').write_text(json.dumps({'quietStartup': 'header'}))
-    return PI_HOME
+    if ollama_url:
+        home = PI_HOME.with_name(PI_HOME.name + '-' + ollama_url.rsplit(':', 1)[-1].strip('/'))
+    home.mkdir(parents=True, exist_ok=True)
+    if not (home / 'models.json').exists():
+        shutil.copy(src, home / 'models.json')
+    if ollama_url:
+        cfg = json.loads((home / 'models.json').read_text())
+        cfg['providers']['ollama']['baseUrl'] = ollama_url.rstrip('/') + '/v1'
+        (home / 'models.json').write_text(json.dumps(cfg, indent=2))
+    (home / 'settings.json').write_text(json.dumps({'quietStartup': 'header'}))
+    return home
 
 
 def summarize(events_path):
@@ -77,20 +96,22 @@ def diff(task, workspace):
 
 
 def run(args):
-    out_dir = ROOT / 'results' / f'agentic-v1-{args.name}'
+    out_dir = ROOT / 'results' / f'{args.bench}-{args.name}'
     out_dir.mkdir(parents=True, exist_ok=True)
     lock = (ROOT / '.bench.lock').open('w')
     if not args.no_lock:  # --no-lock is only for plumbing tests with a stand-in pi
         print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
         fcntl.flock(lock, fcntl.LOCK_EX)
-    home = pi_home()
+    home = pi_home(args.ollama_url)
     meta = out_dir / 'meta.json'
     if not meta.exists():
         meta.write_text(json.dumps({
-            'started': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'model': args.model, 'thinking': args.thinking,
+            'started': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'bench': args.bench, 'model': args.model, 'thinking': args.thinking,
             'pi_version': subprocess.run(['pi', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
+            'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
             'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
+    exts = [e for e in args.extension.split(',') if e]
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
     if args.rerun:  # measure again: earlier task runs move to attempts/rerun-<time>/ (kept, never deleted)
         dest = out_dir / 'attempts' / f'rerun-{time.strftime("%Y%m%dT%H%M%S")}'
@@ -113,10 +134,11 @@ def run(args):
         cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
                '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
                '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-               '--no-prompt-templates', *(['-e', args.extension] if args.extension else []), '--mode', 'json', task['instruction'] + SUFFIX]
+               '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], '--mode', 'json', task['instruction'] + SUFFIX]
         env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home))
-        if args.extension:  # the guard's own log of what it did, kept with the run (written where the sandbox allows)
+        if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
             env['PI_GUARD_LOG'] = str(home / f'guard-{args.name}-{name}.jsonl')
+            env['PI_CODING_LOG'] = str(home / f'boost-{args.name}-{name}.jsonl')
         t0 = time.time()
         with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
             try:
@@ -136,6 +158,11 @@ def run(args):
             guard_log.replace(tdir / 'guard.jsonl')
             events = [json.loads(l) for l in (tdir / 'guard.jsonl').read_text().splitlines() if l.strip()]
             stats['guard'] = {k: sum(e['event'] == k for e in events) for k in ('adjusted', 'repaired', 'nudged', 'stall', 'out-of-nudges')}
+        boost_log = home / f'boost-{args.name}-{name}.jsonl'
+        if boost_log.exists():
+            boost_log.replace(tdir / 'boost.jsonl')
+            events = [json.loads(l) for l in (tdir / 'boost.jsonl').read_text().splitlines() if l.strip()]
+            stats['boost'] = {k: sum(e['event'] == k for e in events) for k in sorted({e['event'] for e in events})}
         tests_changed = any(rel.startswith('test_') and Path(ws, rel).read_text() != text
                             for rel, text in task['files'].items() if Path(ws, rel).exists())
         rec = dict(task=name, area=task['area'], model=args.model, thinking=args.thinking, exit=exit_code,
@@ -152,7 +179,7 @@ def report(args):
     names = args.names.split(',')
     per = {}
     for n in names:
-        d = ROOT / 'results' / f'agentic-v1-{n}'
+        d = ROOT / 'results' / f'{args.bench}-{n}'
         meta = json.loads((d / 'meta.json').read_text())
         rs = [json.loads(p.read_text()) for p in sorted(d.glob('*/result.json'))]
         per[n] = {r['task']: r for r in rs}
@@ -178,8 +205,9 @@ def report(args):
     text = '\n'.join(lines) + '\n'
     out = ROOT / 'results' / f'compare-{args.out}'
     out.mkdir(parents=True, exist_ok=True)
-    (out / 'agentic.md').write_text(text)
-    (out / 'agentic.json').write_text(json.dumps(rows, indent=1))
+    stem = 'agentic' if args.bench == 'agentic-v1' else args.bench
+    (out / f'{stem}.md').write_text(text)
+    (out / f'{stem}.json').write_text(json.dumps(rows, indent=1))
     print(text)
 
 
@@ -192,13 +220,19 @@ def main():
     r.add_argument('--thinking', default='off')
     r.add_argument('--only', default='')
     r.add_argument('--timeout', type=int, default=1200)
-    r.add_argument('--no-lock', action='store_true', help=argparse.SUPPRESS)
+    r.add_argument('--no-lock', action='store_true', help='do not take .bench.lock: only when the caller already holds it '
+                   '(parallel_requests_bench.py agents) or for plumbing tests with a stand-in pi')
+    r.add_argument('--ollama-url', default='', help='point pi at another Ollama, e.g. an isolated one on http://127.0.0.1:11500')
     r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
-    r.add_argument('--extension', default='', help='a pi extension to load for the run, e.g. ~/Code/pi-core/local-model-guard/index.ts')
+    r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
     p.add_argument('--out', required=True)
+    for sp in (r, p):
+        sp.add_argument('--bench', default='agentic-v1', help='task folder under benches/: agentic-v1 or agentic-v2 (held out)')
     a = ap.parse_args()
+    global T
+    T = load_bench(a.bench)
     {'run': run, 'report': report}[a.cmd](a)
 
 
