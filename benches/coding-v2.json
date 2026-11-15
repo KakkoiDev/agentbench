@@ -1,7 +1,8 @@
 {
  "note": "coding-v2 (held out): 12 coding tasks graded by running hidden tests (built by benches/coding-v2/build.py).",
  "styles": {
-  "normal": ""
+  "normal": "",
+  "terse": "\nBe terse: think briefly, and reply with the code block only, no explanation."
  },
  "prompts": [
   {

@@ -1,7 +1,8 @@
 {
  "note": "coding-v1: 18 coding tasks graded by running hidden tests (built by benches/coding-v1/build.py).",
  "styles": {
-  "normal": ""
+  "normal": "",
+  "terse": "\nBe terse: think briefly, and reply with the code block only, no explanation."
  },
  "prompts": [
   {

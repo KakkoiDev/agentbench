@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from glm_bench import grade
 
+TERSE = "\nBe terse: think briefly, and reply with the code block only, no explanation."
 ASK = "\nReply with the complete Python code in a single ```python block. Use only the standard library."
 
 TASKS = [
@@ -86,7 +87,7 @@ TASKS = [
 ]
 
 spec = {'note': 'coding-v1: 18 coding tasks graded by running hidden tests (built by benches/coding-v1/build.py).',
-        'styles': {'normal': ''},
+        'styles': {'normal': '', 'terse': TERSE},
         'prompts': [{'id': 'code-' + t['id'], 'kind': 'code', 'area': t['area'], 'prompt': t['prompt'] + ASK, 'tests': t['tests']} for t in TASKS]}
 
 bad = 0

@@ -29,6 +29,8 @@ T = load_bench('agentic-v1')  # replaced by --bench in main()
 
 SANDBOX = ROOT / 'benches' / 'agentic-v1' / 'sandbox.sb'
 PI_HOME = ROOT / 'results' / 'agentic-pi-home'
+TERSE = ("Be terse. Keep your reasoning short: decide and act with a tool call instead of deliberating. "
+         "When you are done, reply in one or two lines.")
 SUFFIX = ("\n\nWork only in the current folder; it is a fresh copy made for you. "
           "When you are finished, reply with a short summary of what you changed.")
 
@@ -110,6 +112,7 @@ def run(args):
             'pi_version': subprocess.run(['pi', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
+            'terse': TERSE if args.terse else None,
             'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
     exts = [e for e in args.extension.split(',') if e]
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
@@ -134,7 +137,7 @@ def run(args):
         cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
                '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', args.model, '--thinking', args.thinking, '--offline',
                '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-               '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], '--mode', 'json', task['instruction'] + SUFFIX]
+               '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', task['instruction'] + SUFFIX]
         env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home))
         if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
             env['PI_GUARD_LOG'] = str(home / f'guard-{args.name}-{name}.jsonl')
@@ -222,6 +225,7 @@ def main():
     r.add_argument('--timeout', type=int, default=1200)
     r.add_argument('--no-lock', action='store_true', help='do not take .bench.lock: only when the caller already holds it '
                    '(parallel_requests_bench.py agents) or for plumbing tests with a stand-in pi')
+    r.add_argument('--terse', action='store_true', help="append a terse instruction to pi's system prompt (short reasoning, act, one- or two-line reply)")
     r.add_argument('--ollama-url', default='', help='point pi at another Ollama, e.g. an isolated one on http://127.0.0.1:11500')
     r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
