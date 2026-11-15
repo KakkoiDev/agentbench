@@ -1,0 +1,92 @@
+{
+ "note": "coding-v2 (held out): 12 coding tasks graded by running hidden tests (built by benches/coding-v2/build.py).",
+ "styles": {
+  "normal": ""
+ },
+ "prompts": [
+  {
+   "id": "code2-semver",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function compare_versions(a, b) for semantic versions 'MAJOR.MINOR.PATCH' with an optional pre-release '-x.y.z' (dot-separated identifiers) and optional build metadata '+...'. Return -1, 0 or 1. Follow SemVer 2.0 precedence: build metadata is ignored; a pre-release version is lower than the same version without one; pre-release identifiers compare left to right, numeric identifiers numerically, alphanumeric ones in ASCII order, numeric lower than alphanumeric, and a shorter list is lower when all shared identifiers are equal. Raise ValueError for an invalid version (such as '1.2', '01.2.3' or '1.2.3-').\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "c=compare_versions\nassert c('1.0.0','1.0.0')==0 and c('1.0.0','2.0.0')==-1 and c('2.1.0','2.0.9')==1\nassert c('1.10.0','1.9.0')==1\nchain=['1.0.0-alpha','1.0.0-alpha.1','1.0.0-alpha.beta','1.0.0-beta','1.0.0-beta.2','1.0.0-beta.11','1.0.0-rc.1','1.0.0']\nfor x,y in zip(chain,chain[1:]):\n    assert c(x,y)==-1 and c(y,x)==1, (x,y)\nassert c('1.0.0+build.1','1.0.0+zzz')==0\nassert c('1.0.0-1','1.0.0-a')==-1\nfor bad in ['1.2','01.2.3','1.2.3-','a.b.c','1.2.3.4','']:\n    try: c(bad,'1.0.0')\n    except ValueError: pass\n    else: raise AssertionError(bad)"
+  },
+  {
+   "id": "code2-meeting-rooms",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function min_rooms(meetings) that takes a list of (start, end) pairs (end > start, any order) and returns the minimum number of rooms needed so that no two meetings in the same room overlap. A meeting that ends at time t and one that starts at t can share a room. It must handle 200,000 meetings in well under a second.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert min_rooms([])==0\nassert min_rooms([(0,30),(5,10),(15,20)])==2\nassert min_rooms([(7,10),(2,4)])==1\nassert min_rooms([(1,5),(5,10)])==1\nassert min_rooms([(1,10),(2,9),(3,8),(4,7)])==4\nimport random,time\nrandom.seed(2)\nms=[(s,s+random.randint(1,50)) for s in (random.randint(0,10**6) for _ in range(200000))]\nt=time.time(); r=min_rooms(ms); assert time.time()-t<1.5\nassert r>=1"
+  },
+  {
+   "id": "code2-bracket-error",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function first_bracket_error(s) that checks the brackets (), [] and {} in s, ignoring every other character and anything inside double-quoted strings (a backslash escapes the next character inside a string). Return the index of the first character where the brackets go wrong: a closing bracket that does not match, or a closing bracket with nothing open. If the text ends with brackets still open, return the index of the earliest unclosed opening bracket. If all is well return -1. An unterminated string is an error at the index of its opening quote.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "f=first_bracket_error\nassert f('')==-1 and f('a(b)[c]{d}')==-1\nassert f('(]')==1\nassert f(')')==0\nassert f('(()')==0\nassert f('{[()]}(')==6\nassert f('x = \"(\" + ( 1 )')==-1\nassert f('\"a\\\\\"(\" )')==7\nassert f('() \"abc')==3\nassert f('([)]')==2"
+  },
+  {
+   "id": "code2-sudoku-valid",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function sudoku_errors(board) where board is a list of 9 strings of 9 characters, each a digit 1-9 or '.' for empty. Return a sorted list of (row, col) cells (0-based) whose digit also appears elsewhere in the same row, column or 3x3 box. Raise ValueError if the board is not 9 strings of 9 valid characters.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "ok=['53..7....','6..195...','.98....6.','8...6...3','4..8.3..1','7...2...6','.6....28.','...419..5','....8..79']\nassert sudoku_errors(ok)==[]\nb=list(ok); b[0]='55..7....'\nassert sudoku_errors(b)==[(0,0),(0,1)]\nb=list(ok); b[8]='5...8..79'\nassert sudoku_errors(b)==[(0,0),(8,0)]\nb=list(ok); b[1]='6..195..3'\nassert (1,8) in sudoku_errors(b) and (3,8) in sudoku_errors(b)\nassert sudoku_errors(['.'*9]*9)==[]\nfor bad in (ok[:8], ok[:8]+['123'], ok[:8]+['0........'], ok[:8]+['a........']):\n    try: sudoku_errors(bad)\n    except ValueError: pass\n    else: raise AssertionError(bad)"
+  },
+  {
+   "id": "code2-knapsack",
+   "kind": "code",
+   "area": "algorithms",
+   "prompt": "Write a Python function knapsack(items, capacity) where items is a list of (weight, value) pairs with positive integer weights and non-negative values, each usable at most once. Return (best_value, indices): the maximum total value with total weight <= capacity, and the sorted list of item indices that achieves it. When several choices give the best value, return the one with the smallest total weight, and among those the lexicographically smallest index list. It must handle 200 items with capacity 5000 in a few seconds.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert knapsack([],10)==(0,[])\nassert knapsack([(5,10)],4)==(0,[])\nassert knapsack([(1,1),(3,4),(4,5),(5,7)],7)==(9,[1,2])\nassert knapsack([(2,3),(2,3),(4,6)],4)==(6,[0,1])\nassert knapsack([(1,0),(2,5)],3)==(5,[1])\nimport random,time\nrandom.seed(9)\nit=[(random.randint(1,100),random.randint(0,100)) for _ in range(200)]\nt=time.time(); v,ix=knapsack(it,5000); assert time.time()-t<8\nassert sum(it[i][0] for i in ix)<=5000 and sum(it[i][1] for i in ix)==v and ix==sorted(set(ix))\nassert v==sum(x[1] for x in it if x[1]>0) or v>0"
+  },
+  {
+   "id": "code2-normalize-path",
+   "kind": "code",
+   "area": "strings",
+   "prompt": "Write a Python function normalize_path(p) for POSIX-style paths without using os.path or pathlib. Collapse repeated slashes, remove '.' segments, and resolve '..' against the previous segment. An absolute path stays absolute and '..' at the root stays at the root ('/../a' -> '/a'). A relative path keeps leading '..' segments it cannot resolve ('../../a' stays '../../a', 'a/../..' -> '..'). The empty result of a relative path is '.'. A trailing slash is dropped except for '/' itself.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "n=normalize_path\nfor a,b in [('/a/b/../c','/a/c'),('a//b/./c/','a/b/c'),('/../a','/a'),('/','/'),('//',  '/'),('','.'),('.','.'),('a/..','.'),('a/../..','..'),('../../a','../../a'),('./../x/./y/..','../x'),('/a/./b/../../c/','/c'),('a/b/c/../../../../d','../d')]:\n    assert n(a)==b, (a, n(a), b)\nimport inspect\nsrc=inspect.getsource(normalize_path)\nassert 'os.path' not in src and 'pathlib' not in src and 'normpath' not in src"
+  },
+  {
+   "id": "code2-event-emitter",
+   "kind": "code",
+   "area": "data structures",
+   "prompt": "Write a Python class EventEmitter with on(event, fn), once(event, fn), off(event, fn) and emit(event, *args, **kwargs). Listeners run in the order they were added; emit returns the number of listeners called. A once listener is removed before it runs, so it runs at most once even if it emits the same event again. off removes the first matching registration (on or once) and does nothing if there is none. Listeners added or removed during an emit do not change which listeners that emit calls. An exception in a listener propagates out of emit immediately, and the remaining listeners of that emit are not called.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "e=EventEmitter(); log=[]\nf=lambda x: log.append(('f',x)); g=lambda x: log.append(('g',x))\ne.on('a',f); e.once('a',g)\nassert e.emit('a',1)==2 and e.emit('a',2)==1\nassert log==[('f',1),('g',1),('f',2)]\ne.off('a',f); assert e.emit('a',3)==0\ne.off('a',f); e.off('zz',f)\ne=EventEmitter(); calls=[]\ndef again():\n    calls.append(1); e.emit('r')\ne.once('r',again); e.emit('r'); assert calls==[1]\ne=EventEmitter(); seen=[]\ndef adder(): seen.append('adder'); e.on('x',lambda: seen.append('late'))\ne.on('x',adder); assert e.emit('x')==1; assert seen==['adder']\nassert e.emit('x')==2\ne=EventEmitter(); out=[]\ndef boom(): raise KeyError('k')\ne.on('b',boom); e.on('b',lambda: out.append(1))\ntry: e.emit('b')\nexcept KeyError: pass\nelse: raise AssertionError\nassert out==[]\ne=EventEmitter(); r=[]\nh=lambda **k: r.append(k)\ne.on('k',h); e.on('k',h); e.off('k',h); assert e.emit('k',z=1)==1 and r==[{'z':1}]"
+  },
+  {
+   "id": "code2-merge-sorted",
+   "kind": "code",
+   "area": "generators",
+   "prompt": "Write a Python generator function merge_sorted(*iterables, key=None) that lazily merges any number of already-sorted iterables into one sorted stream. It must be lazy (iterables may be infinite), stable (equal items come out in the order of the iterables they came from, and in their original order within one iterable), and support an optional key function. Do not use heapq.merge.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "import itertools, inspect\nassert list(merge_sorted())==[]\nassert list(merge_sorted([1,4,7],[2,5],[3,6,9]))==[1,2,3,4,5,6,7,9]\nassert list(itertools.islice(merge_sorted(itertools.count(0,2),itertools.count(1,2)),6))==[0,1,2,3,4,5]\na=[(1,'a'),(2,'a')]; b=[(1,'b'),(2,'b')]\nassert list(merge_sorted(a,b,key=lambda t:t[0]))==[(1,'a'),(1,'b'),(2,'a'),(2,'b')]\nassert list(merge_sorted(['bb','a'][::-1],['cc'],key=len))==['a','bb','cc']\nassert list(merge_sorted([],[1],[]))==[1]\nassert 'heapq.merge' not in inspect.getsource(merge_sorted) and ' merge(' not in inspect.getsource(merge_sorted)\nassert inspect.isgeneratorfunction(merge_sorted)"
+  },
+  {
+   "id": "code2-number-words",
+   "kind": "code",
+   "area": "strings",
+   "prompt": "Write a Python function number_to_words(n) for integers 0 <= n < 1,000,000,000 that returns British-style English words: 'zero', 'seven', 'twenty-one', 'one hundred', 'one hundred and five', 'three thousand and one', 'one million two hundred thousand', 'nine hundred and ninety-nine million nine hundred and ninety-nine thousand nine hundred and ninety-nine'. Use 'and' before the last part when it is below one hundred and something bigger comes before it. Raise ValueError outside the range or for non-integers (including bool).\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "w=number_to_words\nfor n,s in [(0,'zero'),(7,'seven'),(13,'thirteen'),(21,'twenty-one'),(40,'forty'),(100,'one hundred'),(105,'one hundred and five'),(110,'one hundred and ten'),(999,'nine hundred and ninety-nine'),(1000,'one thousand'),(1001,'one thousand and one'),(3001,'three thousand and one'),(1100,'one thousand one hundred'),(1234,'one thousand two hundred and thirty-four'),(100000,'one hundred thousand'),(1200000,'one million two hundred thousand'),(1000001,'one million and one'),(999999999,'nine hundred and ninety-nine million nine hundred and ninety-nine thousand nine hundred and ninety-nine')]:\n    assert w(n)==s, (n,w(n))\nfor bad in (-1,10**9,1.0,True,'5'):\n    try: w(bad)\n    except ValueError: pass\n    else: raise AssertionError(bad)"
+  },
+  {
+   "id": "code2-diff-dicts",
+   "kind": "code",
+   "area": "data processing",
+   "prompt": "Write a Python function diff(a, b) that compares two JSON-like values (dicts, lists, str, numbers, bool, None) and returns a sorted list of changes as tuples (path, kind, old, new). path is a tuple of keys and list indices from the root. kind is 'added' (old is None), 'removed' (new is None) or 'changed'. Dicts are compared key by key and recursively; lists are compared index by index and recursively, with extra items at the end reported as added or removed. A value whose type differs (including bool versus int, and 1 versus 1.0 is NOT a change) is reported as one 'changed' at that path. Equal values give no entries. Sort the result by path, comparing paths as tuples of str(part).\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "assert diff({},{})==[] and diff(1,1)==[] and diff(1,1.0)==[]\nassert diff({'a':1},{'a':2})==[(('a',),'changed',1,2)]\nassert diff({'a':1},{'b':1})==[(('a',),'removed',1,None),(('b',),'added',None,1)]\nassert diff({'x':{'y':[1,2,3]}},{'x':{'y':[1,5]}})==[(('x','y',1),'changed',2,5),(('x','y',2),'removed',3,None)]\nassert diff([1],[1,{'k':0}])==[((1,),'added',None,{'k':0})]\nassert diff({'a':True},{'a':1})==[(('a',),'changed',True,1)]\nassert diff({'a':[1]},{'a':{'0':1}})==[(('a',),'changed',[1],{'0':1})]\nassert diff(None,{'a':1})==[((),'changed',None,{'a':1})]\nr=diff({'b':{'c':1},'a':[0,0]},{'b':{'c':2,'d':3},'a':[0]})\nassert r==[(('a',1),'removed',0,None),(('b','c'),'changed',1,2),(('b','d'),'added',None,3)], r"
+  },
+  {
+   "id": "code2-cron-match",
+   "kind": "code",
+   "area": "parsing",
+   "prompt": "Write a Python function cron_matches(expr, dt) for a 5-field cron expression 'minute hour day-of-month month day-of-week' and a datetime dt. Each field is '*', a number, a range 'a-b', a list 'a,b,c' of numbers or ranges, or any of those with a step '/n' ('*/15', '10-30/5'). Ranges: minute 0-59, hour 0-23, day 1-31, month 1-12, day-of-week 0-6 with 0 = Sunday (7 is also Sunday). When both day-of-month and day-of-week are restricted (not '*'), the day matches if EITHER matches; otherwise both must match. Raise ValueError for malformed expressions or out-of-range values.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "from datetime import datetime as D\nm=cron_matches\nassert m('* * * * *',D(2026,1,1,0,0))\nassert m('*/15 * * * *',D(2026,1,1,3,45)) and not m('*/15 * * * *',D(2026,1,1,3,46))\nassert m('0 9-17/2 * * 1-5',D(2026,11,16,13,0)) and not m('0 9-17/2 * * 1-5',D(2026,11,16,14,0))\nassert not m('0 9 * * 1-5',D(2026,11,15,9,0))\nassert m('0 0 * * 0',D(2026,11,15,0,0)) and m('0 0 * * 7',D(2026,11,15,0,0))\nassert m('30 4 1,15 * 5',D(2026,11,13,4,30)) and m('30 4 1,15 * 5',D(2026,11,15,4,30)) and not m('30 4 1,15 * 5',D(2026,11,14,4,30))\nassert m('0 0 13 * *',D(2026,11,13,0,0)) and not m('0 0 13 * *',D(2026,11,14,0,0))\nassert m('5,10-12 * * 2 *',D(2026,2,1,0,11)) and not m('5,10-12 * * 2 *',D(2026,3,1,0,11))\nfor bad in ['* * * *','60 * * * *','* 24 * * *','* * 0 * *','* * * 13 *','* * * * 8','*/0 * * * *','5-1 * * * *','a * * * *','1,,2 * * * *']:\n    try: m(bad,D(2026,1,1))\n    except ValueError: pass\n    else: raise AssertionError(bad)"
+  },
+  {
+   "id": "code2-count-pairs",
+   "kind": "code",
+   "area": "performance",
+   "prompt": "Write a Python function count_pairs(nums, lo, hi) that returns the number of index pairs i < j with lo <= nums[i] + nums[j] <= hi. nums are integers (possibly negative, possibly repeated). It must handle 200,000 numbers in about a second, so an O(n^2) loop is too slow.\nReply with the complete Python code in a single ```python block. Use only the standard library.",
+   "tests": "import random,time,itertools\nassert count_pairs([],0,10)==0 and count_pairs([5],0,10)==0\nassert count_pairs([0,1,7,4,4,5],3,6)==6\nassert count_pairs([-1,0,1],0,0)==1\nassert count_pairs([2,2,2,2],4,4)==6\nrandom.seed(4)\nfor _ in range(200):\n    a=[random.randint(-20,20) for _ in range(random.randint(0,30))]; lo=random.randint(-30,30); hi=lo+random.randint(0,20)\n    assert count_pairs(a,lo,hi)==sum(lo<=x+y<=hi for x,y in itertools.combinations(a,2)), (a,lo,hi)\nb=[random.randint(-10**9,10**9) for _ in range(200000)]\nt=time.time(); count_pairs(b,-10**8,10**8); assert time.time()-t<2.5"
+  }
+ ]
+}
