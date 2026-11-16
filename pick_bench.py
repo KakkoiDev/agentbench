@@ -219,7 +219,7 @@ def judge(args):
     _l = lock()
     tag = args.model.replace(':', '-')
     out = OUT / f'judge-{args.bench}-{tag}.json'
-    data = json.loads(out.read_text()) if out.exists() else []
+    data = [d for d in (json.loads(out.read_text()) if out.exists() else []) if d['pick']]  # no verdict: judge again
     done = {(d['a'], d['b']) for d in data}
     rng = random.Random(7)
     for name, task in T.TASKS.items():
@@ -237,6 +237,9 @@ def judge(args):
             text = chat(args.model, JUDGE_PROMPT.format(instruction=task['instruction'], files=start_files(task), a=da, b=db),
                         think_for(args.model, args.effort))
             m = re.findall(r'WINNER:\s*\**\s*([AB])', text)
+            if not m and args.model.startswith('gpt-oss'):  # reasoning used the whole budget: ask again with less
+                text = chat(args.model, JUDGE_PROMPT.format(instruction=task['instruction'], files=start_files(task), a=da, b=db), 'low')
+                m = re.findall(r'WINNER:\s*\**\s*([AB])', text)
             pick = m[-1] if m else None
             right = 'A' if a['solved'] else 'B'
             data.append(dict(task=name, a=a['path'], b=bb['path'], right=right, pick=pick, correct=pick == right, s=round(time.time() - t0)))
