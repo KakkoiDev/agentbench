@@ -80,9 +80,10 @@ def pct(xs, q):
 class IsolatedOllama:
     """`ollama serve` on its own port with OLLAMA_NUM_PARALLEL, sharing the model store; stopped on exit."""
 
-    def __init__(self, port, parallel, out_dir, context_length=None):
+    def __init__(self, port, parallel, out_dir, context_length=None, extra_env=None):
         self.url = f'http://127.0.0.1:{port}'
         self.port, self.parallel, self.out_dir, self.ctx = port, parallel, out_dir, context_length
+        self.extra_env = extra_env or {}  # e.g. OLLAMA_KV_CACHE_TYPE, OLLAMA_MAX_LOADED_MODELS
         self.proc = None
 
     def __enter__(self):
@@ -96,6 +97,7 @@ class IsolatedOllama:
                    OLLAMA_MAX_LOADED_MODELS='1', OLLAMA_NOPRUNE='1', OLLAMA_KEEP_ALIVE='5m')
         if self.ctx:
             env['OLLAMA_CONTEXT_LENGTH'] = str(self.ctx)
+        env.update({k: str(v) for k, v in self.extra_env.items()})
         env.setdefault('OLLAMA_MODELS', str(Path.home() / 'models' / 'ollama'))  # same store as the system service, no downloads
         self.env = {k: env[k] for k in env if k.startswith('OLLAMA_')}
         self.log = (self.out_dir / f'server-{self.port}.log').open('a')
