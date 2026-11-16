@@ -887,6 +887,21 @@ def timeline(js, planned_ready):
         items.append(dict(it, est_s=est, starts_in_s=None if unknown else start))
         if not unknown:
             start += est
+    # steps of shell bench queues (script_queue.py): read-only, after the lab's own queue
+    try:
+        sys.path.insert(0, str(ROOT))
+        import script_queue
+        for k, st in enumerate(s for s in script_queue.load_all() if s.get('status') == 'queued'):
+            est = st.get('est_s')
+            items.append(dict(qid=f"script:{st['name']}:{k}", kind='script', args={}, title=st['title'], readonly=True,
+                              added=st['queue'] + ' (script, PID ' + str(st['pid']) + ')', est_s=est,
+                              starts_in_s=None if unknown else start))
+            if est is None:
+                unknown = True
+            elif not unknown:
+                start += est
+    except Exception as e:
+        print('script queues:', e, file=sys.stderr)
     queued_ids = {i['args'].get('id') for i in q['items'] if i['kind'] == 'planned'}
     not_queued = [p for p in planned_ready if p['ready'] and p['id'] not in queued_ids]
     return dict(paused=q['paused'], current=dict(title=cur['title'], pid=cur['pid'], eta_s=(cur.get('progress') or {}).get('eta_s')) if cur else None,

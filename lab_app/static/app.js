@@ -905,8 +905,8 @@
       var running = now.jobs.filter(function (j) { return j.gpu; });
       var items = q.items.map(function (it, i) {
         return h('tr', {}, td(String(i + 1), 'n'), td(h('div', { class: 'stack', style: 'gap:2px' }, h('strong', { text: it.title }),
-          h('span', { class: 'hint', text: it.kind + ' · added ' + it.added + (it.only_when_quiet ? ' · only when quiet (≥ 20 GB free)' : '') }))),
-          td(h('div', { class: 'row' },
+          h('span', { class: 'hint', text: (it.readonly ? 'from ' + it.added : it.kind + ' · added ' + it.added) + (it.only_when_quiet ? ' · only when quiet (≥ 20 GB free)' : '') }))),
+          td(it.readonly ? h('span', { class: 'hint', text: 'Run by a script: stop it there' }) : h('div', { class: 'row' },
             h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Move up', disabled: i === 0 ? '' : null, onclick: function () { post('/api/queue/move', { qid: it.qid, dir: 'up' }).then(route); }, text: '↑' }),
             h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Move down', disabled: i === q.items.length - 1 ? '' : null, onclick: function () { post('/api/queue/move', { qid: it.qid, dir: 'down' }).then(route); }, text: '↓' }),
             h('button', { type: 'button', class: 'btn btn-sm btn-danger', onclick: function () { post('/api/queue/remove', { qid: it.qid }).then(function () { toast('Removed: ' + it.title); route(); }); }, text: 'Remove' }))));
@@ -1310,7 +1310,7 @@
                 h('div', { class: 'job-meta' }, parts.detail ? h('span', { text: parts.detail }) : null, cond,
                   h('span', { class: 'num', text: '~' + dur(q.est_s) + (q.starts_in_s != null && !queue.paused ? ' · starts ~' + at(q.starts_in_s) : '') }),
                   mine.indexOf(q.qid) >= 0 ? h('span', { class: 'badge', text: 'just added' }) : null)),
-              h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Remove ' + q.title + ' from the queue', title: 'Remove from queue',
+              q.readonly ? h('span', { class: 'hint', title: q.added, text: 'script' }) : h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Remove ' + q.title + ' from the queue', title: 'Remove from queue',
                 onclick: function () { removeQueued(q); } }, svgIcon('M6 6l12 12M18 6L6 18', 14)));
           })) : h('p', { class: 'muted', text: 'Nothing waiting. Queued benchmarks appear here in the order they will run.' }),
           items.length > show.length ? h('a', { href: '#queue', text: 'All ' + items.length + ' queued jobs, reorder and logs' }) : h('a', { href: '#queue', text: 'Reorder and view logs' }));
