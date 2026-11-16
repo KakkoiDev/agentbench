@@ -73,7 +73,7 @@ MINI = [
     dict(id='ambient-question', ambient=True, history=_TEAM, author='Marc', text='When is the design review again?',
          check=dict(silent=False, has=[r'thu', r'2\s*(pm|:00|時)|14'])),
     dict(id='ambient-request', ambient=True, history=_TEAM, author='Aiko', text='Can someone list what each of us has to do before the launch?',
-         check=dict(silent=False, has=[r'marc', r'budget', r'aiko', r'mockup', r'may\s*10|10\s*may|email'])),
+         check=dict(silent=False, has=[r'marc', r'budget', r'aiko', r'mock-?up', r'may\s*10|10\s*may|email'])),
     dict(id='fact-lookup', history=_TEAM, author='Marc', text='@mini what is the new launch date?',
          check=dict(silent=False, has=[r'may\s*17|17\s*may|17'], lacks=[r'may\s*3\b(?!.*17)'])),
     dict(id='summary', history=_TEAM, author='Ken', text='@mini summarize this conversation in 3 bullets',

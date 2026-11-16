@@ -232,7 +232,16 @@ def load_mini(state):
     return mini
 
 
+def plain(text):
+    """Reply text without typographic look-alikes, so a check never fails on how a model types a hyphen or quote."""
+    for a, b in (('\u2010', '-'), ('\u2011', '-'), ('\u2012', '-'), ('\u2013', '-'), ('\u2014', '-'), ('\u2212', '-'),
+                 ('\u2018', "'"), ('\u2019', "'"), ('\u00a0', ' '), ('\u202f', ' '), ('\u2009', ' ')):
+        text = text.replace(a, b)
+    return text
+
+
 def grade(check, reply, folder, silent_token):
+    reply = plain(reply)
     silent = reply.strip().strip('`').strip() == silent_token or reply.strip().endswith(silent_token)
     why = []
     if check.get('silent') is True and not silent:
@@ -296,8 +305,17 @@ def report(_args):
             print(f'translate {s["model"]:28} think {s["think"]:6} chrF {s["chrf"]:5.1f}  {s["seconds_per_message"]:5.2f}s/msg  {s["by_direction"]}')
         elif s['job'] == 'captions':
             print(f'captions  {s["model"]:40} error {s["error_rate_all"]:.3f}  lang ok {s["language_detected_right"]:.0%}  {s["compute_per_audio_second"]:.2f}s per audio s')
-        else:
-            print(f'mini      {s["model"]:28} {s["passed"]}/{s["total"]}  silence {s["silence_right"]}/{s["ambient_total"]}  {s["seconds_per_request"]}s/request')
+        else:  # graded again from the saved replies (checks improve); a missing or wrong file stays as recorded
+            rows = json.loads(f.read_text())['rows']
+            by = {c['id']: c for c in cases.MINI}
+            ok = []
+            for r in rows:
+                file_why = [w for w in r['why'] if w.startswith('no file') or ' lacks /' in w or w.startswith('error')]
+                good, _ = grade(dict(by[r['id']]['check'], file=None), r['reply'], Path('/nonexistent'), '[silent]')
+                ok.append(good and not file_why)
+            silence = sum(1 for o, r in zip(ok, rows) if by[r['id']].get('ambient') and o)
+            print(f'mini      {s["model"]:28} {sum(ok)}/{len(rows)}  silence {silence}/{s["ambient_total"]}  {s["seconds_per_request"]}s/request'
+                  f'  (first grading {s["passed"]}/{s["total"]})')
 
 
 def main():
