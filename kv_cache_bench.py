@@ -75,13 +75,23 @@ def loaded(url):
     return {m['name']: round(m.get('size', 0) / 2 ** 30, 2) for m in api(url, 'ps').get('models', [])}
 
 
+def norm(text):
+    """Compare answers without formatting: bold marks and the look-alike hyphens models like to use."""
+    for ch in '\u2010\u2011\u2012\u2013\u2014\u2212':
+        text = text.replace(ch, '-')
+    return text.replace('*', '').lower()
+
+
+def recall_of(text):
+    return f"{sum(v.lower() in norm(text) for _, v in NEEDLES)}/{len(NEEDLES)}"
+
+
 def measure(url, model, ctx):
     speed = gen(url, model, filler(9000, 1) + '\n\nSummarize the text above in one sentence.', ctx, 200, think_off(model))
     mem = loaded(url).get(model)
     rec = gen(url, model, recall_prompt(), ctx, 300, think_off(model))
-    found = [v for _, v in NEEDLES if v.lower() in rec['text'].lower()]
     return dict(model=model, ctx=ctx, size_gib=mem, prompt_tps=speed['prompt_tps'], gen_tps=speed['gen_tps'],
-                prompt_tokens=speed['prompt_tokens'], recall=f'{len(found)}/{len(NEEDLES)}', recall_text=rec['text'][:400],
+                prompt_tokens=speed['prompt_tokens'], recall=recall_of(rec['text']), recall_text=rec['text'][:400],
                 recall_prompt_tokens=rec['prompt_tokens'], recall_prompt_tps=rec['prompt_tps'])
 
 
@@ -138,6 +148,8 @@ def report(_):
     for f in sorted(OUT.glob('*.json')):
         print('==', f.name)
         for r in json.loads(f.read_text()):
+            if r.get('recall_text') is not None:  # graded again: older runs missed look-alike hyphens
+                r['recall'] = recall_of(r['recall_text'])
             if 'models' in r:
                 print(f"  {r['setting']:9} {' + '.join(r['models']):34} both={r.get('both_loaded')} {r.get('loaded')} "
                       f"gen={r.get('gen_tps_together')} swap+{r['swap_grew_mib']}MiB {r.get('error', '')}")
