@@ -59,7 +59,8 @@ def reference_ws(task, dest):
     AB.T.write_files(task, dest)
     for rel, change in task['fix'].items():
         p = Path(dest, rel)
-        p.write_text(change(p.read_text()))
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(change(p.read_text() if p.exists() else ''))  # a reference fix may create new files
 
 
 # ---------- collect ----------
