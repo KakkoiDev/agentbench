@@ -1,6 +1,6 @@
 """Agentic coding bench: a model works on small repositories with its own tools (pi).
 
-Each task (benches/agentic-v1/tasks.py, or another bench with --bench agentic-v2) is copied to a fresh workspace, pi runs once
+Each task (benches/agentic-v1/tasks.py, or another bench with --bench agentic-v2 or agentic-v3) is copied to a fresh workspace, pi runs once
 with the task's instruction inside a macOS sandbox (writes only in the workspace,
 no network except localhost), then hidden tests decide the grade.
 
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent
 
 
 def load_bench(name):
-    """The task module of a bench folder (benches/<name>/tasks.py): agentic-v1 or the held-out agentic-v2."""
+    """The task module of a bench folder (benches/<name>/tasks.py): agentic-v1 or the held-out agentic-v2 and agentic-v3."""
     spec = importlib.util.spec_from_file_location(f'{name.replace("-", "_")}_tasks', ROOT / 'benches' / name / 'tasks.py')
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -302,7 +302,7 @@ def main():
     p.add_argument('--names', required=True)
     p.add_argument('--out', required=True)
     for sp in (r, p):
-        sp.add_argument('--bench', default='agentic-v1', help='task folder under benches/: agentic-v1 or agentic-v2 (held out)')
+        sp.add_argument('--bench', default='agentic-v1', help='task folder under benches/: agentic-v1, or agentic-v2 or agentic-v3 (held out)')
     a = ap.parse_args()
     global T
     T = load_bench(a.bench)
