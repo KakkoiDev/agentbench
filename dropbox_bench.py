@@ -308,6 +308,48 @@ def run_mini(args):
     print(json.dumps(summary), flush=True)
 
 
+def run_family(args):
+    """Multi-step jobs in a made-up family folder (benches/dropbox/family.py), each from a fresh copy."""
+    import family
+    d = out_dir('family' + (f'-{args.tag}' if args.tag else ''), args.model)
+    state = Path(tempfile.mkdtemp(prefix='family-bench-')).resolve()
+    mini = load_mini(state, args.mini_py)
+    mini.prepare_home()
+    mini.CURRENT['tools'] = args.tools_model or ''
+    tasks = [t for t in family.TASKS if not args.only or t['id'] in args.only.split(',')]
+
+    def one(task):
+        folder = state / 'root' / 'files' / task['id']
+        family.write_seed(folder)
+        job = dict(title='Family', room='family' + slug(task['id']).replace('-', ''), author='Aiko', text=task['text'],
+                   ambient=False, history=[], _model=args.model, workspace=str(folder))
+        t = time.time()
+        try:
+            reply, err = mini.run_pi(job), ''
+        except Exception as e:
+            reply, err = '', str(e)[:300]
+        reply = plain(reply)
+        why = ['error: ' + err] if err else task['check'](folder, reply)
+        changed = family.untouched(folder, task)
+        if changed:
+            why.append('changed files it should not: ' + ', '.join(changed[:5]))
+        row = dict(id=task['id'], lang=task['lang'], model=job['_model'], ok=not why, why=why, reply=reply[:2000],
+                   seconds=round(time.time() - t, 1), files=sorted(str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file()))
+        print(f"{task['id']:18} {'PASS' if row['ok'] else 'FAIL'} {row['seconds']:6.1f}s {row['model'].split('/')[-1]:16} "
+              f"{'; '.join(why)[:90]}  | {reply[:70]!r}", flush=True)
+        return row
+
+    t0 = time.time()
+    with ThreadPoolExecutor(args.concurrency) as pool:
+        rows = list(pool.map(one, tasks))
+    summary = dict(job='family', model=args.model, tools_model=args.tools_model, tag=args.tag, passed=sum(r['ok'] for r in rows),
+                   total=len(rows), seconds_per_job=round(sum(r['seconds'] for r in rows) / len(rows), 1),
+                   slowest_job=max(r['seconds'] for r in rows), concurrency=args.concurrency, wall_seconds=round(time.time() - t0, 1))
+    (d / 'results.json').write_text(json.dumps(dict(summary=summary, rows=rows), ensure_ascii=False, indent=1))
+    shutil.rmtree(state, ignore_errors=True)
+    print(json.dumps(summary), flush=True)
+
+
 def report(_args):
     for f in sorted((ROOT / 'results').glob('dropbox-*/results.json')):
         s = json.loads(f.read_text())['summary']
@@ -340,8 +382,15 @@ def main():
     m.add_argument('--cases', choices=['en', 'lang'], default='en', help='lang: the Japanese and French requests')
     m.add_argument('--concurrency', type=int, default=1, help='requests in flight at once')
     m.add_argument('--tag', default='', help='results go to mini-TAG instead of mini')
+    f = sub.add_parser('family', help='multi-step jobs in a made-up family folder')
+    f.add_argument('--model', default='ollama/gemma4:e4b-mlx')
+    f.add_argument('--tools-model')
+    f.add_argument('--mini-py')
+    f.add_argument('--only', help='comma-separated job ids')
+    f.add_argument('--concurrency', type=int, default=1)
+    f.add_argument('--tag', default='')
     sub.add_parser('report')
-    for sp in (t, c, m):
+    for sp in (t, c, m, f):
         sp.add_argument('--no-lock', action='store_true')
     args = p.parse_args()
     if args.cmd == 'report':
@@ -349,7 +398,7 @@ def main():
     lock = None if args.no_lock else take_lock()
     unload_all()
     try:
-        {'translate': run_translate, 'captions': run_captions, 'mini': run_mini}[args.cmd](args)
+        {'translate': run_translate, 'captions': run_captions, 'mini': run_mini, 'family': run_family}[args.cmd](args)
     finally:
         unload_all()
         if lock:
