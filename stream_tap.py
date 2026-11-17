@@ -34,6 +34,12 @@ def main():
         def log_message(self, *args):
             pass
 
+        def handle(self):
+            try:
+                super().handle()
+            except (ConnectionResetError, BrokenPipeError):  # pi closed an idle keep-alive connection
+                pass
+
         def relay(self):
             body = self.rfile.read(int(self.headers.get('Content-Length') or 0))
             conn = http.client.HTTPConnection(target.hostname, target.port, timeout=1800)
