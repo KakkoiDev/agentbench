@@ -266,20 +266,11 @@ def grade(check, reply, folder, silent_token):
     return not why, why
 
 
-# Two models at once: requests that need tools (files, the web) go to the stronger tool user,
-# everything else (chat, silence, quick facts) to the fast one. A plain word list, so it costs nothing.
-NEEDS_TOOLS = re.compile(r'\b(save|write|file|folder|search|look up|latest|news|download|create)\b|保存|ファイル|検索|最新'
-                         r'|\b(enregistre|fichier|dossier|cherche|recherche)|\w\.(md|txt|csv|json|html?|pdf)\b', re.I)
-
-
-def model_for(args, c):
-    return args.tools_model if args.tools_model and NEEDS_TOOLS.search(c['text']) else args.model
-
-
 def run_mini(args):
     d = out_dir('mini' + (f'-{args.tag}' if args.tag else ''), args.model)
     state = Path(tempfile.mkdtemp(prefix='mini-bench-')).resolve()  # the sandbox checks real paths (/var is /private/var)
     mini = load_mini(state, args.mini_py)
+    mini.CURRENT['tools'] = args.tools_model or ''  # mini's own router picks the model per request
     mini.prepare_home()
     CASES = cases.MINI_LANG if args.cases == 'lang' else cases.MINI
 
@@ -288,7 +279,7 @@ def run_mini(args):
         folder.mkdir(parents=True, exist_ok=True)
         job = dict(title='Launch team', room='bench' + slug(c['id']).replace('-', ''), author=c['author'], text=c['text'],
                    ambient=c.get('ambient', False), history=[dict(author=a, text=t) for a, t in c['history']],
-                   _model='ollama/' + model_for(args, c).removeprefix('ollama/'))
+                   _model=args.model)
         if c.get('workspace'):
             job['workspace'] = str(folder)
         t = time.time()
@@ -345,7 +336,7 @@ def main():
     c = sub.add_parser('captions'); c.add_argument('--whisper', default='mlx-community/whisper-large-v3-turbo')
     m = sub.add_parser('mini'); m.add_argument('--model', default='ollama/qwen3.8:27b-mlx')
     m.add_argument('--mini-py', help="a mini.py to test instead of DropBox's installed one")
-    m.add_argument('--tools-model', help='route requests that need tools (files, web) to this model; the rest use --model')
+    m.add_argument('--tools-model', help="mini's router sends requests that need tools (files, web) to this model; the rest use --model")
     m.add_argument('--cases', choices=['en', 'lang'], default='en', help='lang: the Japanese and French requests')
     m.add_argument('--concurrency', type=int, default=1, help='requests in flight at once')
     m.add_argument('--tag', default='', help='results go to mini-TAG instead of mini')
