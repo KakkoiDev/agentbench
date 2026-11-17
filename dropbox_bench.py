@@ -223,7 +223,7 @@ def load_mini(state, mini_py=None):
     """DropBox's mini.py with a private state folder (its own pi sessions), never DropBox's."""
     env = dict(DROPBOX_MINI_URL='http://127.0.0.1:9', DROPBOX_MINI_TOKEN='bench', DROPBOX_MINI_STATE=str(state),
                DROPBOX_MINI_WORKSPACE=str(state / 'root' / 'files'), DROPBOX_MINI_ROOT=str(state / 'root'),  # a stand-in DropBox folder: mini's sandbox shields ROOT, so it must not contain STATE
-               DROPBOX_MINI_PROFILE=str(DROPBOX / 'mini' / 'mini-sandbox.sb'),
+               DROPBOX_MINI_PROFILE=str(Path(mini_py).parent / 'mini-sandbox.sb' if mini_py else DROPBOX / 'mini' / 'mini-sandbox.sb'),
                DROPBOX_MINI_SKILLS=str(DROPBOX / 'mini' / 'skills'), DROPBOX_MINI_TIMEOUT='600')
     os.environ.update(env)
     import importlib.util
