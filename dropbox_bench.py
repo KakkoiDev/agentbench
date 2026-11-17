@@ -19,6 +19,7 @@ mini: DropBox's house agent itself (its mini.py, rules, sandbox and skills, with
 
 Results: results/dropbox-<job>-<model>/results.json. Takes the lab's .bench.lock.
 """
+from concurrent.futures import ThreadPoolExecutor
 import argparse, fcntl, json, os, re, shutil, subprocess, sys, tempfile, time, urllib.request, wave
 from pathlib import Path
 
@@ -218,7 +219,7 @@ def run_captions(args):
 
 # --- mini ----------------------------------------------------------------------------------
 
-def load_mini(state):
+def load_mini(state, mini_py=None):
     """DropBox's mini.py with a private state folder (its own pi sessions), never DropBox's."""
     env = dict(DROPBOX_MINI_URL='http://127.0.0.1:9', DROPBOX_MINI_TOKEN='bench', DROPBOX_MINI_STATE=str(state),
                DROPBOX_MINI_WORKSPACE=str(state / 'root' / 'files'), DROPBOX_MINI_ROOT=str(state / 'root'),  # a stand-in DropBox folder: mini's sandbox shields ROOT, so it must not contain STATE
@@ -226,7 +227,7 @@ def load_mini(state):
                DROPBOX_MINI_SKILLS=str(DROPBOX / 'mini' / 'skills'), DROPBOX_MINI_TIMEOUT='600')
     os.environ.update(env)
     import importlib.util
-    spec = importlib.util.spec_from_file_location('dropbox_mini', DROPBOX / 'mini' / 'mini.py')
+    spec = importlib.util.spec_from_file_location('dropbox_mini', mini_py or DROPBOX / 'mini' / 'mini.py')
     mini = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mini)
     return mini
@@ -266,12 +267,11 @@ def grade(check, reply, folder, silent_token):
 
 
 def run_mini(args):
-    d = out_dir('mini', args.model)
+    d = out_dir('mini' + (f'-{args.tag}' if args.tag else ''), args.model)
     state = Path(tempfile.mkdtemp(prefix='mini-bench-')).resolve()  # the sandbox checks real paths (/var is /private/var)
-    mini = load_mini(state)
+    mini = load_mini(state, args.mini_py)
     mini.prepare_home()
-    rows = []
-    for c in cases.MINI:
+    def one(c):
         folder = state / 'root' / 'files' / c['id'] if c.get('workspace') else state / 'scratch' / c['id']
         folder.mkdir(parents=True, exist_ok=True)
         job = dict(title='Launch team', room='bench' + slug(c['id']).replace('-', ''), author=c['author'], text=c['text'],
@@ -287,12 +287,19 @@ def run_mini(args):
         ok, why = grade(c['check'], reply, folder, mini.SILENT)
         if err:
             ok, why = False, ['error: ' + err]
-        rows.append(dict(id=c['id'], ok=ok, why=why, reply=reply[:2000], seconds=round(time.time() - t, 1)))
-        print(f'{c["id"]:18} {"PASS" if ok else "FAIL"} {rows[-1]["seconds"]:6.1f}s  {"; ".join(why)[:80]}  | {reply[:80]!r}', flush=True)
+        row = dict(id=c['id'], ok=ok, why=why, reply=reply[:2000], seconds=round(time.time() - t, 1))
+        print(f'{c["id"]:18} {"PASS" if ok else "FAIL"} {row["seconds"]:6.1f}s  {"; ".join(why)[:80]}  | {reply[:80]!r}', flush=True)
+        return row
+
+    t0 = time.time()
+    with ThreadPoolExecutor(args.concurrency) as pool:  # N people asking at once, as in a family chat
+        rows = list(pool.map(one, cases.MINI))
     summary = dict(job='mini', model=args.model, passed=sum(r['ok'] for r in rows), total=len(rows),
                    silence_right=sum(1 for r, c in zip(rows, cases.MINI) if c.get('ambient') and r['ok']),
                    ambient_total=sum(1 for c in cases.MINI if c.get('ambient')),
-                   seconds_per_request=round(sum(r['seconds'] for r in rows) / len(rows), 1))
+                   seconds_per_request=round(sum(r['seconds'] for r in rows) / len(rows), 1),
+                   slowest_request=max(r['seconds'] for r in rows), concurrency=args.concurrency, tag=args.tag,
+                   wall_seconds=round(time.time() - t0, 1))
     (d / 'results.json').write_text(json.dumps(dict(summary=summary, rows=rows), ensure_ascii=False, indent=1))
     shutil.rmtree(state, ignore_errors=True)
     print(json.dumps(summary), flush=True)
@@ -314,8 +321,9 @@ def report(_args):
                 good, _ = grade(dict(by[r['id']]['check'], file=None), r['reply'], Path('/nonexistent'), '[silent]')
                 ok.append(good and not file_why)
             silence = sum(1 for o, r in zip(ok, rows) if by[r['id']].get('ambient') and o)
-            print(f'mini      {s["model"]:28} {sum(ok)}/{len(rows)}  silence {silence}/{s["ambient_total"]}  {s["seconds_per_request"]}s/request'
-                  f'  (first grading {s["passed"]}/{s["total"]})')
+            print(f'{"mini " + s.get("tag", ""):9} {s["model"]:28} {sum(ok)}/{len(rows)}  silence {silence}/{s["ambient_total"]}  {s["seconds_per_request"]}s/request'
+                  + (f'  ×{s["concurrency"]} at once: slowest {s["slowest_request"]}s, all {s["wall_seconds"]}s' if s.get('concurrency', 1) > 1 else '')
+                  + f'  (first grading {s["passed"]}/{s["total"]})')
 
 
 def main():
@@ -324,6 +332,9 @@ def main():
     t = sub.add_parser('translate'); t.add_argument('--model', required=True); t.add_argument('--think', default='off')
     c = sub.add_parser('captions'); c.add_argument('--whisper', default='mlx-community/whisper-large-v3-turbo')
     m = sub.add_parser('mini'); m.add_argument('--model', default='ollama/qwen3.8:27b-mlx')
+    m.add_argument('--mini-py', help="a mini.py to test instead of DropBox's installed one")
+    m.add_argument('--concurrency', type=int, default=1, help='requests in flight at once')
+    m.add_argument('--tag', default='', help='results go to mini-TAG instead of mini')
     sub.add_parser('report')
     for sp in (t, c, m):
         sp.add_argument('--no-lock', action='store_true')

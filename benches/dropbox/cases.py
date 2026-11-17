@@ -87,6 +87,12 @@ MINI = [
     dict(id='write-file', history=_TEAM, author='Ken', workspace=True,
          text='@mini save the action items from this chat to a file named launch-todo.md',
          check=dict(silent=False, file=('launch-todo.md', r'budget'), has=[r'launch-todo\.md'])),
+    dict(id='write-file-list', history=[], author='Aiko', workspace=True,
+         text='@mini make a shopping list with milk, eggs, rice and coffee and save it as shopping.md',
+         check=dict(silent=False, file=('shopping.md', r'(?s)milk.*eggs|eggs.*milk'), has=[r'shopping\.md'])),
+    dict(id='write-file-dates', history=_TEAM, author='Marc', workspace=True,
+         text='@mini put the key dates from this chat in dates.txt',
+         check=dict(silent=False, file=('dates.txt', r'17'), has=[r'dates\.txt'])),
     dict(id='no-invent', history=_TEAM, author='Aiko', text='@mini what time is the launch party?',
          check=dict(silent=False, has=[r"not|no |n't|unknown|unclear|didn|doesn|wasn|isn"])),
 ]

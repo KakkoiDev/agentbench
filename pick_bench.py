@@ -267,8 +267,8 @@ def report(args):
             jf = OUT / f'judge-{bench}-{gmodel}.json'
             jud = json.loads(jf.read_text()) if jf.exists() else []
             lines += [f'## {bench}, tests/judge by {gmodel}', '',
-                      '| Task | tries | right | gen tests (reference passes) | k | random | visible | gen-tests | agree | judge | oracle |',
-                      '|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|']
+                      '| Task | tries | right | gen tests (reference passes) | k | random | visible | gen-tests | agree | gen-tests, no ref | agree, no ref | judge | oracle |',
+                      '|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
             tot = {}
             for task in dict.fromkeys(r['task'] for r in tries):
                 rs = [r for r in tries if r['task'] == task]
@@ -276,13 +276,16 @@ def report(args):
                 # only generated tests the reference solution passes count (a wrong test says nothing)
                 passed = {r['path']: frozenset(f'{i}:{t}' for i, s in enumerate(suites) for t in s['tries'].get(r['path'], []) if t in s['reference_ok'])
                           for r in rs}
+                # without the reference (what a real run has): every generated test counts
+                every = {r['path']: frozenset(f'{i}:{t}' for i, s in enumerate(suites) for t in s['tries'].get(r['path'], []))
+                         for r in rs}
                 desc = ', '.join(f"{s['total']} ({s['reference_passed']})" for s in suites) or '-'
                 jr = [d for d in jud if d['task'] == task]
                 jrate = sum(d['correct'] for d in jr) / len(jr) if jr else None
                 for k in (2, 4):
                     rng = random.Random(k)
                     groups = [list(c) for c in itertools.combinations(rs, k)] if k == 2 else [rng.sample(rs, k) for _ in range(3000)]
-                    res = dict(random=0, visible=0, gen=0, agree=0, judge=0, oracle=0)
+                    res = dict(random=0, visible=0, gen=0, agree=0, gen0=0, agree0=0, judge=0, oracle=0)
                     for g in groups:
                         res['random'] += sum(r['solved'] for r in g) / k
                         res['visible'] += expected(g, lambda r: r['visible'])
@@ -292,6 +295,12 @@ def report(args):
                             clusters.setdefault(passed[r['path']], []).append(r)
                         best = max(clusters.items(), key=lambda kv: (len(kv[1]) * len(kv[0]), len(kv[0])))
                         res['agree'] += sum(r['solved'] for r in best[1]) / len(best[1])
+                        res['gen0'] += expected(g, lambda r: (r['visible'], len(every[r['path']])))
+                        c0 = {}
+                        for r in g:
+                            c0.setdefault(every[r['path']], []).append(r)
+                        b0 = max(c0.items(), key=lambda kv: (len(kv[1]) * len(kv[0]), len(kv[0])))
+                        res['agree0'] += sum(r['solved'] for r in b0[1]) / len(b0[1])
                         res['oracle'] += any(r['solved'] for r in g)
                         if k == 2:  # judge on visible-passing pairs that differ; elsewhere it falls back to visible
                             a, b = g
@@ -305,10 +314,10 @@ def report(args):
                         tot.setdefault(k, {}).setdefault(x, []).append(row[x])
                     jcell = f"{row['judge']:.0%}" + (f" ({len(jr)}p)" if jr else '') if k == 2 else '—'
                     lines.append(f"| {task} | {len(rs)} | {sum(r['solved'] for r in rs)} | {desc if k == 2 else ''} | {k} | {row['random']:.0%} | "
-                                 f"{row['visible']:.0%} | {row['gen']:.0%} | {row['agree']:.0%} | {jcell} | {row['oracle']:.0%} |")
+                                 f"{row['visible']:.0%} | {row['gen']:.0%} | {row['agree']:.0%} | {row['gen0']:.0%} | {row['agree0']:.0%} | {jcell} | {row['oracle']:.0%} |")
             for k, t in tot.items():
                 avg = {x: sum(v) / len(v) for x, v in t.items()}
-                lines.append(f"| **average** | | | | {k} | {avg['random']:.0%} | {avg['visible']:.0%} | {avg['gen']:.0%} | {avg['agree']:.0%} | "
+                lines.append(f"| **average** | | | | {k} | {avg['random']:.0%} | {avg['visible']:.0%} | {avg['gen']:.0%} | {avg['agree']:.0%} | {avg['gen0']:.0%} | {avg['agree0']:.0%} | "
                              f"{(format(avg['judge'], '.0%') if k == 2 else '—')} | {avg['oracle']:.0%} |")
             lines.append('')
     text = '\n'.join(lines)
