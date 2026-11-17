@@ -266,17 +266,29 @@ def grade(check, reply, folder, silent_token):
     return not why, why
 
 
+# Two models at once: requests that need tools (files, the web) go to the stronger tool user,
+# everything else (chat, silence, quick facts) to the fast one. A plain word list, so it costs nothing.
+NEEDS_TOOLS = re.compile(r'\b(save|write|file|folder|search|look up|latest|news|download|create)\b|保存|ファイル|検索|最新'
+                         r'|\b(enregistre|fichier|dossier|cherche|recherche)|\w\.(md|txt|csv|json|html?|pdf)\b', re.I)
+
+
+def model_for(args, c):
+    return args.tools_model if args.tools_model and NEEDS_TOOLS.search(c['text']) else args.model
+
+
 def run_mini(args):
     d = out_dir('mini' + (f'-{args.tag}' if args.tag else ''), args.model)
     state = Path(tempfile.mkdtemp(prefix='mini-bench-')).resolve()  # the sandbox checks real paths (/var is /private/var)
     mini = load_mini(state, args.mini_py)
     mini.prepare_home()
+    CASES = cases.MINI_LANG if args.cases == 'lang' else cases.MINI
+
     def one(c):
         folder = state / 'root' / 'files' / c['id'] if c.get('workspace') else state / 'scratch' / c['id']
         folder.mkdir(parents=True, exist_ok=True)
         job = dict(title='Launch team', room='bench' + slug(c['id']).replace('-', ''), author=c['author'], text=c['text'],
                    ambient=c.get('ambient', False), history=[dict(author=a, text=t) for a, t in c['history']],
-                   _model=args.model)
+                   _model='ollama/' + model_for(args, c).removeprefix('ollama/'))
         if c.get('workspace'):
             job['workspace'] = str(folder)
         t = time.time()
@@ -287,18 +299,18 @@ def run_mini(args):
         ok, why = grade(c['check'], reply, folder, mini.SILENT)
         if err:
             ok, why = False, ['error: ' + err]
-        row = dict(id=c['id'], ok=ok, why=why, reply=reply[:2000], seconds=round(time.time() - t, 1))
+        row = dict(id=c['id'], model=job['_model'], ok=ok, why=why, reply=reply[:2000], seconds=round(time.time() - t, 1))
         print(f'{c["id"]:18} {"PASS" if ok else "FAIL"} {row["seconds"]:6.1f}s  {"; ".join(why)[:80]}  | {reply[:80]!r}', flush=True)
         return row
 
     t0 = time.time()
     with ThreadPoolExecutor(args.concurrency) as pool:  # N people asking at once, as in a family chat
-        rows = list(pool.map(one, cases.MINI))
+        rows = list(pool.map(one, CASES))
     summary = dict(job='mini', model=args.model, passed=sum(r['ok'] for r in rows), total=len(rows),
-                   silence_right=sum(1 for r, c in zip(rows, cases.MINI) if c.get('ambient') and r['ok']),
-                   ambient_total=sum(1 for c in cases.MINI if c.get('ambient')),
+                   silence_right=sum(1 for r, c in zip(rows, CASES) if c.get('ambient') and r['ok']),
+                   ambient_total=sum(1 for c in CASES if c.get('ambient')),
                    seconds_per_request=round(sum(r['seconds'] for r in rows) / len(rows), 1),
-                   slowest_request=max(r['seconds'] for r in rows), concurrency=args.concurrency, tag=args.tag,
+                   slowest_request=max(r['seconds'] for r in rows), concurrency=args.concurrency, tag=args.tag, tools_model=args.tools_model,
                    wall_seconds=round(time.time() - t0, 1))
     (d / 'results.json').write_text(json.dumps(dict(summary=summary, rows=rows), ensure_ascii=False, indent=1))
     shutil.rmtree(state, ignore_errors=True)
@@ -314,7 +326,7 @@ def report(_args):
             print(f'captions  {s["model"]:40} error {s["error_rate_all"]:.3f}  lang ok {s["language_detected_right"]:.0%}  {s["compute_per_audio_second"]:.2f}s per audio s')
         else:  # graded again from the saved replies (checks improve); a missing or wrong file stays as recorded
             rows = json.loads(f.read_text())['rows']
-            by = {c['id']: c for c in cases.MINI}
+            by = {c['id']: c for c in cases.MINI + cases.MINI_LANG}
             ok = []
             for r in rows:
                 file_why = [w for w in r['why'] if w.startswith('no file') or ' lacks /' in w or w.startswith('error')]
@@ -333,6 +345,8 @@ def main():
     c = sub.add_parser('captions'); c.add_argument('--whisper', default='mlx-community/whisper-large-v3-turbo')
     m = sub.add_parser('mini'); m.add_argument('--model', default='ollama/qwen3.8:27b-mlx')
     m.add_argument('--mini-py', help="a mini.py to test instead of DropBox's installed one")
+    m.add_argument('--tools-model', help='route requests that need tools (files, web) to this model; the rest use --model')
+    m.add_argument('--cases', choices=['en', 'lang'], default='en', help='lang: the Japanese and French requests')
     m.add_argument('--concurrency', type=int, default=1, help='requests in flight at once')
     m.add_argument('--tag', default='', help='results go to mini-TAG instead of mini')
     sub.add_parser('report')

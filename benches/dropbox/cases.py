@@ -96,3 +96,24 @@ MINI = [
     dict(id='no-invent', history=_TEAM, author='Aiko', text='@mini what time is the launch party?',
          check=dict(silent=False, has=[r"not|no |n't|unknown|unclear|didn|doesn|wasn|isn"])),
 ]
+
+# The same kinds of requests in Japanese and French: the answer must use the request's language.
+MINI_LANG = [
+    dict(id='ja-thanks', ambient=True, history=_TEAM, author='Aiko', text='マルクさん、ありがとう！',
+         check=dict(silent=True)),
+    dict(id='ja-fact', history=_TEAM, author='Aiko', text='@mini 新しいローンチ日はいつですか？',
+         check=dict(silent=False, has=[r'17', r'[぀-ヿ一-鿿]'])),
+    dict(id='ja-convert', history=[], author='Aiko', text='@mini 3.5時間は何分ですか？',
+         check=dict(silent=False, has=[r'210|２１０', r'分'])),
+    dict(id='ja-save', history=_TEAM, author='Aiko', workspace=True,
+         text='@mini このチャットのやることリストを todo-ja.md に保存してください',
+         check=dict(silent=False, file=('todo-ja.md', r'(?i)budget|予算'), has=[r'todo-ja\.md'])),
+    dict(id='fr-greeting', ambient=True, history=[], author='Marc', text='Bonjour à tous !',
+         check=dict(silent=True)),
+    dict(id='fr-question', ambient=True, history=_TEAM, author='Marc', text="C'est quand déjà la revue de design ?",
+         check=dict(silent=False, has=[r'jeudi', r'14|2\s*h'])),
+    dict(id='fr-date', history=[], author='Marc', text='@mini si on est le lundi 16 novembre 2026, quelle date serons-nous dans 10 jours, et quel jour ?',
+         check=dict(silent=False, has=[r'26', r'jeudi'])),
+    dict(id='fr-no-invent', history=_TEAM, author='Marc', text='@mini à quelle heure est la fête de lancement ?',
+         check=dict(silent=False, has=[r"pas|aucun|inconnu|ne sais"])),
+]

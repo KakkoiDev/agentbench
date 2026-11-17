@@ -11,7 +11,7 @@ Kept per run, under results/BENCH-NAME/TASK/ (BENCH defaults to agentic-v1): pi.
 pi.stderr, workspace/ (final files), changes.diff, visible.txt, hidden.txt and
 result.json. Runs are resumable and take the lab's .bench.lock (one GPU job at a time).
 """
-import argparse, concurrent.futures, difflib, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
+import argparse, concurrent.futures, difflib, re, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -160,6 +160,33 @@ def discussion(task, other, ok):
             "either of you missed. Run the tests before you finish.")
 
 
+def by_generated_tests(args, task, tries, suites=2):
+    """--pick tests: the model writes extra tests from the request and the starting code (no reference
+    solution, no hidden tests), and the try passing the most of them is kept; ties keep the earlier try.
+    Only tries that pass their visible tests compete. pick_bench.py measured this on saved tries."""
+    import pick_bench as PB
+    PB.OLLAMA = args.ollama_url or PB.OLLAMA  # the server already holding the model, never a second copy
+    model = (args.model or '').removeprefix('ollama/')
+    score = {id(r): 0 for r, _ in tries}
+    for k in range(suites):
+        fname = f'test_gen_extra{k}.py'
+        try:
+            text = PB.chat(model, PB.GEN_PROMPT.format(instruction=task['instruction'], files=PB.start_files(task), fname=fname),
+                           PB.think_for(model, 'medium'), seed=k)
+        except Exception as e:
+            print(f'  pick: test writing failed: {e}', flush=True)
+            continue
+        m = re.findall(r'```(?:python)?\n(.*?)```', text, re.S)
+        code = max(m, key=len) if m else text
+        for r, ws in tries:
+            if r['visible_pass']:
+                score[id(r)] += len(PB.run_suite(ws, code, fname).get('passed', []))
+    ok = [(r, ws) for r, ws in tries if r['visible_pass']]
+    best = max(ok, key=lambda t: score[id(t[0])])[0]  # max keeps the first of equals
+    print('  pick by generated tests: ' + ', '.join(f"try{i} {score[id(r)]}" for i, (r, _) in enumerate(tries, 1) if r['visible_pass']), flush=True)
+    return best, 'generated tests ' + '/'.join(str(score[id(r)]) for r, _ in ok)
+
+
 def several(args, task, name, tdir, home, exts):
     """--attempts N: N runs at once, keep the first whose visible tests pass (hidden tests are never used to pick).
     --escalate EFFORT: when no kept run passes its visible tests, run once more at that gpt-oss reasoning effort.
@@ -171,6 +198,9 @@ def several(args, task, name, tdir, home, exts):
     with concurrent.futures.ThreadPoolExecutor(args.attempts) as ex:
         recs = list(ex.map(lambda k: attempt(args, task, name, tdir / f'try{k}', home, exts), range(1, args.attempts + 1)))
     pick = next((r for r in recs if r['visible_pass']), recs[0])
+    picked_by = 'first visible pass'
+    if args.pick == 'tests' and sum(r['visible_pass'] for r in recs) > 1:
+        pick, picked_by = by_generated_tests(args, task, [(r, tdir / f'try{k}' / 'workspace') for k, r in enumerate(recs, 1)])
     discussed = False
     if args.pair:
         discussed = True
@@ -189,7 +219,7 @@ def several(args, task, name, tdir, home, exts):
         if r['visible_pass']:
             pick = r
     rec = dict(pick, wall_s=round(time.time() - t0, 1), tool_calls=sum(r['tool_calls'] for r in recs),
-               output_tokens=sum(r['output_tokens'] for r in recs), picked=next(i for i, r in enumerate(recs) if r is pick) + 1, escalated=escalated, discussed=discussed,
+               output_tokens=sum(r['output_tokens'] for r in recs), picked=next(i for i, r in enumerate(recs) if r is pick) + 1, picked_by=picked_by, escalated=escalated, discussed=discussed,
                runs=[dict(model=r['model'], solved=r['solved'], visible_pass=r['visible_pass'], wall_s=r['wall_s']) for r in recs])
     return rec
 
@@ -294,6 +324,7 @@ def main():
     r.add_argument('--ollama-url', default='', help='point pi at another Ollama, e.g. an isolated one on http://127.0.0.1:11500')
     r.add_argument('--rerun', action='store_true', help='measure again: earlier task runs move to attempts/rerun-<time>/')
     r.add_argument('--attempts', type=int, default=1, help='runs per task at once; keep the first that passes its visible tests')
+    r.add_argument('--pick', choices=['first', 'tests'], default='first', help='with --attempts: tests = keep the try passing the most model-written tests')
     r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
     r.add_argument('--escalate-model', default='', help='another pi model (e.g. ollama/qwen3.8:27b-mlx) for one more run when visible tests still fail')
     r.add_argument('--pair', action='store_true', help='two runs at once, then each sees the other\'s changes and test result and revises its own (2 rounds)')
