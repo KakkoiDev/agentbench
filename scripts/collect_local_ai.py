@@ -171,6 +171,12 @@ def dropbox_runs():
             row |= {"bench": "family-jobs", "setup": ("routed to " + model_name(s["tools_model"]) if s.get("tools_model") else "one model")
                     + (f", {s.get('concurrency')} at once" if (s.get("concurrency") or 1) > 1 else "") + checks,
                     "score": s["passed"], "out_of": s["total"], "seconds_each": s.get("seconds_per_job"), "slowest_seconds": s.get("slowest_job")}
+        elif job == "family-hard":
+            r = load(d / "results.json") or {}
+            row |= {"bench": "family-hard", "setup": "one model" + checks, "score": s["passed"], "out_of": s["total"],
+                    "jobs_complete": s.get("jobs_complete"), "seconds_each": s.get("seconds_per_job"), "slowest_seconds": s.get("slowest_job"),
+                    "jobs": [{"id": x["id"], "points": x.get("points"), "out_of": x.get("out_of"), "steps": x.get("steps"),
+                              "error": next((w for w in x.get("why") or [] if str(w).startswith("error")), None)} for x in r.get("rows", [])]}
         elif job == "translate":
             row |= {"bench": "translation", "setup": f"thinking {s.get('think')}", "score": s["chrf"], "out_of": 100, "metric": "chrF (higher is better)",
                     "by_direction": s.get("by_direction"), "seconds_each": s.get("seconds_per_message"), "failed_answers": s.get("errors")}

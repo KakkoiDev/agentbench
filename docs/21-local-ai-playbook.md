@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **246 bench runs** (15 more set aside, with the reason) across 11 benches and 21 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 34 hours.
+> **247 bench runs** (15 more set aside, with the reason) across 11 benches and 22 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 34 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
@@ -531,6 +531,7 @@ the extensions were tuned.
 | family-jobs | gpt-oss:20b | one model | 6/12 | 26.5 |
 | family-jobs | gpt-oss:20b | one model, harness v2 | 7/6 of 12 | 22.8 |
 | family-jobs | gpt-oss:20b | one model, harness v3 | 8/8 of 12 | 29.1 |
+| family-jobs | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.1 | 12/12 | 79.0 |
 | family-jobs | qwen3.6:35b-mlx | one model, harness v3.1 | 10/8 of 12 | 158.4 |
 | family-jobs | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 12/12 of 12 | 19.75 |
 | family-jobs | qwen3.8:27b-mlx | one model | 10/12 of 12 | 29.8 |

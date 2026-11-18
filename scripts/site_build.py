@@ -8,8 +8,13 @@ scripts/model_facts.py and in LEARNINGS below, and carries no numbers from the b
 import html, json, re, statistics
 from pathlib import Path
 
+import sys
+
 import md_page
 from model_facts import MODELS, CODE, REPO
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benches" / "dropbox"))
+import family_hard  # noqa: E402  (task titles for the hard jobs)
 
 E = lambda s: html.escape(str(s), quote=True)
 inline = md_page.inline
@@ -19,6 +24,8 @@ PLAIN = ("off", "bare")  # pi with no extensions
 SINGLE = PLAIN + ("flat", "tuned", "guard", "guard1", "guard2", "guard2-terse", "medium", "cut", "auto", "gb0", "gb1", "gb2",
                   "gb1med", "gb2-terse", "low-ext", "medium-ext")
 BENCH = {
+    "family-hard": ("Hard family jobs", "10 harder multi-step jobs (reconcile receipts with a bank statement, car clashes across agendas in three languages, "
+                    "fix links after renaming, latest decisions from meetings that changed their minds...), graded in 56 steps. Made so that no model gets everything."),
     "family-jobs": ("Family jobs", "12 multi-step jobs in a made-up family's files (sort, rename, total, summarize, ask before deleting), in English, Japanese and French. Graded on the files left behind."),
     "assistant-en": ("Assistant, English", "14 chat requests to DropBox's assistant: answer the asker, save where asked, stay quiet on chatter."),
     "assistant-lang": ("Assistant, Japanese and French", "8 requests in Japanese and French: answer in the asker's language, do the job."),
@@ -117,8 +124,14 @@ class Site:
         gs = [g for g in self.groups(m, "speech-to-text") if "thinking on" not in g["setup"]]
         return min(gs, key=lambda g: g["mean"], default=None)
 
+    def hard(self, m):
+        """Hard family jobs: the best setup's mean points as a fraction of the maximum."""
+        gs = self.groups(m, "family-hard")
+        g = max(gs, key=lambda g: g["mean"], default=None)
+        return dict(q=g["mean"] / g["out_of"], g=g) if g else None
+
     def smartest(self, m):
-        parts = [x["q"] for x in (self.daily(m), self.coding(m), self.vision(m)) if x]
+        parts = [x["q"] for x in (self.daily(m), self.coding(m), self.vision(m), self.hard(m)) if x]
         return dict(q=statistics.mean(parts), n=len(parts)) if len(parts) >= 2 else None
 
     def mem(self, m):
@@ -270,7 +283,7 @@ home assistant and a coding agent really do. These are the models to pick, and t
 {sec(("coding", "Coding tasks"), "An agent (pi) that fixes bugs, adds features and refactors in a real repository, graded by hidden tests.",
      "tasks solved across the coding suites with pi and no extensions where we ran it (otherwise the model's best single-run setup); ties go to the faster model.", c_cards)}
 {sec(("smartest", "Smartest, any speed"), "The most capable model this Mac can run when you can wait: the closest to frontier quality you get locally.",
-     "the average of assistant, coding and image scores; a model needs at least two of the three. Speed is ignored.", s_cards)}
+     "the average of assistant, coding, image and hard-job scores; a model needs at least two of them. Speed is ignored.", s_cards)}
 <p class="note">Beyond 32 GB: <a href="models/glm-5.3.html">GLM-5.3 (744B)</a> runs on this Mac by streaming its experts from the SSD. It is rated well above anything here, and writes well under one token per second.</p>
 <section class="sec" aria-labelledby="spec"><div class="sec-h"><h2 id="spec">Specialists</h2></div>
 <ul class="specs">{spec_html}</ul></section>
@@ -300,7 +313,7 @@ def models_page(S):
         mem, dl, ws = S.mem(m), S.download(m), S.write_speed(m)
         tested, qz = S.tested(m), S.quiz(m)
         stats = [x for x in [d and f"Assistant {pct(d['q'])}", c and f"Coding {pct(c['q'])}", v and f"Images {pct(v['q'])}",
-                             t and f"Translation chrF {fmt(t['mean'])}", sp and f"Speech {fmt(sp['mean'])}% errors",
+                             t and f"Translation chrF {fmt(t['mean'])}", sp and f"Speech {fmt(sp['mean'])}% errors", S.hard(m) and f"Hard jobs {pct(S.hard(m)['q'])}",
                              qz and f"October quiz {qz['correct']}/{qz['graded']}"] if x]
         sizes = [x for x in [dl and f"{fmt(dl)} GB download", mem and f"{mem[0]:g} GB loaded", ws and f"{ws} tokens/s"] if x]
         cards.append(
@@ -342,6 +355,7 @@ def model_page(S, m):
     tiles = [("Assistant", f"{pct(d['q'])}" if d else "—", d and f"family {runs(d['fam'])}"),
              ("Coding", f"{fmt(c['got'])}/{c['total']}" if c else "—", c and "tasks solved"),
              ("Images", pct(v["q"]) if v else "—", v and f"{runs(v['v1'])}, {runs(v['v2'])}"),
+             ("Hard jobs", pct(S.hard(m)["q"]) if S.hard(m) else "—", S.hard(m) and f"{runs(S.hard(m)['g'])} steps"),
              ("Translation", f"chrF {fmt(t['mean'])}" if t else "—", t and t["setup"]),
              ("Speech errors", f"{fmt(sp['mean'])}%" if sp else "—", sp and len(m["keys"]) > 1 and sp["model"]),
              ("Download", f"{fmt(dl)} GB" if dl else "—", None),
@@ -376,6 +390,34 @@ def model_page(S, m):
     set_aside = [r for r in S.rows if r["model"] in m["keys"] and r.get("set_aside")]
     if set_aside:
         res.append("<h3>Runs set aside</h3>" + table(["Run", "Why"], [[E(r["run"]), E(r["set_aside"])] for r in set_aside]))
+
+    # hard jobs: what it managed and where it fell short, per job, over every run
+    hard_html = ""
+    hruns = [r for r in S.rows if r["model"] in m["keys"] and r.get("bench") == "family-hard" and not r.get("set_aside") and r.get("jobs")]
+    if hruns:
+        items = []
+        for t in family_hard.TASKS:
+            js = [j for r in hruns for j in r["jobs"] if j["id"] == t["id"]]
+            if not js:
+                continue
+            n = len(js)
+            steps = {}
+            for j in js:
+                for st, ok in j.get("steps") or []:
+                    steps.setdefault(st, 0)
+                    steps[st] += bool(ok)
+            got = [f"{E(st)}" + (f" ({k} of {n} runs)" if 0 < k < n else "") for st, k in steps.items() if k]
+            miss = [E(st) + (f" ({n - k} of {n} runs)" if 0 < k < n else "") for st, k in steps.items() if k < n]
+            errs = sorted({j["error"].removeprefix("error: ") for j in js if j.get("error")})
+            pts = ", ".join(f"{j['points']}/{j['out_of']}" for j in js)
+            items.append(f'<li class="hjob"><strong>{E(t["title"])}</strong> <span class="note">{pts}</span>'
+                         + (f'<div><span class="ok">Managed:</span> {"; ".join(got)}</div>' if got else "")
+                         + (f'<div><span class="ko">Fell short:</span> {"; ".join(miss)}</div>' if miss else "")
+                         + (f'<div class="note">Stopped by: {E("; ".join(errs))}</div>' if errs else "") + "</li>")
+        tot = ", ".join(f"{fmt(r['score'])}/{r['out_of']}" for r in hruns)
+        hard_html = (f'<section class="sec" aria-labelledby="hard"><div class="sec-h"><h2 id="hard">Hard jobs: what it managed and where it fell short</h2></div>'
+                     f'<p class="note">{E(BENCH["family-hard"][1])} Points per run: {tot}. Each job counts its steps; "kept"/"did not" steps only count when the job itself got somewhere.</p>'
+                     f'<ul class="hjobs">{"".join(items)}</ul></section>')
 
     # last month's quiz
     oct_html = ""
@@ -448,6 +490,7 @@ def model_page(S, m):
 <p class="note">The code behind these setups: <a href="{REPO}harness/dropbox-mini/mini.py">assistant harness</a> · <a href="https://github.com/KakkoiDev/pi-core/tree/cutoff-cause">pi extensions</a> · <a href="../learnings.html#setup">how our setup works</a></p></section>
 {f'<section class="sec" aria-labelledby="obs"><div class="sec-h"><h2 id="obs">What we saw</h2></div>{lst(m["notes"])}</section>' if m["notes"] else ""}
 <section class="sec" aria-labelledby="facts"><div class="sec-h"><h2 id="facts">Model facts</h2></div><dl class="facts">{facts_html}</dl></section>
+{hard_html}
 {speed_html}
 {f'<section class="sec" aria-labelledby="results"><div class="sec-h"><h2 id="results">All bench results</h2></div>{"".join(res)}</section>' if res else ("" if oct_html else '<section class="sec"><p>Benches are running; results appear here as they land.</p></section>')}
 {oct_html}
@@ -582,6 +625,9 @@ CSS = """
 .facts dd{margin:0}
 .tips{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;max-width:820px}
 .tip{border-left:2px solid var(--fg);padding-left:12px}
+.hjobs{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;max-width:900px}
+.hjob{border-left:2px solid var(--hair);padding-left:12px;display:flex;flex-direction:column;gap:2px}
+.hjob .ok,.hjob .ko{font-weight:600}
 .crumb{padding-top:20px;margin-bottom:-24px}
 .v2 .tblbox{overflow-x:auto}
 .mdt{border-collapse:collapse;width:100%;font-size:14.5px;line-height:21px;border-top:2px solid var(--fg);border-bottom:2px solid var(--fg)}

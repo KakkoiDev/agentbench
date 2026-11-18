@@ -359,7 +359,10 @@ def run_mini(args):
 def run_family(args):
     """Multi-step jobs in a made-up family folder (benches/dropbox/family.py), each from a fresh copy."""
     import family
-    d = out_dir('family' + (f'-{args.tag}' if args.tag else ''), args.model)
+    hard = args.suite == 'hard'
+    if hard:
+        import family_hard as family  # graded in steps (points), see benches/dropbox/family_hard.py
+    d = out_dir(('family-hard' if hard else 'family') + (f'-{args.tag}' if args.tag else ''), args.model)
     state = Path(tempfile.mkdtemp(prefix='family-bench-')).resolve()
     mini = load_mini(state, args.mini_py)
     mini.prepare_home()
@@ -378,12 +381,21 @@ def run_family(args):
             reply, err = '', str(e)[:300]
         keep_case(d, task['id'], mini, job, folder)
         reply = plain(reply)
-        why = ['error: ' + err] if err else task['check'](folder, reply)
-        changed = family.untouched(folder, task)
-        if changed:
-            why.append('changed files it should not: ' + ', '.join(changed[:5]))
+        steps = None
+        if hard:
+            steps = family.score(task, folder, reply)
+            if err:  # what it did before the error still counts, so a timeout keeps its finished steps
+                steps = steps if any(ok for _, ok in steps) else [(st, False) for st, _ in steps]
+            why = (['error: ' + err] if err else []) + [st for st, ok in steps if not ok]
+        else:
+            why = ['error: ' + err] if err else task['check'](folder, reply)
+            changed = family.untouched(folder, task)
+            if changed:
+                why.append('changed files it should not: ' + ', '.join(changed[:5]))
         row = dict(id=task['id'], lang=task['lang'], model=job['_model'], ok=not why, why=why, reply=reply[:2000],
                    seconds=round(time.time() - t, 1), files=sorted(str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file()))
+        if steps is not None:
+            row |= dict(steps=[[st, ok] for st, ok in steps], points=sum(ok for _, ok in steps), out_of=len(steps))
         print(f"{task['id']:18} {'PASS' if row['ok'] else 'FAIL'} {row['seconds']:6.1f}s {row['model'].split('/')[-1]:16} "
               f"{'; '.join(why)[:90]}  | {reply[:70]!r}", flush=True)
         return row
@@ -391,8 +403,9 @@ def run_family(args):
     t0 = time.time()
     with ThreadPoolExecutor(args.concurrency) as pool:
         rows = list(pool.map(one, tasks))
-    summary = dict(job='family', model=args.model, tools_model=args.tools_model, tag=args.tag, passed=sum(r['ok'] for r in rows),
-                   total=len(rows), seconds_per_job=round(sum(r['seconds'] for r in rows) / len(rows), 1),
+    summary = dict(job='family-hard' if hard else 'family', model=args.model, tools_model=args.tools_model, tag=args.tag,
+                   passed=sum(r['points'] for r in rows) if hard else sum(r['ok'] for r in rows),
+                   total=sum(r['out_of'] for r in rows) if hard else len(rows), jobs_complete=sum(r['ok'] for r in rows), seconds_per_job=round(sum(r['seconds'] for r in rows) / len(rows), 1),
                    slowest_job=max(r['seconds'] for r in rows), concurrency=args.concurrency, wall_seconds=round(time.time() - t0, 1))
     (d / 'results.json').write_text(json.dumps(dict(summary=summary, rows=rows), ensure_ascii=False, indent=1))
     shutil.rmtree(state, ignore_errors=True)
@@ -410,6 +423,19 @@ def regrade(args):
     for f in sorted((ROOT / 'results').glob('dropbox-*/results.json')):
         data = json.loads(f.read_text())
         s = data.get('summary') or {}
+        if s.get('job') == 'family-hard':
+            import family_hard
+            hb = {t['id']: t for t in family_hard.TASKS}
+            for r in data['rows']:
+                saved = f.parent / 'cases' / r['id'] / 'files'
+                if saved.is_dir() and r['id'] in hb and not any(str(w).startswith('error') for w in r.get('why') or []):
+                    steps = family_hard.score(hb[r['id']], saved, plain(r.get('reply') or ''))
+                    r |= dict(steps=[[a, b] for a, b in steps], points=sum(b for _, b in steps), out_of=len(steps),
+                              ok=all(b for _, b in steps), why=[a for a, b in steps if not b])
+            data['summary'] |= dict(passed=sum(r['points'] for r in data['rows']), total=sum(r['out_of'] for r in data['rows']),
+                                    jobs_complete=sum(r['ok'] for r in data['rows']), regraded=time.strftime('%Y-%m-%d'))
+            f.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+            continue
         if s.get('job') not in ('mini', 'family'):
             continue
         kept = f.parent / 'results-as-run.json'
@@ -496,6 +522,7 @@ def main():
     f.add_argument('--only', help='comma-separated job ids')
     f.add_argument('--concurrency', type=int, default=1)
     f.add_argument('--tag', default='')
+    f.add_argument('--suite', choices=['standard', 'hard'], default='standard', help='hard: benches/dropbox/family_hard.py, graded in points')
     sub.add_parser('report')
     sub.add_parser('regrade', help='grade the saved runs again with the current checks')
     for sp in (t, c, m, f):
