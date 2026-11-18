@@ -11,6 +11,7 @@ Writes site/data/local-ai/:
   schema.json            what each field means
 Numbers in the playbook come only from here: never retype them.
 """
+import importlib.util
 import csv, json, os, re, statistics, subprocess, sys
 from collections import defaultdict
 from pathlib import Path
@@ -96,8 +97,17 @@ def set_aside(name):
     return None
 
 
+def hidden_steps(task_dir, hidden_src):
+    """Each hidden test of a task as [plain-words name, passed], from the task's hidden.txt (unittest -v)."""
+    names = re.findall(r"^    def (test_\w+)", hidden_src, re.M)
+    out = (task_dir / "hidden.txt").read_text(errors="replace") if (task_dir / "hidden.txt").exists() else ""
+    res = dict(re.findall(r"^(test_\w+) \(.*?\)\s*\.\.\.\s*(ok|FAIL|ERROR|skipped)", out, re.M))
+    return [[n.removeprefix("test_").replace("_", " "), res.get(n) == "ok"] for n in names]
+
+
 def coding_runs():
     rows = []
+    v4 = None
     for d in sorted(RES.glob("agentic-v*")):
         m = re.match(rf"agentic-(v\d)-{MODEL_RE}-(.+)$", d.name)
         meta = load(d / "meta.json")
@@ -118,6 +128,19 @@ def coding_runs():
         tasks = [t for t in tasks if t]
         if not tasks:
             continue
+        extra = {}
+        if suite == "v4":  # graded in hidden tests passed: partial credit, with each test's name
+            if v4 is None:
+                spec = importlib.util.spec_from_file_location("agentic_v4_tasks", ROOT / "benches" / "agentic-v4" / "tasks.py")
+                v4 = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(v4)
+            jobs = []
+            for t in tasks:
+                st = hidden_steps(d / t["task"], v4.TASKS[t["task"]]["hidden"]) if t["task"] in v4.TASKS else []
+                jobs.append({"id": t["task"], "points": sum(ok for _, ok in st), "out_of": len(st), "steps": st,
+                             "error": "timed out" if t.get("timed_out") else None})
+            extra = {"jobs": jobs, "score": sum(j["points"] for j in jobs), "out_of": sum(j["out_of"] for j in jobs),
+                     "tasks_solved": sum(bool(t.get("solved")) for t in tasks)}
         rows.append(clean({
             "bench": f"coding-{suite}", "run": d.name, "model": model_name(meta.get("model")),
             "setup": setup_tag, "setup_meaning": SETUPS.get(setup_tag, "development build"), "repeat": rep,
@@ -133,7 +156,7 @@ def coding_runs():
             "extensions": [Path(e).parent.parent.name + "/" + Path(e).parent.name for e in (meta.get("extension") or "").split(",") if e],
             "per_task": {t["task"]: {"solved": t.get("solved"), "seconds": t.get("wall_s")} for t in tasks},
             "set_aside": set_aside(d.name) or (None if len(tasks) == 5 else "incomplete run"),
-        }))
+        } | extra))
     return rows
 
 

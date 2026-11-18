@@ -1895,15 +1895,16 @@
    "bench": "family-jobs",
    "model": "muse-glimmer:30b-nvfp4-dflash",
    "setup": "one model, harness v3.1",
-   "runs": 1,
+   "runs": 2,
    "out_of": 12,
    "scores": [
+    12,
     12
    ],
    "mean": 12,
    "min": 12,
    "max": 12,
-   "seconds_each": 79.0
+   "seconds_each": 76.5
   },
   {
    "bench": "family-jobs",

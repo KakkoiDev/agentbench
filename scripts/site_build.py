@@ -32,6 +32,9 @@ BENCH = {
     "coding-v1": ("Coding agent, suite v1", "5 tasks for the pi agent (bug fixes, features, refactors); a task counts when hidden tests pass."),
     "coding-v2": ("Coding agent, suite v2", "5 harder tasks, same rules."),
     "coding-v3": ("Coding agent, suite v3", "5 tasks held out while the extensions were tuned."),
+    "coding-v4": ("Hard coding, suite v4", "5 hard tasks (expression evaluator with exact error positions, iCalendar recurrence across DST, "
+                  "multi-currency across a 4-file package, JSON Patch, overlap counting for 200,000 intervals) graded in 52 hidden tests. "
+                  "Made so that no model solves everything; the score is tests passed."),
     "vision-v1": ("Images, suite v1", "25 screenshots, documents, photos and charts with expected answers."),
     "vision-v2": ("Images, suite v2", "10 harder images."),
     "translation": ("Translation", "Short chat messages between English, Japanese and French; chrF against references (higher is better)."),
@@ -124,14 +127,14 @@ class Site:
         gs = [g for g in self.groups(m, "speech-to-text") if "thinking on" not in g["setup"]]
         return min(gs, key=lambda g: g["mean"], default=None)
 
-    def hard(self, m):
-        """Hard family jobs: the best setup's mean points as a fraction of the maximum."""
-        gs = self.groups(m, "family-hard")
+    def hard(self, m, bench="family-hard"):
+        """A hard suite (family-hard or coding-v4): the best setup's mean points as a fraction of the maximum."""
+        gs = self.groups(m, bench)
         g = max(gs, key=lambda g: g["mean"], default=None)
         return dict(q=g["mean"] / g["out_of"], g=g) if g else None
 
     def smartest(self, m):
-        parts = [x["q"] for x in (self.daily(m), self.coding(m), self.vision(m), self.hard(m)) if x]
+        parts = [x["q"] for x in (self.daily(m), self.coding(m), self.vision(m), self.hard(m), self.hard(m, "coding-v4")) if x]
         return dict(q=statistics.mean(parts), n=len(parts)) if len(parts) >= 2 else None
 
     def mem(self, m):
@@ -314,6 +317,7 @@ def models_page(S):
         tested, qz = S.tested(m), S.quiz(m)
         stats = [x for x in [d and f"Assistant {pct(d['q'])}", c and f"Coding {pct(c['q'])}", v and f"Images {pct(v['q'])}",
                              t and f"Translation chrF {fmt(t['mean'])}", sp and f"Speech {fmt(sp['mean'])}% errors", S.hard(m) and f"Hard jobs {pct(S.hard(m)['q'])}",
+                             S.hard(m, "coding-v4") and f"Hard coding {pct(S.hard(m, 'coding-v4')['q'])}",
                              qz and f"October quiz {qz['correct']}/{qz['graded']}"] if x]
         sizes = [x for x in [dl and f"{fmt(dl)} GB download", mem and f"{mem[0]:g} GB loaded", ws and f"{ws} tokens/s"] if x]
         cards.append(
@@ -347,6 +351,39 @@ document.getElementById('sort').onchange=apply;apply()}})();
     return shell("Models tested on a 32 GB Mac mini M6", body, "models.html", desc="Every local model we benched on a Mac mini M6 32 GB, like a model library with our own results.")
 
 
+CODING_V4_TITLES = {"calc-evaluator": "Expression evaluator with exact error positions", "ics-recurrence": "iCalendar recurrence, time zones and DST",
+                    "money-multicurrency": "Multi-currency money across a four-file package", "json-patch": "JSON Patch (RFC 6902), atomic",
+                    "busy-intervals": "Overlap counting, correct and fast for 200,000 intervals"}
+
+
+def managed_section(S, m, bench, titles, sid, heading, unit, how):
+    """Per job of a hard suite: the steps (or hidden tests) a model got, and the ones it missed, over every run."""
+    hruns = [r for r in S.rows if r["model"] in m["keys"] and r.get("bench") == bench and not r.get("set_aside") and r.get("jobs")]
+    if not hruns:
+        return ""
+    items = []
+    for jid, title in titles.items():
+        js = [j for r in hruns for j in r["jobs"] if j["id"] == jid]
+        if not js:
+            continue
+        n, steps = len(js), {}
+        for j in js:
+            for st, ok in j.get("steps") or []:
+                steps[st] = steps.get(st, 0) + bool(ok)
+        got = [E(st) + (f" ({k} of {n} runs)" if k < n else "") for st, k in steps.items() if k]
+        miss = [E(st) + (f" ({n - k} of {n} runs)" if k else "") for st, k in steps.items() if k < n]
+        errs = sorted({str(j["error"]).removeprefix("error: ") for j in js if j.get("error")})
+        pts = ", ".join(f"{j['points']}/{j['out_of']}" for j in js)
+        items.append(f'<li class="hjob"><strong>{E(title)}</strong> <span class="note">{pts}</span>'
+                     + (f'<div><span class="ok">Managed:</span> {"; ".join(got)}</div>' if got else "")
+                     + (f'<div><span class="ko">Fell short:</span> {"; ".join(miss)}</div>' if miss else "")
+                     + (f'<div class="note">Stopped by: {E("; ".join(errs))}</div>' if errs else "") + "</li>")
+    tot = ", ".join(f"{fmt(r['score'])}/{r['out_of']}" for r in hruns)
+    return (f'<section class="sec" aria-labelledby="{sid}"><div class="sec-h"><h2 id="{sid}">{E(heading)}</h2></div>'
+            f'<p class="note">{E(BENCH[bench][1])} {E(unit.capitalize())} per run: {tot}. {E(how)}</p>'
+            f'<ul class="hjobs">{"".join(items)}</ul></section>')
+
+
 # ---------------------------------------------------------------- model page
 def model_page(S, m):
     d, c, v, t, sp = S.daily(m), S.coding(m), S.vision(m), S.translation(m), S.speech(m)
@@ -356,6 +393,8 @@ def model_page(S, m):
              ("Coding", f"{fmt(c['got'])}/{c['total']}" if c else "—", c and "tasks solved"),
              ("Images", pct(v["q"]) if v else "—", v and f"{runs(v['v1'])}, {runs(v['v2'])}"),
              ("Hard jobs", pct(S.hard(m)["q"]) if S.hard(m) else "—", S.hard(m) and f"{runs(S.hard(m)['g'])} steps"),
+             ("Hard coding", pct(S.hard(m, "coding-v4")["q"]) if S.hard(m, "coding-v4") else "—",
+              S.hard(m, "coding-v4") and f"{runs(S.hard(m, 'coding-v4')['g'])} tests"),
              ("Translation", f"chrF {fmt(t['mean'])}" if t else "—", t and t["setup"]),
              ("Speech errors", f"{fmt(sp['mean'])}%" if sp else "—", sp and len(m["keys"]) > 1 and sp["model"]),
              ("Download", f"{fmt(dl)} GB" if dl else "—", None),
@@ -391,33 +430,12 @@ def model_page(S, m):
     if set_aside:
         res.append("<h3>Runs set aside</h3>" + table(["Run", "Why"], [[E(r["run"]), E(r["set_aside"])] for r in set_aside]))
 
-    # hard jobs: what it managed and where it fell short, per job, over every run
-    hard_html = ""
-    hruns = [r for r in S.rows if r["model"] in m["keys"] and r.get("bench") == "family-hard" and not r.get("set_aside") and r.get("jobs")]
-    if hruns:
-        items = []
-        for t in family_hard.TASKS:
-            js = [j for r in hruns for j in r["jobs"] if j["id"] == t["id"]]
-            if not js:
-                continue
-            n = len(js)
-            steps = {}
-            for j in js:
-                for st, ok in j.get("steps") or []:
-                    steps.setdefault(st, 0)
-                    steps[st] += bool(ok)
-            got = [f"{E(st)}" + (f" ({k} of {n} runs)" if 0 < k < n else "") for st, k in steps.items() if k]
-            miss = [E(st) + (f" ({n - k} of {n} runs)" if 0 < k < n else "") for st, k in steps.items() if k < n]
-            errs = sorted({j["error"].removeprefix("error: ") for j in js if j.get("error")})
-            pts = ", ".join(f"{j['points']}/{j['out_of']}" for j in js)
-            items.append(f'<li class="hjob"><strong>{E(t["title"])}</strong> <span class="note">{pts}</span>'
-                         + (f'<div><span class="ok">Managed:</span> {"; ".join(got)}</div>' if got else "")
-                         + (f'<div><span class="ko">Fell short:</span> {"; ".join(miss)}</div>' if miss else "")
-                         + (f'<div class="note">Stopped by: {E("; ".join(errs))}</div>' if errs else "") + "</li>")
-        tot = ", ".join(f"{fmt(r['score'])}/{r['out_of']}" for r in hruns)
-        hard_html = (f'<section class="sec" aria-labelledby="hard"><div class="sec-h"><h2 id="hard">Hard jobs: what it managed and where it fell short</h2></div>'
-                     f'<p class="note">{E(BENCH["family-hard"][1])} Points per run: {tot}. Each job counts its steps; "kept"/"did not" steps only count when the job itself got somewhere.</p>'
-                     f'<ul class="hjobs">{"".join(items)}</ul></section>')
+    hard_html = managed_section(S, m, "family-hard", {t["id"]: t["title"] for t in family_hard.TASKS}, "hard",
+                                "Hard jobs: what it managed and where it fell short", "points",
+                                '"Kept"/"did not" steps only count when the job itself got somewhere.')
+    hard_html += managed_section(S, m, "coding-v4", CODING_V4_TITLES, "hardcode",
+                                 "Hard coding: what it managed and where it fell short", "hidden tests",
+                                 "Each line is one hidden test, named after what it checks.")
 
     # last month's quiz
     oct_html = ""

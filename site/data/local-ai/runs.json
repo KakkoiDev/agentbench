@@ -5619,6 +5619,19 @@
    "slowest_seconds": 179.0
   },
   {
+   "run": "dropbox-family-muse-glimmer-30b-nvfp4-dflash-checks31-r2-muse-glimmer-30b-nvfp4-dflash",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 74.0,
+   "slowest_seconds": 137.8
+  },
+  {
    "run": "dropbox-family-qwen-checks-r1-qwen3-8-27b-mlx",
    "model": "qwen3.8:27b-mlx",
    "repeat": 1,
