@@ -133,7 +133,7 @@ a.sh-name{display:flex;flex-direction:column;color:var(--ink);text-decoration:no
 <div class="col-wide sh-in">
 <a class="sh-name" href="index.html"><strong>Colibri lab</strong><span>Technical notes · GLM-5.3 and others on a 32 GB Apple M6</span></a>
 <nav class="sh-nav" aria-label="Site">
-<a href="index.html" aria-current="page">Report</a><a href="bench.html">Benchmarks</a><a href="findings.html">Findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/colibri-poc">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
+<a href="local-ai.html">Local AI findings</a><a href="index.html" aria-current="page">Report</a><a href="bench.html">Benchmarks</a><a href="findings.html">Findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/colibri-poc">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
 <a href="archive.html">All results &amp; parallel stress</a></nav>
 <div class="theme" role="group" aria-label="Colour theme"><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
 </div>
@@ -149,6 +149,7 @@ a.sh-name{display:flex;flex-direction:column;color:var(--ink);text-decoration:no
 
 <main>
 <section id="top"><div class="wrap">
+  <p id="local-ai-note" class="lede" style="border:1px solid currentColor;padding:10px 14px;margin-bottom:18px">New: <a href="local-ai.html"><strong>Local AI on a 32 GB Mac mini: findings</strong></a>. Which local models to use for an assistant, coding, translation, speech and images on this Mac, measured. This page is the earlier GLM-5.3 report.</p>
   <span class="badge miss" id="target-badge">Target 5 tok/s: not reached</span>
   <h1 id="title">GLM-5.3 on a 32 GB Apple M6: what we changed and what it cost</h1>
   <p class="lede">Exact tuning made GLM about 7× faster on this Mac than the original engine as first used. Going further means trading answer quality, and 5 tok/s was not reachable here.</p>

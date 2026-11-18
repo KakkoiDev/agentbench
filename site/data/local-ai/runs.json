@@ -1,0 +1,6979 @@
+{
+ "about": {
+  "generated_by": "scripts/collect_local_ai.py",
+  "machine": {
+   "chip": "Apple M6",
+   "memory_gb": 32,
+   "macos": "27.0.1",
+   "ollama": "0.40.16"
+  },
+  "model_download_gb": {
+   "qwen3.6:35b-mlx": 23.0,
+   "qwen3.8:27b-mtp-q4_K_M": 17.0,
+   "qwen3.8:27b-dflash2-nvfp4": 19.0,
+   "glm-ocr:latest": 2.7,
+   "qwen3-vl:8b-instruct": 6.2,
+   "huihui_ai/Qwen3.8-abliterated:27b": 17.0,
+   "gemma4:e2b-mlx": 7.5,
+   "gemma4:e4b-mlx": 9.5,
+   "gemma4:12b-mlx": 7.7,
+   "qwen3.8:27b-mlx": 18.0,
+   "gemma4:26b-mlx": 18.0,
+   "gemma4:31b-mlx": 19.0,
+   "gemma4:26b": 16.0,
+   "gpt-oss:20b": 13.0
+  }
+ },
+ "runs": [
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-12b-mlx-off-flat-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "9/12",
+   "minutes": 4.0,
+   "tool_calls": 53,
+   "output_tokens": 9596,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 21.2
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 13.6
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 104.1
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 59.7
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 41.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-12b-mlx-off-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "7/12",
+   "minutes": 9.9,
+   "tool_calls": 36,
+   "output_tokens": 24485,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 102.5
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 83.0
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 66.3
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 242.3
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 97.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-medium",
+   "model": "gemma4:26b-mlx",
+   "setup": "medium",
+   "setup_meaning": "pi, no extensions, reasoning effort medium",
+   "repeat": 1,
+   "thinking": "medium",
+   "date": "2026-11-14",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "7/12",
+   "minutes": 12.3,
+   "tool_calls": 45,
+   "output_tokens": 29358,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 108.3
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 371.9
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 100.5
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 151.2
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 4.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-off",
+   "model": "gemma4:26b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "7/14",
+   "minutes": 35.3,
+   "tool_calls": 33,
+   "output_tokens": 32096,
+   "timeouts": 1,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 3.8
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 1500.0
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 23.5
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 357.1
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 235.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-off-guard",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 4.6,
+   "tool_calls": 43,
+   "output_tokens": 11498,
+   "timeouts": 0,
+   "tests_tampered": 3,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 42.9
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 19.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 35.4
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 62.8
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 114.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-off-guard1",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard1",
+   "setup_meaning": "local-model-guard, build 1",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 4.5,
+   "tool_calls": 50,
+   "output_tokens": 11528,
+   "timeouts": 0,
+   "tests_tampered": 3,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 37.0
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 17.9
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 33.9
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 87.4
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 95.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-off-guard2-terse",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard2-terse",
+   "setup_meaning": "local-model-guard build 2 + a terse system prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 2.5,
+   "tool_calls": 34,
+   "output_tokens": 5850,
+   "timeouts": 0,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 43.2
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 18.6
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 30.3
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 41.3
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 16.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-26b-mlx-off-r2",
+   "model": "gemma4:26b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 0,
+   "out_of": 5,
+   "hidden_tests": "4/12",
+   "minutes": 24.8,
+   "tool_calls": 33,
+   "output_tokens": 23051,
+   "timeouts": 1,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 60.6
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 48.2
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 234.1
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 242.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gemma4-e4b-mlx-off-guard-r1",
+   "model": "gemma4:e4b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "5/12",
+   "minutes": 2.8,
+   "tool_calls": 51,
+   "output_tokens": 20671,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 7.1
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 44.6
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 8.3
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 54.0
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 53.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-high-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "high-ext",
+   "setup_meaning": "extensions, reasoning effort high",
+   "repeat": 1,
+   "thinking": "high",
+   "date": "2026-11-16",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "6/12",
+   "minutes": 11.3,
+   "tool_calls": 45,
+   "output_tokens": 10137,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 94.8
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 94.0
+    },
+    "feature-todo": {
+     "solved": false,
+     "seconds": 168.8
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 85.0
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 235.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-iso11500-concurrent-20261115T235447",
+   "model": "gpt-oss:20b",
+   "setup": "concurrent-20261115T235447",
+   "setup_meaning": "development build",
+   "repeat": 1,
+   "thinking": "iso11500",
+   "date": "2026-11-15",
+   "score": 2,
+   "out_of": 3,
+   "hidden_tests": "9/10",
+   "minutes": 6.3,
+   "tool_calls": 22,
+   "output_tokens": 7725,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 104.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 157.3
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 117.2
+    }
+   },
+   "set_aside": "concurrency experiment on a second Ollama"
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-iso11500-concurrent-20261116T000129",
+   "model": "gpt-oss:20b",
+   "setup": "concurrent-20261116T000129",
+   "setup_meaning": "development build",
+   "repeat": 1,
+   "thinking": "iso11500",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 3,
+   "hidden_tests": "10/10",
+   "minutes": 6.1,
+   "tool_calls": 31,
+   "output_tokens": 9180,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 81.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 194.5
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 91.9
+    }
+   },
+   "set_aside": "concurrency experiment on a second Ollama"
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-iso11500-sequential-20261115T235447",
+   "model": "gpt-oss:20b",
+   "setup": "sequential-20261115T235447",
+   "setup_meaning": "development build",
+   "repeat": 1,
+   "thinking": "iso11500",
+   "date": "2026-11-15",
+   "score": 1,
+   "out_of": 3,
+   "hidden_tests": "8/10",
+   "minutes": 3.2,
+   "tool_calls": 25,
+   "output_tokens": 5765,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 20.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 86.7
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 84.4
+    }
+   },
+   "set_aside": "concurrency experiment on a second Ollama"
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-iso11500-sequential-20261116T000129",
+   "model": "gpt-oss:20b",
+   "setup": "sequential-20261116T000129",
+   "setup_meaning": "development build",
+   "repeat": 1,
+   "thinking": "iso11500",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 3,
+   "hidden_tests": "10/10",
+   "minutes": 5.9,
+   "tool_calls": 28,
+   "output_tokens": 7386,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 23.1
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 251.9
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 77.3
+    }
+   },
+   "set_aside": "concurrency experiment on a second Ollama"
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-low-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "low-ext",
+   "setup_meaning": "extensions, reasoning effort low",
+   "repeat": 1,
+   "thinking": "low",
+   "date": "2026-11-16",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 3.5,
+   "tool_calls": 52,
+   "output_tokens": 7054,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 28.4
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 32.3
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 74.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 45.4
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 28.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-medium",
+   "model": "gpt-oss:20b",
+   "setup": "medium",
+   "setup_meaning": "pi, no extensions, reasoning effort medium",
+   "repeat": 1,
+   "thinking": "medium",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.0,
+   "tool_calls": 56,
+   "output_tokens": 13752,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 59.9
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 35.9
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 150.8
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 38.9
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 132.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-medium-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "medium-ext",
+   "setup_meaning": "extensions, reasoning effort medium",
+   "repeat": 1,
+   "thinking": "medium",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.1,
+   "tool_calls": 72,
+   "output_tokens": 14560,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 52.5
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 33.1
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 143.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 113.0
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 84.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off",
+   "model": "gpt-oss:20b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.7,
+   "tool_calls": 60,
+   "output_tokens": 14758,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 97.1
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 40.6
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 150.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 86.6
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 87.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-att2-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2",
+   "setup_meaning": "two tries per task at once, keep the first that passes the visible tests",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 11.6,
+   "tool_calls": 72,
+   "output_tokens": 16738,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 57.5
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 116.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 221.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 136.0
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 162.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-att2-r2",
+   "model": "gpt-oss:20b",
+   "setup": "att2",
+   "setup_meaning": "two tries per task at once, keep the first that passes the visible tests",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 2,
+   "out_of": 5,
+   "hidden_tests": "11/14",
+   "minutes": 10.4,
+   "tool_calls": 129,
+   "output_tokens": 29323,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 154.0
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 42.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 205.9
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 126.7
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 93.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-att2esc-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2esc",
+   "setup_meaning": "att2 + escalate to high effort if both fail",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 12.8,
+   "tool_calls": 143,
+   "output_tokens": 30398,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 103.1
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 53.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 276.0
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 156.2
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 179.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-att2pick-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2pick",
+   "setup_meaning": "two tries, keep the one passing most model-written tests",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 33.5,
+   "tool_calls": 114,
+   "output_tokens": 26689,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 232.4
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 390.3
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 419.8
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 497.2
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 471.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-auto-r1",
+   "model": "gpt-oss:20b",
+   "setup": "auto",
+   "setup_meaning": "as cut, plus 'auto' effort: low for quick replies, default once a tool runs",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 2,
+   "out_of": 5,
+   "hidden_tests": "11/14",
+   "minutes": 8.7,
+   "tool_calls": 51,
+   "output_tokens": 13727,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 93.9
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 21.9
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 147.1
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 180.6
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 77.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-cut-r1",
+   "model": "gpt-oss:20b",
+   "setup": "cut",
+   "setup_meaning": "guard + coding-boost; cut-off replies are continued at once",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.8,
+   "tool_calls": 54,
+   "output_tokens": 14325,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-recovery/local-model-guard",
+    "pi-core-recovery/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 53.3
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 43.5
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 124.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 99.1
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 147.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-cut-r2",
+   "model": "gpt-oss:20b",
+   "setup": "cut",
+   "setup_meaning": "guard + coding-boost; cut-off replies are continued at once",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 10.3,
+   "tool_calls": 124,
+   "output_tokens": 19076,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-recovery/local-model-guard",
+    "pi-core-recovery/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 73.6
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 64.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 350.0
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 65.1
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 66.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-esc-r1",
+   "model": "gpt-oss:20b",
+   "setup": "esc",
+   "setup_meaning": "flat + one more run at high effort when visible tests still fail",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 6.9,
+   "tool_calls": 60,
+   "output_tokens": 12747,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 96.8
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 50.3
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 129.6
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 65.3
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 70.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-flat-r1",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 6.0,
+   "tool_calls": 54,
+   "output_tokens": 12645,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 49.6
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 29.9
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 98.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 76.8
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 105.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-flat-r2",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 6.9,
+   "tool_calls": 56,
+   "output_tokens": 14108,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 54.4
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 66.5
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 122.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 118.4
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 53.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-flat-r3",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 3,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "12/13",
+   "minutes": 8.5,
+   "tool_calls": 64,
+   "output_tokens": 16716,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 66.5
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 80.1
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 133.4
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 178.3
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 51.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb0-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb0",
+   "setup_meaning": "guard + coding-boost, development build 0",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 8.8,
+   "tool_calls": 56,
+   "output_tokens": 14921,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-ad25589/local-model-guard",
+    "pi-core-ad25589/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 57.4
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 81.5
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 105.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 171.0
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 115.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb0-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb0",
+   "setup_meaning": "guard + coding-boost, development build 0",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "11/12",
+   "minutes": 7.4,
+   "tool_calls": 52,
+   "output_tokens": 11983,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-ad25589/local-model-guard",
+    "pi-core-ad25589/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 63.7
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 48.1
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 171.6
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 96.6
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 65.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb1-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb1",
+   "setup_meaning": "guard + coding-boost, development build 1",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 3.1,
+   "tool_calls": 33,
+   "output_tokens": 5960,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 45.4
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 17.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 41.2
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 47.8
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 32.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb1-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb1",
+   "setup_meaning": "guard + coding-boost, development build 1",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 3.7,
+   "tool_calls": 53,
+   "output_tokens": 7888,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 52.1
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 21.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 43.0
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 53.0
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 54.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb1med-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb1med",
+   "setup_meaning": "guard + coding-boost build 1, reasoning effort medium",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.0,
+   "tool_calls": 49,
+   "output_tokens": 11133,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 81.1
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 75.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 159.6
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 51.2
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 55.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb1med-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb1med",
+   "setup_meaning": "guard + coding-boost build 1, reasoning effort medium",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 9.1,
+   "tool_calls": 48,
+   "output_tokens": 12919,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 100.4
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 46.9
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 216.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 105.1
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 80.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb2-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb2",
+   "setup_meaning": "guard + coding-boost, development build 2",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 6.7,
+   "tool_calls": 49,
+   "output_tokens": 11719,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 66.5
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 52.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 159.8
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 61.6
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 64.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb2-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb2",
+   "setup_meaning": "guard + coding-boost, development build 2",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.8,
+   "tool_calls": 48,
+   "output_tokens": 16137,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 80.3
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 38.8
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 196.5
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 92.8
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 62.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-gb2-terse",
+   "model": "gpt-oss:20b",
+   "setup": "gb2-terse",
+   "setup_meaning": "guard + coding-boost build 2 + terse prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/14",
+   "minutes": 9.1,
+   "tool_calls": 56,
+   "output_tokens": 14332,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 53.0
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 50.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 277.9
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 80.6
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 82.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-guard",
+   "model": "gpt-oss:20b",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "11/12",
+   "minutes": 6.0,
+   "tool_calls": 43,
+   "output_tokens": 8060,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 60.4
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 54.0
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 69.1
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 113.1
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 60.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-pair-r1",
+   "model": "gpt-oss:20b",
+   "setup": "pair",
+   "setup_meaning": "two runs at once that each see the other's work and revise (2 rounds)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 2,
+   "out_of": 4,
+   "hidden_tests": "9/10",
+   "minutes": 25.9,
+   "tool_calls": 81,
+   "output_tokens": 30586,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 394.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 527.6
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 239.1
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 391.5
+    }
+   },
+   "set_aside": "incomplete run"
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-gpt-oss-20b-off-pair-r2",
+   "model": "gpt-oss:20b",
+   "setup": "pair",
+   "setup_meaning": "two runs at once that each see the other's work and revise (2 rounds)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 32.5,
+   "tool_calls": 243,
+   "output_tokens": 78947,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": false,
+     "seconds": 320.6
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 319.0
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 457.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 442.6
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 410.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 6.2,
+   "tool_calls": 31,
+   "output_tokens": 7876,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 64.6
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 78.6
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 75.8
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 52.3
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 97.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-flat-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.4,
+   "tool_calls": 33,
+   "output_tokens": 8100,
+   "timeouts": 0,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 54.6
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 117.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 81.6
+    },
+    "perf-top-words": {
+     "solved": false,
+     "seconds": 106.8
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 86.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-guard",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 4.6,
+   "tool_calls": 29,
+   "output_tokens": 6322,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 71.5
+    },
+    "bugfix-inventory": {
+     "solved": false,
+     "seconds": 35.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 71.4
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 35.4
+    },
+    "refactor-dates": {
+     "solved": true,
+     "seconds": 63.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-guard1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard1",
+   "setup_meaning": "local-model-guard, build 1",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 5.7,
+   "tool_calls": 31,
+   "output_tokens": 7095,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 54.6
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 86.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 80.9
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 63.6
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 57.6
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-guard2-terse",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard2-terse",
+   "setup_meaning": "local-model-guard build 2 + a terse system prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 4.6,
+   "tool_calls": 29,
+   "output_tokens": 6250,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 55.5
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 59.2
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 67.0
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 49.4
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 47.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-r2",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-14",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 7.0,
+   "tool_calls": 38,
+   "output_tokens": 9278,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 77.4
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 65.6
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 87.7
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 72.3
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 117.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-review-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 12.6,
+   "tool_calls": 53,
+   "output_tokens": 13219,
+   "timeouts": 0,
+   "tests_tampered": 3,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 215.3
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 120.7
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 148.1
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 158.9
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 110.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v1",
+   "run": "agentic-v1-qwen3-8-27b-mlx-off-review-r2",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/14",
+   "minutes": 15.7,
+   "tool_calls": 44,
+   "output_tokens": 17038,
+   "timeouts": 0,
+   "tests_tampered": 3,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "bank-transfer": {
+     "solved": true,
+     "seconds": 283.7
+    },
+    "bugfix-inventory": {
+     "solved": true,
+     "seconds": 109.4
+    },
+    "feature-todo": {
+     "solved": true,
+     "seconds": 127.6
+    },
+    "perf-top-words": {
+     "solved": true,
+     "seconds": 78.8
+    },
+    "refactor-dates": {
+     "solved": false,
+     "seconds": 345.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gemma4-12b-mlx-off-flat-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 0,
+   "out_of": 5,
+   "hidden_tests": "6/18",
+   "minutes": 32.1,
+   "tool_calls": 38,
+   "output_tokens": 23697,
+   "timeouts": 1,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 660.2
+    },
+    "perf-sessions": {
+     "solved": false,
+     "seconds": 231.9
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 86.4
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 47.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gemma4-12b-mlx-off-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 0,
+   "out_of": 5,
+   "hidden_tests": "3/18",
+   "minutes": 15.7,
+   "tool_calls": 21,
+   "output_tokens": 34306,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 241.1
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 383.3
+    },
+    "perf-sessions": {
+     "solved": false,
+     "seconds": 123.6
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 139.1
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 54.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gemma4-26b-mlx-off-guard2-r1",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard2",
+   "setup_meaning": "local-model-guard, build 2",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 22.4,
+   "tool_calls": 99,
+   "output_tokens": 48674,
+   "timeouts": 1,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 194.8
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 138.7
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 75.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 36.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gemma4-26b-mlx-off-guard2-terse",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard2-terse",
+   "setup_meaning": "local-model-guard build 2 + a terse system prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "17/20",
+   "minutes": 21.8,
+   "tool_calls": 78,
+   "output_tokens": 46954,
+   "timeouts": 1,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 169.0
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 119.4
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 78.6
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 41.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gemma4-e4b-mlx-off-guard-r1",
+   "model": "gemma4:e4b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "5/20",
+   "minutes": 2.5,
+   "tool_calls": 38,
+   "output_tokens": 15324,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 29.0
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 27.9
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 25.8
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 32.5
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 32.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-high-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "high-ext",
+   "setup_meaning": "extensions, reasoning effort high",
+   "repeat": 1,
+   "thinking": "high",
+   "date": "2026-11-16",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "11/20",
+   "minutes": 39.0,
+   "tool_calls": 93,
+   "output_tokens": 58477,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 393.3
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 559.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 484.0
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 606.6
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 298.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-low-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "low-ext",
+   "setup_meaning": "extensions, reasoning effort low",
+   "repeat": 1,
+   "thinking": "low",
+   "date": "2026-11-16",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "18/20",
+   "minutes": 7.3,
+   "tool_calls": 69,
+   "output_tokens": 14364,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 84.9
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 132.1
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 53.9
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 87.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 77.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-medium-ext-r1",
+   "model": "gpt-oss:20b",
+   "setup": "medium-ext",
+   "setup_meaning": "extensions, reasoning effort medium",
+   "repeat": 1,
+   "thinking": "medium",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 17.8,
+   "tool_calls": 66,
+   "output_tokens": 34506,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 325.0
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 356.6
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 155.3
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 155.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 74.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-att2-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2",
+   "setup_meaning": "two tries per task at once, keep the first that passes the visible tests",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 0,
+   "out_of": 5,
+   "hidden_tests": "2/18",
+   "minutes": 6.8,
+   "tool_calls": 0,
+   "output_tokens": 0,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 56.9
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 59.6
+    },
+    "perf-sessions": {
+     "solved": false,
+     "seconds": 176.8
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 57.0
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 57.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-att2-r2",
+   "model": "gpt-oss:20b",
+   "setup": "att2",
+   "setup_meaning": "two tries per task at once, keep the first that passes the visible tests",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 24.4,
+   "tool_calls": 125,
+   "output_tokens": 63735,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 542.2
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 289.7
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 143.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 410.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 75.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-att2esc-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2esc",
+   "setup_meaning": "att2 + escalate to high effort if both fail",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 30.7,
+   "tool_calls": 154,
+   "output_tokens": 58147,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 475.6
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 719.2
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 196.7
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 281.6
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 171.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-att2pick-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2pick",
+   "setup_meaning": "two tries, keep the one passing most model-written tests",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 59.0,
+   "tool_calls": 129,
+   "output_tokens": 73734,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 868.7
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 1022.9
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 542.9
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 830.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 274.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-auto-r1",
+   "model": "gpt-oss:20b",
+   "setup": "auto",
+   "setup_meaning": "as cut, plus 'auto' effort: low for quick replies, default once a tool runs",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 22.5,
+   "tool_calls": 91,
+   "output_tokens": 41484,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 344.3
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 562.7
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 77.3
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 260.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 103.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-cut-r1",
+   "model": "gpt-oss:20b",
+   "setup": "cut",
+   "setup_meaning": "guard + coding-boost; cut-off replies are continued at once",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "18/18",
+   "minutes": 23.7,
+   "tool_calls": 46,
+   "output_tokens": 32679,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-recovery/local-model-guard",
+    "pi-core-recovery/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 532.4
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 586.8
+    },
+    "perf-sessions": {
+     "solved": false,
+     "seconds": 96.5
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 112.6
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 93.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-cut-r2",
+   "model": "gpt-oss:20b",
+   "setup": "cut",
+   "setup_meaning": "guard + coding-boost; cut-off replies are continued at once",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 23.0,
+   "tool_calls": 103,
+   "output_tokens": 35844,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-recovery/local-model-guard",
+    "pi-core-recovery/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 488.0
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 256.2
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 165.7
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 358.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 112.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-esc-r1",
+   "model": "gpt-oss:20b",
+   "setup": "esc",
+   "setup_meaning": "flat + one more run at high effort when visible tests still fail",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 10.1,
+   "tool_calls": 60,
+   "output_tokens": 18744,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 226.8
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 119.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 53.5
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 152.5
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 52.6
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-flat-r1",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "19/20",
+   "minutes": 16.2,
+   "tool_calls": 56,
+   "output_tokens": 33424,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 369.8
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 350.5
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 64.8
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 125.5
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 63.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-flat-r2",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/20",
+   "minutes": 11.7,
+   "tool_calls": 66,
+   "output_tokens": 16036,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 114.1
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 212.3
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 104.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 126.6
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 145.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-flat-r3",
+   "model": "gpt-oss:20b",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 3,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 18.5,
+   "tool_calls": 97,
+   "output_tokens": 29749,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 367.4
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 129.1
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 271.8
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 271.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 73.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb0-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb0",
+   "setup_meaning": "guard + coding-boost, development build 0",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "13/20",
+   "minutes": 13.4,
+   "tool_calls": 72,
+   "output_tokens": 22275,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-ad25589/local-model-guard",
+    "pi-core-ad25589/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 95.0
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 244.4
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 128.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 120.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 216.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb0-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb0",
+   "setup_meaning": "guard + coding-boost, development build 0",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 18.6,
+   "tool_calls": 75,
+   "output_tokens": 31720,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-ad25589/local-model-guard",
+    "pi-core-ad25589/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 333.8
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 213.7
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 207.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 264.5
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 94.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb1-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb1",
+   "setup_meaning": "guard + coding-boost, development build 1",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "9/20",
+   "minutes": 6.4,
+   "tool_calls": 37,
+   "output_tokens": 5289,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 79.9
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 117.5
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 66.9
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 63.6
+    },
+    "thread-safe-metrics": {
+     "solved": false,
+     "seconds": 55.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb1-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb1",
+   "setup_meaning": "guard + coding-boost, development build 1",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "18/20",
+   "minutes": 7.8,
+   "tool_calls": 74,
+   "output_tokens": 13359,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 105.7
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 94.2
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 51.3
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 137.9
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 78.1
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb2-r1",
+   "model": "gpt-oss:20b",
+   "setup": "gb2",
+   "setup_meaning": "guard + coding-boost, development build 2",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "16/20",
+   "minutes": 17.0,
+   "tool_calls": 77,
+   "output_tokens": 32638,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 288.9
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 242.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 101.8
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 321.4
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 67.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb2-r2",
+   "model": "gpt-oss:20b",
+   "setup": "gb2",
+   "setup_meaning": "guard + coding-boost, development build 2",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 20.1,
+   "tool_calls": 91,
+   "output_tokens": 34558,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 481.2
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 353.2
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 54.7
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 268.3
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 51.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-gb2-terse",
+   "model": "gpt-oss:20b",
+   "setup": "gb2-terse",
+   "setup_meaning": "guard + coding-boost build 2 + terse prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "19/20",
+   "minutes": 16.2,
+   "tool_calls": 64,
+   "output_tokens": 26625,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 286.7
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 242.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 101.3
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 272.3
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 71.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-mini-r1",
+   "model": "gpt-oss:20b",
+   "setup": "mini",
+   "setup_meaning": "the prompt mini (DropBox's assistant) uses",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "12/20",
+   "minutes": 15.6,
+   "tool_calls": 65,
+   "output_tokens": 20437,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard",
+    "pi-core/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 101.1
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 476.1
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 115.0
+    },
+    "refactor-money": {
+     "solved": false,
+     "seconds": 130.7
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 111.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-pair-r2",
+   "model": "gpt-oss:20b",
+   "setup": "pair",
+   "setup_meaning": "two runs at once that each see the other's work and revise (2 rounds)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 79.2,
+   "tool_calls": 279,
+   "output_tokens": 139827,
+   "timeouts": 2,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 1321.4
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 1800.2
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 432.2
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 808.2
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 390.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-gpt-oss-20b-off-r1",
+   "model": "gpt-oss:20b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 15.3,
+   "tool_calls": 60,
+   "output_tokens": 24967,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 113.3
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 378.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 165.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 159.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 101.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-flat-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "19/20",
+   "minutes": 39.5,
+   "tool_calls": 49,
+   "output_tokens": 28352,
+   "timeouts": 1,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 695.5
+    },
+    "parse-config": {
+     "solved": false,
+     "seconds": 398.9
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 225.8
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 151.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-guard2-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard2",
+   "setup_meaning": "local-model-guard, build 2",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 15.7,
+   "tool_calls": 39,
+   "output_tokens": 15633,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 179.8
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 284.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 215.9
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 125.3
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 134.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-guard2-terse",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard2-terse",
+   "setup_meaning": "local-model-guard build 2 + a terse system prompt",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-15",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 15.1,
+   "tool_calls": 38,
+   "output_tokens": 11267,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core/local-model-guard"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 390.7
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 257.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 58.4
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 143.8
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 56.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 20.7,
+   "tool_calls": 44,
+   "output_tokens": 24649,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 538.5
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 285.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 148.4
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 170.6
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 97.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-review-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 27.3,
+   "tool_calls": 75,
+   "output_tokens": 23065,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 402.1
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 427.1
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 266.9
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 152.9
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 387.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mlx-off-review-r2",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 34.6,
+   "tool_calls": 60,
+   "output_tokens": 33107,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 388.3
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 862.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 220.3
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 313.5
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 293.7
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gemma4-12b-mlx-off-flat-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 1,
+   "out_of": 5,
+   "hidden_tests": "7/30",
+   "minutes": 56.1,
+   "tool_calls": 77,
+   "output_tokens": 29732,
+   "timeouts": 3,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 617.8
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "order-state-machine": {
+     "solved": false,
+     "seconds": 48.4
+    },
+    "ttl-cache": {
+     "solved": false,
+     "seconds": 900.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gemma4-12b-mlx-off-r1",
+   "model": "gemma4:12b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 2,
+   "out_of": 5,
+   "hidden_tests": "28/38",
+   "minutes": 37.8,
+   "tool_calls": 32,
+   "output_tokens": 92585,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 458.2
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 322.6
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 453.1
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 423.5
+    },
+    "ttl-cache": {
+     "solved": false,
+     "seconds": 610.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gemma4-26b-mlx-off-guard-r1",
+   "model": "gemma4:26b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "33/38",
+   "minutes": 20.6,
+   "tool_calls": 52,
+   "output_tokens": 38130,
+   "timeouts": 0,
+   "tests_tampered": 5,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 468.3
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 160.7
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 163.4
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 133.9
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 309.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gemma4-e4b-mlx-off-guard-r1",
+   "model": "gemma4:e4b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 0,
+   "out_of": 5,
+   "hidden_tests": "15/38",
+   "minutes": 5.0,
+   "tool_calls": 38,
+   "output_tokens": 30922,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 31.4
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 64.3
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 90.0
+    },
+    "order-state-machine": {
+     "solved": false,
+     "seconds": 73.6
+    },
+    "ttl-cache": {
+     "solved": false,
+     "seconds": 40.6
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-att2pick-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att2pick",
+   "setup_meaning": "two tries, keep the one passing most model-written tests",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "29/38",
+   "minutes": 73.8,
+   "tool_calls": 152,
+   "output_tokens": 94762,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 1234.1
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 767.7
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 865.3
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 878.7
+    },
+    "ttl-cache": {
+     "solved": false,
+     "seconds": 684.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-att4-r1",
+   "model": "gpt-oss:20b",
+   "setup": "att4",
+   "setup_meaning": "four tries, keep the first that passes",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "37/38",
+   "minutes": 44.3,
+   "tool_calls": 318,
+   "output_tokens": 126410,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 649.2
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 358.3
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 659.4
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 396.3
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 594.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-bare-r1",
+   "model": "gpt-oss:20b",
+   "setup": "bare",
+   "setup_meaning": "pi with no extensions (same as off)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "38/38",
+   "minutes": 30.4,
+   "tool_calls": 51,
+   "output_tokens": 42736,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 170.2
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 291.9
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 463.9
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 405.9
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 493.5
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-tuned-r1",
+   "model": "gpt-oss:20b",
+   "setup": "tuned",
+   "setup_meaning": "same extensions as flat (named tuned on the held-out v3 suite)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "38/38",
+   "minutes": 27.2,
+   "tool_calls": 96,
+   "output_tokens": 38830,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 303.2
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 154.9
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 638.9
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 257.8
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 275.6
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-tuned-r2",
+   "model": "gpt-oss:20b",
+   "setup": "tuned",
+   "setup_meaning": "same extensions as flat (named tuned on the held-out v3 suite)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "37/38",
+   "minutes": 31.9,
+   "tool_calls": 170,
+   "output_tokens": 54603,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 345.7
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 254.6
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 749.7
+    },
+    "order-state-machine": {
+     "solved": false,
+     "seconds": 285.2
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 275.9
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-tuned-r2-memorystarved",
+   "model": "gpt-oss:20b",
+   "setup": "tuned",
+   "setup_meaning": "same extensions as flat (named tuned on the held-out v3 suite)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "25/38",
+   "minutes": 75.0,
+   "tool_calls": 69,
+   "output_tokens": 20905,
+   "timeouts": 5,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "order-state-machine": {
+     "solved": false,
+     "seconds": 900.0
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 900.0
+    }
+   },
+   "set_aside": "ran while another 26 GB model was loaded; the Mac swapped"
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-gpt-oss-20b-off-tuned-r3",
+   "model": "gpt-oss:20b",
+   "setup": "tuned",
+   "setup_meaning": "same extensions as flat (named tuned on the held-out v3 suite)",
+   "repeat": 3,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "36/38",
+   "minutes": 30.4,
+   "tool_calls": 74,
+   "output_tokens": 46844,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 608.3
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 456.5
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 208.4
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 292.3
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 257.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mlx-off-flat-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "flat",
+   "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "38/38",
+   "minutes": 43.5,
+   "tool_calls": 55,
+   "output_tokens": 36525,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 690.6
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 868.6
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 284.3
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 316.7
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 452.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mlx-off-guard-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "guard",
+   "setup_meaning": "pi + local-model-guard (repairs broken tool calls, stops loops)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-16",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "37/38",
+   "minutes": 23.7,
+   "tool_calls": 30,
+   "output_tokens": 19768,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 593.0
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 244.4
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 117.3
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 177.5
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 288.3
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mlx-off-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "38/38",
+   "minutes": 23.5,
+   "tool_calls": 41,
+   "output_tokens": 25920,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 405.1
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 149.2
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 206.8
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 310.8
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 340.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mlx-off-review-r1",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "37/38",
+   "minutes": 49.8,
+   "tool_calls": 69,
+   "output_tokens": 43817,
+   "timeouts": 2,
+   "tests_tampered": 2,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 349.5
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 389.9
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 448.3
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 900.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mlx-off-review-r2",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "review",
+   "setup_meaning": "flat + self-review pass (contract, correctness, validation, scope reviewers)",
+   "repeat": 2,
+   "thinking": "off",
+   "date": "2026-11-17",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "36/38",
+   "minutes": 43.5,
+   "tool_calls": 67,
+   "output_tokens": 45341,
+   "timeouts": 0,
+   "tests_tampered": 1,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [
+    "pi-core-cause/local-model-guard",
+    "pi-core-cause/coding-boost"
+   ],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 632.8
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 767.8
+    },
+    "kv-cli": {
+     "solved": false,
+     "seconds": 366.2
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 393.4
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 451.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "run": "dropbox-captions-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "speech-to-text",
+   "setup": "audio in, via Ollama, thinking off",
+   "score": 34.1,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 16.9,
+    "en-clean-pinned": 8.2,
+    "en-noise-detect": 6.2,
+    "en-noise-pinned": 5.8,
+    "ja-clean-detect": 53.0,
+    "ja-clean-pinned": 42.5,
+    "ja-noise-detect": 49.8,
+    "ja-noise-pinned": 42.8,
+    "fr-clean-detect": 43.0,
+    "fr-clean-pinned": 31.7,
+    "fr-noise-detect": 52.3,
+    "fr-noise-pinned": 57.5
+   },
+   "language_detected_right": 0.868,
+   "compute_per_audio_second": 2.845,
+   "failed_answers": 13
+  },
+  {
+   "run": "dropbox-captions-gemma4-12b-mlx-think-on",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "speech-to-text",
+   "setup": "audio in, via Ollama, thinking on",
+   "score": 35.9,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 14.1,
+    "en-clean-pinned": 5.8,
+    "en-noise-detect": 10.2,
+    "en-noise-pinned": 11.6,
+    "ja-clean-detect": 57.7,
+    "ja-clean-pinned": 42.3,
+    "ja-noise-detect": 57.7,
+    "ja-noise-pinned": 45.5,
+    "fr-clean-detect": 42.2,
+    "fr-clean-pinned": 39.1,
+    "fr-noise-detect": 53.7,
+    "fr-noise-pinned": 50.9
+   },
+   "language_detected_right": 0.854,
+   "compute_per_audio_second": 9.237,
+   "failed_answers": 32
+  },
+  {
+   "run": "dropbox-captions-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "speech-to-text",
+   "setup": "audio in, via Ollama, thinking off",
+   "score": 17.5,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.5,
+    "en-clean-pinned": 2.5,
+    "en-noise-detect": 2.5,
+    "en-noise-pinned": 2.5,
+    "ja-clean-detect": 20.6,
+    "ja-clean-pinned": 8.9,
+    "ja-noise-detect": 15.9,
+    "ja-noise-pinned": 16.0,
+    "fr-clean-detect": 22.8,
+    "fr-clean-pinned": 15.6,
+    "fr-noise-detect": 52.5,
+    "fr-noise-pinned": 47.9
+   },
+   "language_detected_right": 0.924,
+   "compute_per_audio_second": 0.084,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-gemma4-e4b-mlx-think-on",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "speech-to-text",
+   "setup": "audio in, via Ollama, thinking on",
+   "score": 20.7,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 23.2,
+    "en-clean-pinned": 1.3,
+    "en-noise-detect": 12.9,
+    "en-noise-pinned": 5.5,
+    "ja-clean-detect": 14.5,
+    "ja-clean-pinned": 12.0,
+    "ja-noise-detect": 18.2,
+    "ja-noise-pinned": 22.4,
+    "fr-clean-detect": 22.8,
+    "fr-clean-pinned": 18.0,
+    "fr-noise-detect": 50.0,
+    "fr-noise-pinned": 47.4
+   },
+   "language_detected_right": 0.931,
+   "compute_per_audio_second": 0.344,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-whisper-base-mlx",
+   "model": "whisper-base-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "speech-to-text",
+   "setup": "Whisper via mlx-whisper",
+   "score": 37.0,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.9,
+    "en-clean-pinned": 2.9,
+    "en-noise-detect": 8.5,
+    "en-noise-pinned": 8.5,
+    "ja-clean-detect": 37.5,
+    "ja-clean-pinned": 21.6,
+    "ja-noise-detect": 30.1,
+    "ja-noise-pinned": 30.1,
+    "fr-clean-detect": 38.5,
+    "fr-clean-pinned": 38.5,
+    "fr-noise-detect": 112.8,
+    "fr-noise-pinned": 112.2
+   },
+   "language_detected_right": 0.951,
+   "compute_per_audio_second": 0.019,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-whisper-large-v3-mlx",
+   "model": "whisper-large-v3-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "speech-to-text",
+   "setup": "Whisper via mlx-whisper",
+   "score": 7.8,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.5,
+    "en-clean-pinned": 2.5,
+    "en-noise-detect": 2.5,
+    "en-noise-pinned": 2.5,
+    "ja-clean-detect": 3.0,
+    "ja-clean-pinned": 3.0,
+    "ja-noise-detect": 5.0,
+    "ja-noise-pinned": 5.0,
+    "fr-clean-detect": 5.3,
+    "fr-clean-pinned": 5.3,
+    "fr-noise-detect": 30.8,
+    "fr-noise-pinned": 26.1
+   },
+   "language_detected_right": 0.993,
+   "compute_per_audio_second": 0.186,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-whisper-large-v3-turbo",
+   "model": "whisper-large-v3-turbo",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "speech-to-text",
+   "setup": "Whisper via mlx-whisper",
+   "score": 8.9,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.9,
+    "en-clean-pinned": 2.9,
+    "en-noise-detect": 2.5,
+    "en-noise-pinned": 2.5,
+    "ja-clean-detect": 3.2,
+    "ja-clean-pinned": 3.2,
+    "ja-noise-detect": 4.7,
+    "ja-noise-pinned": 4.7,
+    "fr-clean-detect": 7.0,
+    "fr-clean-pinned": 7.0,
+    "fr-noise-detect": 30.7,
+    "fr-noise-pinned": 36.0
+   },
+   "language_detected_right": 0.979,
+   "compute_per_audio_second": 0.111,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-whisper-medium-mlx",
+   "model": "whisper-medium-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "speech-to-text",
+   "setup": "Whisper via mlx-whisper",
+   "score": 10.5,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.5,
+    "en-clean-pinned": 2.5,
+    "en-noise-detect": 2.5,
+    "en-noise-pinned": 2.5,
+    "ja-clean-detect": 5.2,
+    "ja-clean-pinned": 5.2,
+    "ja-noise-detect": 8.6,
+    "ja-noise-pinned": 8.6,
+    "fr-clean-detect": 8.1,
+    "fr-clean-pinned": 8.1,
+    "fr-noise-detect": 35.7,
+    "fr-noise-pinned": 36.7
+   },
+   "language_detected_right": 0.993,
+   "compute_per_audio_second": 0.1,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-captions-whisper-small-mlx",
+   "model": "whisper-small-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "speech-to-text",
+   "setup": "Whisper via mlx-whisper",
+   "score": 16.5,
+   "out_of": 100,
+   "metric": "word/character error % (lower is better)",
+   "by_condition": {
+    "en-clean-detect": 2.5,
+    "en-clean-pinned": 2.5,
+    "en-noise-detect": 4.0,
+    "en-noise-pinned": 4.0,
+    "ja-clean-detect": 9.5,
+    "ja-clean-pinned": 9.5,
+    "ja-noise-detect": 17.2,
+    "ja-noise-pinned": 10.8,
+    "fr-clean-detect": 17.5,
+    "fr-clean-pinned": 17.5,
+    "fr-noise-detect": 56.6,
+    "fr-noise-pinned": 46.7
+   },
+   "language_detected_right": 0.979,
+   "compute_per_audio_second": 0.04,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-family-e4b-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 6,
+   "out_of": 12,
+   "seconds_each": 8.8,
+   "slowest_seconds": 20.9
+  },
+  {
+   "run": "dropbox-family-g12-checks3-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 18.3,
+   "slowest_seconds": 36.1
+  },
+  {
+   "run": "dropbox-family-g12-checks3-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 16.7,
+   "slowest_seconds": 26.3
+  },
+  {
+   "run": "dropbox-family-g12-checks31-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 16.9,
+   "slowest_seconds": 43.4
+  },
+  {
+   "run": "dropbox-family-g12-checks31-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 16.6,
+   "slowest_seconds": 35.9
+  },
+  {
+   "run": "dropbox-family-g12-checks31-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 15.0,
+   "slowest_seconds": 25.3
+  },
+  {
+   "run": "dropbox-family-g12-checks31-r4-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 4,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 16.5,
+   "slowest_seconds": 37.9
+  },
+  {
+   "run": "dropbox-family-g12-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 44.2,
+   "slowest_seconds": 324.5
+  },
+  {
+   "run": "dropbox-family-g12-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 15.0,
+   "slowest_seconds": 30.6
+  },
+  {
+   "run": "dropbox-family-g12-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 15.1,
+   "slowest_seconds": 24.6
+  },
+  {
+   "run": "dropbox-family-g12-r4-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 4,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 14.7,
+   "slowest_seconds": 24.9
+  },
+  {
+   "run": "dropbox-family-g12-r5-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 5,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 16.1,
+   "slowest_seconds": 37.1
+  },
+  {
+   "run": "dropbox-family-gptoss-checks-r1-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v2",
+   "score": 7,
+   "out_of": 12,
+   "seconds_each": 23.2,
+   "slowest_seconds": 50.2
+  },
+  {
+   "run": "dropbox-family-gptoss-checks-r1-gpt-oss-20b-superseded",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": "first version of mini's turn checks, replaced the same day",
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v2",
+   "score": 6,
+   "out_of": 12,
+   "seconds_each": 23.7,
+   "slowest_seconds": 57.3
+  },
+  {
+   "run": "dropbox-family-gptoss-checks-r2-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v2",
+   "score": 6,
+   "out_of": 12,
+   "seconds_each": 22.4,
+   "slowest_seconds": 89.4
+  },
+  {
+   "run": "dropbox-family-gptoss-checks3-r1-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 25.2,
+   "slowest_seconds": 71.7
+  },
+  {
+   "run": "dropbox-family-gptoss-checks3-r2-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 33.0,
+   "slowest_seconds": 80.5
+  },
+  {
+   "run": "dropbox-family-gptoss-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 6,
+   "out_of": 12,
+   "seconds_each": 26.5,
+   "slowest_seconds": 76.7
+  },
+  {
+   "run": "dropbox-family-qwen-checks-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v2",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 28.8,
+   "slowest_seconds": 61.8
+  },
+  {
+   "run": "dropbox-family-qwen-checks-r2-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v2",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 29.4,
+   "slowest_seconds": 62.9
+  },
+  {
+   "run": "dropbox-family-qwen-checks3-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 25.0,
+   "slowest_seconds": 49.2
+  },
+  {
+   "run": "dropbox-family-qwen-checks3-r2-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 29.9,
+   "slowest_seconds": 102.8
+  },
+  {
+   "run": "dropbox-family-qwen-checks31-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 25.5,
+   "slowest_seconds": 37.5
+  },
+  {
+   "run": "dropbox-family-qwen-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 10,
+   "out_of": 12,
+   "seconds_each": 29.3,
+   "slowest_seconds": 61.9
+  },
+  {
+   "run": "dropbox-family-qwen-r2-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 30.3,
+   "slowest_seconds": 40.9
+  },
+  {
+   "run": "dropbox-family-route-checks-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b, harness v2",
+   "score": 7,
+   "out_of": 12,
+   "seconds_each": 23.3,
+   "slowest_seconds": 96.2
+  },
+  {
+   "run": "dropbox-family-route-checks-r2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b, harness v2",
+   "score": 9,
+   "out_of": 12,
+   "seconds_each": 24.9,
+   "slowest_seconds": 59.9
+  },
+  {
+   "run": "dropbox-family-route-checks3-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b, harness v3",
+   "score": 9,
+   "out_of": 12,
+   "seconds_each": 26.4,
+   "slowest_seconds": 82.1
+  },
+  {
+   "run": "dropbox-family-route-checks3-r2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b, harness v3",
+   "score": 10,
+   "out_of": 12,
+   "seconds_each": 27.5,
+   "slowest_seconds": 83.8
+  },
+  {
+   "run": "dropbox-family-route-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 21.8,
+   "slowest_seconds": 71.7
+  },
+  {
+   "run": "dropbox-family-route-r2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b",
+   "score": 7,
+   "out_of": 12,
+   "seconds_each": 16.4,
+   "slowest_seconds": 56.0
+  },
+  {
+   "run": "dropbox-family-route-x3-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "routed to gpt-oss:20b, 3 at once",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 24.9,
+   "slowest_seconds": 47.0
+  },
+  {
+   "run": "dropbox-family-sandbox-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": "sandbox check run",
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 6,
+   "out_of": 12,
+   "seconds_each": 184.8,
+   "slowest_seconds": 600.0
+  },
+  {
+   "run": "dropbox-family-sandbox2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": "sandbox check run",
+   "date": "2026-11-17",
+   "bench": "family-jobs",
+   "setup": "one model",
+   "score": 1,
+   "out_of": 3,
+   "seconds_each": 15.7,
+   "slowest_seconds": 32.5
+  },
+  {
+   "run": "dropbox-mini-base-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 6.8,
+   "slowest_seconds": 11.0,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 7.4,
+   "slowest_seconds": 13.2,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check-gemma4-26b-mlx",
+   "model": "gemma4:26b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 13,
+   "out_of": 14,
+   "seconds_each": 11.4,
+   "slowest_seconds": 22.9,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 14,
+   "seconds_each": 2.5,
+   "slowest_seconds": 4.7,
+   "stayed_quiet_right": "4/5"
+  },
+  {
+   "run": "dropbox-mini-check-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 6.5,
+   "slowest_seconds": 12.6,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 10.2,
+   "slowest_seconds": 22.8,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model, 3 at once",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 18.8,
+   "slowest_seconds": 32.4,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check3-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model, 3 at once",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 6.8,
+   "slowest_seconds": 11.7,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-check3-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model, 3 at once",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 13.8,
+   "slowest_seconds": 32.0,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model, harness v2",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 10.8,
+   "slowest_seconds": 23.2,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks3-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 12.1,
+   "slowest_seconds": 39.4,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks3-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 15.1,
+   "slowest_seconds": 54.5,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks31-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 14.8,
+   "slowest_seconds": 52.6,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": "older 12-case version of the test",
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 9.4,
+   "slowest_seconds": null,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-gemma4-26b-mlx",
+   "model": "gemma4:26b-mlx",
+   "repeat": 1,
+   "set_aside": "older 12-case version of the test",
+   "date": "2026-11-16",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 9.0,
+   "slowest_seconds": null,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": "older 12-case version of the test",
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 11,
+   "out_of": 12,
+   "seconds_each": 2.8,
+   "slowest_seconds": null,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": "older 12-case version of the test",
+   "date": "2026-11-16",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 7.7,
+   "slowest_seconds": null,
+   "stayed_quiet_right": "4/5"
+  },
+  {
+   "run": "dropbox-mini-lang-base-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 8.8,
+   "slowest_seconds": 15.8,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v2",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 12.6,
+   "slowest_seconds": 25.8,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks3-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 20.1,
+   "slowest_seconds": 102.3,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks3-r1-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 12.1,
+   "slowest_seconds": 45.0,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks31-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 25.9,
+   "slowest_seconds": 148.8,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 9.2,
+   "slowest_seconds": 17.8,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-gemma4-26b-mlx",
+   "model": "gemma4:26b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 13.6,
+   "slowest_seconds": 24.1,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 3.0,
+   "slowest_seconds": 6.7,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-gpt-oss-20b",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 8.7,
+   "slowest_seconds": 19.8,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 13.3,
+   "slowest_seconds": 28.0,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-r2-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 12.7,
+   "slowest_seconds": 24.6,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": "older 12-case version of the test",
+   "date": "2026-11-16",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 9.8,
+   "slowest_seconds": null,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-route-en-checks-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "routed to gpt-oss:20b, harness v2",
+   "score": 13,
+   "out_of": 14,
+   "seconds_each": 4.6,
+   "slowest_seconds": 14.8,
+   "stayed_quiet_right": "4/5"
+  },
+  {
+   "run": "dropbox-mini-route-en-checks3-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "routed to gpt-oss:20b, harness v3",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 8.9,
+   "slowest_seconds": 44.3,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-route-en-x1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "routed to gpt-oss:20b",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 5.1,
+   "slowest_seconds": 11.6,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-route-en-x1-r2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "routed to gpt-oss:20b",
+   "score": 13,
+   "out_of": 14,
+   "seconds_each": 4.4,
+   "slowest_seconds": 9.7,
+   "stayed_quiet_right": "4/5"
+  },
+  {
+   "run": "dropbox-mini-route-en-x3-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "routed to gpt-oss:20b, 3 at once",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 10.4,
+   "slowest_seconds": 27.5,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-route-lang-checks-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b, harness v2",
+   "score": 5,
+   "out_of": 8,
+   "seconds_each": 5.6,
+   "slowest_seconds": 23.8,
+   "stayed_quiet_right": "1/3"
+  },
+  {
+   "run": "dropbox-mini-route-lang-checks3-r1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b, harness v3",
+   "score": 5,
+   "out_of": 8,
+   "seconds_each": 10.8,
+   "slowest_seconds": 67.7,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-route-lang-x1-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b",
+   "score": 6,
+   "out_of": 8,
+   "seconds_each": 6.0,
+   "slowest_seconds": 19.7,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-route-lang-x1-r2-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b",
+   "score": 6,
+   "out_of": 8,
+   "seconds_each": 6.6,
+   "slowest_seconds": 25.2,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-route-lang-x1-r3-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b",
+   "score": 5,
+   "out_of": 8,
+   "seconds_each": 5.0,
+   "slowest_seconds": 16.5,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-route-lang-x3-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-17",
+   "bench": "assistant-lang",
+   "setup": "routed to gpt-oss:20b, 3 at once",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 13.4,
+   "slowest_seconds": 35.4,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-sandbox-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": "sandbox check run",
+   "date": "2026-11-17",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 12,
+   "out_of": 14,
+   "seconds_each": 21.1,
+   "slowest_seconds": 40.2,
+   "stayed_quiet_right": "4/5"
+  },
+  {
+   "run": "dropbox-translate-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking off",
+   "score": 71.5,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 49.4,
+    "en->fr": 83.8,
+    "ja->en": 81.5,
+    "ja->fr": 74.9,
+    "fr->en": 87.8,
+    "fr->ja": 51.7
+   },
+   "seconds_each": 0.52,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gemma4-12b-mlx-think-on",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "translation",
+   "setup": "thinking on",
+   "score": 55.3,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 35.8,
+    "en->fr": 74.5,
+    "ja->en": 66.0,
+    "ja->fr": 42.1,
+    "fr->en": 71.5,
+    "fr->ja": 42.1
+   },
+   "seconds_each": 154.74,
+   "failed_answers": 17
+  },
+  {
+   "run": "dropbox-translate-gemma4-26b-mlx",
+   "model": "gemma4:26b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking off",
+   "score": 73.3,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 55.5,
+    "en->fr": 81.4,
+    "ja->en": 79.3,
+    "ja->fr": 79.0,
+    "fr->en": 86.5,
+    "fr->ja": 58.3
+   },
+   "seconds_each": 0.55,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gemma4-e2b-mlx",
+   "model": "gemma4:e2b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking off",
+   "score": 72.0,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 55.7,
+    "en->fr": 84.7,
+    "ja->en": 79.0,
+    "ja->fr": 74.0,
+    "fr->en": 85.6,
+    "fr->ja": 53.0
+   },
+   "seconds_each": 0.16,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gemma4-e4b-mlx",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking off",
+   "score": 73.8,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 56.2,
+    "en->fr": 87.8,
+    "ja->en": 78.0,
+    "ja->fr": 80.1,
+    "fr->en": 84.1,
+    "fr->ja": 56.2
+   },
+   "seconds_each": 0.22,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gemma4-e4b-mlx-think-on",
+   "model": "gemma4:e4b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "translation",
+   "setup": "thinking on",
+   "score": 70.8,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 53.4,
+    "en->fr": 87.9,
+    "ja->en": 77.1,
+    "ja->fr": 73.0,
+    "fr->en": 82.9,
+    "fr->ja": 50.3
+   },
+   "seconds_each": 2.52,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gpt-oss-20b-think-high",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "translation",
+   "setup": "thinking high",
+   "score": 63.2,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 51.9,
+    "en->fr": 68.5,
+    "ja->en": 69.4,
+    "ja->fr": 59.4,
+    "fr->en": 83.8,
+    "fr->ja": 46.4
+   },
+   "seconds_each": 42.26,
+   "failed_answers": 4
+  },
+  {
+   "run": "dropbox-translate-gpt-oss-20b-think-low",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking low",
+   "score": 68.8,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 60.0,
+    "en->fr": 80.7,
+    "ja->en": 68.8,
+    "ja->fr": 67.6,
+    "fr->en": 80.8,
+    "fr->ja": 54.7
+   },
+   "seconds_each": 1.85,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-gpt-oss-20b-think-medium",
+   "model": "gpt-oss:20b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "translation",
+   "setup": "thinking medium",
+   "score": 68.4,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 59.6,
+    "en->fr": 82.2,
+    "ja->en": 68.3,
+    "ja->fr": 68.5,
+    "fr->en": 82.0,
+    "fr->ja": 49.6
+   },
+   "seconds_each": 3.85,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-qwen3-8-27b-mlx",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-16",
+   "bench": "translation",
+   "setup": "thinking off",
+   "score": 68.3,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 54.4,
+    "en->fr": 84.0,
+    "ja->en": 71.4,
+    "ja->fr": 71.6,
+    "fr->en": 83.1,
+    "fr->ja": 45.4
+   },
+   "seconds_each": 1.13,
+   "failed_answers": 0
+  },
+  {
+   "run": "dropbox-translate-qwen3-8-27b-mlx-think-on",
+   "model": "qwen3.8:27b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "translation",
+   "setup": "thinking on",
+   "score": 66.7,
+   "out_of": 100,
+   "metric": "chrF (higher is better)",
+   "by_direction": {
+    "en->ja": 42.8,
+    "en->fr": 85.4,
+    "ja->en": 69.8,
+    "ja->fr": 76.4,
+    "fr->en": 84.4,
+    "fr->ja": 41.4
+   },
+   "seconds_each": 22.45,
+   "failed_answers": 0
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mlx.json",
+   "model": "laya-multilingual-mlx",
+   "setup": "simple",
+   "repeat": 1,
+   "score": 35,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "20/32",
+   "ms_median": 18,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mlx.json",
+   "model": "laya-multilingual-mlx",
+   "setup": "fine",
+   "repeat": 1,
+   "score": 36,
+   "out_of": 53,
+   "needs_tools": "17/21",
+   "chat": "19/32",
+   "ms_median": 18,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mlx.json",
+   "model": "laya-multilingual-mlx",
+   "setup": "rules+simple",
+   "repeat": 1,
+   "score": 37,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "22/32",
+   "ms_median": 18,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mlx.json",
+   "model": "laya-multilingual-mlx",
+   "setup": "rules+fine",
+   "repeat": 1,
+   "score": 39,
+   "out_of": 53,
+   "needs_tools": "17/21",
+   "chat": "22/32",
+   "ms_median": 18,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mps.json",
+   "model": "laya-multilingual-mps",
+   "setup": "simple",
+   "repeat": 1,
+   "score": 35,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "20/32",
+   "ms_median": 55,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mps.json",
+   "model": "laya-multilingual-mps",
+   "setup": "fine",
+   "repeat": 1,
+   "score": 36,
+   "out_of": 53,
+   "needs_tools": "17/21",
+   "chat": "19/32",
+   "ms_median": 55,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mps.json",
+   "model": "laya-multilingual-mps",
+   "setup": "rules+simple",
+   "repeat": 1,
+   "score": 37,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "22/32",
+   "ms_median": 55,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-multilingual-mps.json",
+   "model": "laya-multilingual-mps",
+   "setup": "rules+fine",
+   "repeat": 1,
+   "score": 39,
+   "out_of": 53,
+   "needs_tools": "17/21",
+   "chat": "22/32",
+   "ms_median": 55,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mlx.json",
+   "model": "laya-router-mlx",
+   "setup": "simple",
+   "repeat": 1,
+   "score": 41,
+   "out_of": 53,
+   "needs_tools": "14/21",
+   "chat": "27/32",
+   "ms_median": 27,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mlx.json",
+   "model": "laya-router-mlx",
+   "setup": "fine",
+   "repeat": 1,
+   "score": 37,
+   "out_of": 53,
+   "needs_tools": "13/21",
+   "chat": "24/32",
+   "ms_median": 27,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mlx.json",
+   "model": "laya-router-mlx",
+   "setup": "rules+simple",
+   "repeat": 1,
+   "score": 43,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "28/32",
+   "ms_median": 27,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mlx.json",
+   "model": "laya-router-mlx",
+   "setup": "rules+fine",
+   "repeat": 1,
+   "score": 40,
+   "out_of": 53,
+   "needs_tools": "14/21",
+   "chat": "26/32",
+   "ms_median": 27,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mps.json",
+   "model": "laya-router-mps",
+   "setup": "simple",
+   "repeat": 1,
+   "score": 41,
+   "out_of": 53,
+   "needs_tools": "14/21",
+   "chat": "27/32",
+   "ms_median": 71,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mps.json",
+   "model": "laya-router-mps",
+   "setup": "fine",
+   "repeat": 1,
+   "score": 37,
+   "out_of": 53,
+   "needs_tools": "13/21",
+   "chat": "24/32",
+   "ms_median": 71,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mps.json",
+   "model": "laya-router-mps",
+   "setup": "rules+simple",
+   "repeat": 1,
+   "score": 43,
+   "out_of": 53,
+   "needs_tools": "15/21",
+   "chat": "28/32",
+   "ms_median": 71,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/laya-router-mps.json",
+   "model": "laya-router-mps",
+   "setup": "rules+fine",
+   "repeat": 1,
+   "score": 40,
+   "out_of": 53,
+   "needs_tools": "14/21",
+   "chat": "26/32",
+   "ms_median": 71,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/ollama-gemma4-e4b-mlx.json",
+   "model": "ollama-gemma4-e4b-mlx",
+   "setup": "rules",
+   "repeat": 1,
+   "score": 36,
+   "out_of": 53,
+   "needs_tools": "4/21",
+   "chat": "32/32",
+   "ms_median": 110,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/ollama-gemma4-e4b-mlx.json",
+   "model": "ollama-gemma4-e4b-mlx",
+   "setup": "model",
+   "repeat": 1,
+   "score": 47,
+   "out_of": 53,
+   "needs_tools": "16/21",
+   "chat": "31/32",
+   "ms_median": 110,
+   "set_aside": null
+  },
+  {
+   "bench": "routing",
+   "run": "route-bench/ollama-gemma4-e4b-mlx.json",
+   "model": "ollama-gemma4-e4b-mlx",
+   "setup": "both",
+   "repeat": 1,
+   "score": 47,
+   "out_of": 53,
+   "needs_tools": "16/21",
+   "chat": "31/32",
+   "ms_median": 110,
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-12b-mlx-think-off",
+   "model": "gemma4:12b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 21,
+   "out_of": 25,
+   "seconds_each": 0.51,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "0/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "1/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-12b-mlx-think-on",
+   "model": "gemma4:12b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 23,
+   "out_of": 25,
+   "seconds_each": 6.33,
+   "by_group": {
+    "OCR": "7/9",
+    "charts": "5/5",
+    "counting": "3/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "2/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-26b-mlx-think-off",
+   "model": "gemma4:26b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 22,
+   "out_of": 25,
+   "seconds_each": 7.06,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "1/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "1/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-26b-mlx-think-on",
+   "model": "gemma4:26b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 25,
+   "out_of": 25,
+   "seconds_each": 19.09,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "3/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "2/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-e4b-mlx-think-off",
+   "model": "gemma4:e4b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 20,
+   "out_of": 25,
+   "seconds_each": 0.32,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "0/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "0/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-gemma4-e4b-mlx-think-on",
+   "model": "gemma4:e4b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 23,
+   "out_of": 25,
+   "seconds_each": 3.98,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "1/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "2/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-glm-ocr-latest-think-off",
+   "model": "glm-ocr:latest",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 20,
+   "out_of": 25,
+   "seconds_each": 0.3,
+   "by_group": {
+    "OCR": "8/9",
+    "charts": "5/5",
+    "counting": "2/3",
+    "layout": "1/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "0/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-qwen3-8-27b-mlx-think-off",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 24,
+   "out_of": 25,
+   "seconds_each": 2.24,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "3/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "1/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-qwen3-8-27b-mlx-think-on",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 25,
+   "out_of": 25,
+   "seconds_each": 6.75,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "3/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "2/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v1",
+   "run": "vision-v1-qwen3-vl-8b-instruct-think-off",
+   "model": "qwen3-vl:8b-instruct",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 23,
+   "out_of": 25,
+   "seconds_each": 8.22,
+   "by_group": {
+    "OCR": "9/9",
+    "charts": "5/5",
+    "counting": "2/3",
+    "layout": "2/2",
+    "UI": "2/2",
+    "tables": "2/2",
+    "multi-step": "1/2"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-12b-mlx-think-off",
+   "model": "gemma4:12b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 9,
+   "out_of": 10,
+   "seconds_each": 0.36,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-12b-mlx-think-on",
+   "model": "gemma4:12b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 10,
+   "out_of": 10,
+   "seconds_each": 4.03,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "1/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-26b-mlx-think-off",
+   "model": "gemma4:26b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 9,
+   "out_of": 10,
+   "seconds_each": 0.97,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-26b-mlx-think-on",
+   "model": "gemma4:26b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 10,
+   "out_of": 10,
+   "seconds_each": 33.57,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "1/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-e4b-mlx-think-off",
+   "model": "gemma4:e4b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 8,
+   "out_of": 10,
+   "seconds_each": 0.3,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "0/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-gemma4-e4b-mlx-think-on",
+   "model": "gemma4:e4b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 9,
+   "out_of": 10,
+   "seconds_each": 7.36,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-glm-ocr-latest-think-off",
+   "model": "glm-ocr:latest",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 8,
+   "out_of": 10,
+   "seconds_each": 0.26,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "0/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-qwen3-8-27b-mlx-think-off",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 10,
+   "out_of": 10,
+   "seconds_each": 3.9,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "1/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-qwen3-8-27b-mlx-think-on",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "thinking on",
+   "repeat": 1,
+   "score": 10,
+   "out_of": 10,
+   "seconds_each": 8.37,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "1/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "1/1"
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "vision-v2",
+   "run": "vision-v2-qwen3-vl-8b-instruct-think-off",
+   "model": "qwen3-vl:8b-instruct",
+   "setup": "thinking off",
+   "repeat": 1,
+   "score": 8,
+   "out_of": 10,
+   "seconds_each": 8.85,
+   "by_group": {
+    "OCR": "4/4",
+    "charts": "2/2",
+    "counting": "0/1",
+    "layout": "1/1",
+    "UI": "1/1",
+    "multi-step": "0/1"
+   },
+   "set_aside": null
+  }
+ ]
+}

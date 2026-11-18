@@ -75,7 +75,7 @@ MINI = [
     dict(id='ambient-request', ambient=True, history=_TEAM, author='Aiko', text='Can someone list what each of us has to do before the launch?',
          check=dict(silent=False, has=[r'marc', r'budget', r'aiko', r'mock-?up', r'may\s*10|10\s*may|email'])),
     dict(id='fact-lookup', history=_TEAM, author='Marc', text='@mini what is the new launch date?',
-         check=dict(silent=False, has=[r'may\s*17|17\s*may|17'], lacks=[r'may\s*3\b(?!.*17)'])),
+         check=dict(silent=False, has=[r'may\s*17|17\s*may|17'], lacks=[r'^(?![\s\S]*17)[\s\S]*may\s*3\b'])),  # "May 17 (moved from May 3)" is right too (fixed 2026-11-17)
     dict(id='summary', history=_TEAM, author='Ken', text='@mini summarize this conversation in 3 bullets',
          check=dict(silent=False, has=[r'thursday|thu', r'budget', r'17'])),
     dict(id='translate-ja', history=[], author='Marc', text='@mini translate into Japanese: "The meeting is cancelled, see you next week."',

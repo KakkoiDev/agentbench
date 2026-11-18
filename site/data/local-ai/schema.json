@@ -1,0 +1,58 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "colibri-poc local-AI bench run",
+ "type": "object",
+ "required": [
+  "bench",
+  "run",
+  "model",
+  "setup",
+  "repeat",
+  "score",
+  "out_of"
+ ],
+ "properties": {
+  "bench": {
+   "description": "coding-v1..v3 (agent fixes/extends code, graded by hidden tests), assistant-en / assistant-lang (chat assistant rule checks), family-jobs (multi-step file jobs), translation, speech-to-text, routing, vision-v1/v2",
+   "type": "string"
+  },
+  "run": {
+   "description": "folder name under results/ (raw files are not published)",
+   "type": "string"
+  },
+  "model": {
+   "description": "Ollama tag, or the Whisper model",
+   "type": "string"
+  },
+  "setup": {
+   "description": "the settings compared; setup_meaning explains coding setups",
+   "type": "string"
+  },
+  "repeat": {
+   "description": "1, 2, 3: the same bench run again",
+   "type": "integer"
+  },
+  "score": {
+   "description": "tasks passed; for translation chrF; for speech-to-text error % (lower is better)",
+   "type": "number"
+  },
+  "out_of": {
+   "type": "number"
+  },
+  "minutes": {
+   "description": "coding: total wall-clock minutes for the suite",
+   "type": "number"
+  },
+  "seconds_each": {
+   "description": "mean seconds per request / message / image",
+   "type": "number"
+  },
+  "set_aside": {
+   "description": "why this run is excluded from summaries, or null",
+   "type": [
+    "string",
+    "null"
+   ]
+  }
+ }
+}

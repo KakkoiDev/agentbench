@@ -31,3 +31,21 @@ Use .venv/bin/python, run make test after runner changes, and run a real smoke
 benchmark after model/runtime changes. Do not modify the user's running GLM or
 Ollama configuration as part of lab setup. Downloads and raw local results stay out of Git. User-authorized, reviewed
 archives belong in published-results/ with local home paths removed.
+
+## Local-AI benches (coding agent, assistant, routing, translation, speech, vision)
+
+Findings for people choosing local models are in docs/21-local-ai-playbook.md; its data is
+site/data/local-ai/ (summary.json, runs.json, runs.csv, schema.json). To answer a question
+about these results, read summary.json and quote its numbers with the repeats.
+
+- After any bench run: `.venv/bin/python scripts/collect_local_ai.py`. It rebuilds the data and
+  the tables between `<!-- generated:... -->` markers in the playbook. Never edit those tables
+  by hand; update the lessons above them when the data changes their story.
+- Name runs `<model>-<thinking>-<setup>-r<N>` (coding) or `--tag <setup>-r<N>` (dropbox_bench) so
+  repeats group together. Explain a new coding setup in SETUPS in the collector.
+- Runs made under memory pressure, stopped early or on an older test version are set aside,
+  not deleted: rename the folder (`-memorystarved`, `-partial`) or add a rule in SET_ASIDE.
+- Run at least three repeats before a claim; suites are 5–14 items.
+- Two large models loaded together overflow 32 GB. Check `ollama ps` before a run, and pause
+  or unload other model users first.
+- Raw results/ stay out of Git; the collector removes home paths from what it publishes.

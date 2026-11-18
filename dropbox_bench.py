@@ -177,21 +177,50 @@ def make_audio(folder):
     return items
 
 
+LANG_NAMES = {'en': 'English', 'ja': 'Japanese', 'fr': 'French'}
+
+
+def ollama_hear(model, path, lang='', think=False):
+    """A model that hears (gemma4 e4b) transcribes a WAV through Ollama: {text, language} like voice.py."""
+    import base64
+    hint = f' The speaker speaks {LANG_NAMES[lang]}.' if lang else ''
+    body = dict(model=model.removeprefix('ollama/'), stream=False, think=think, options=dict(temperature=0),
+                messages=[dict(role='user', images=[base64.b64encode(Path(path).read_bytes()).decode()],
+                               content='Transcribe this audio exactly, in the language spoken.' + hint +
+                               ' Answer only with JSON: {"language": "<ISO 639-1 code>", "text": "<the words>"}')])
+    try:
+        req = urllib.request.Request('http://127.0.0.1:11434/api/chat', json.dumps(body).encode(), {'Content-Type': 'application/json'})
+        content = json.load(urllib.request.urlopen(req, timeout=300))['message']['content']
+        m = re.search(r'\{.*\}', content, re.S)
+        out = json.loads(m.group(0)) if m else {'text': content.strip()}
+        return {'text': str(out.get('text', '')).strip(), 'language': str(out.get('language', '') or '').lower()[:2] or None}
+    except Exception as e:
+        return {'error': str(e)[:300]}
+
+
 def run_captions(args):
-    d = out_dir('captions', args.whisper)
+    think = {'off': False, 'on': True}.get(args.think, args.think)
+    d = out_dir('captions', (args.ollama + ('' if args.think == 'off' else '-think-' + args.think)) if args.ollama else args.whisper)
     items = make_audio(ROOT / 'results' / 'dropbox-captions-audio')
-    env = dict(os.environ, DROPBOX_VOICE_MODEL=args.whisper)
-    proc = subprocess.Popen([str(VOICE_PY), '-I', str(DROPBOX / 'voice.py')], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                            text=True, env=env, bufsize=1)
+    proc = None
+    if args.ollama:
+        ollama_hear(args.ollama, items[0]['path'], think=think)  # warm-up: loads the model; not timed
+    else:
+        env = dict(os.environ, DROPBOX_VOICE_MODEL=args.whisper)
+        proc = subprocess.Popen([str(VOICE_PY), '-I', str(DROPBOX / 'voice.py')], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                text=True, env=env, bufsize=1)
+        # Warm-up: the first request loads the model; not timed.
+        proc.stdin.write(items[0]['path'] + '\t\t\n'); proc.stdout.readline()
     rows = []
-    # Warm-up: the first request loads the model; not timed.
-    proc.stdin.write(items[0]['path'] + '\t\t\n'); proc.stdout.readline()
     for it in items:
         for mode in ('detect', 'pinned'):
             prior, pin = (it['lang'], 'pin') if mode == 'pinned' else ('', '')
             t = time.time()
-            proc.stdin.write(f'{it["path"]}\t{prior}\t{pin}\n')
-            out = json.loads(proc.stdout.readline() or '{}')
+            if proc:
+                proc.stdin.write(f'{it["path"]}\t{prior}\t{pin}\n')
+                out = json.loads(proc.stdout.readline() or '{}')
+            else:
+                out = ollama_hear(args.ollama, it['path'], prior, think=think)
             sec = time.time() - t
             with wave.open(it['path']) as w:
                 dur = w.getnframes() / w.getframerate()
@@ -200,12 +229,13 @@ def run_captions(args):
                              detected=out.get('language'), error=out.get('error', ''),
                              er=round(error_rate(text, it['ref'], it['lang']), 3), rtf=round(sec / dur, 3)))
             print(f'{it["lang"]} {it["cond"]:5} {mode:6} err {rows[-1]["er"]:.2f} lang {out.get("language")}  {text[:60]}', flush=True)
-    proc.stdin.close(); proc.wait(timeout=60)
+    if proc:
+        proc.stdin.close(); proc.wait(timeout=60)
 
     def avg(sel, key):
         v = [r[key] for r in rows if sel(r)]
         return round(sum(v) / len(v), 3) if v else None
-    summary = dict(job='captions', model=args.whisper,
+    summary = dict(job='captions', model=args.ollama or args.whisper, think=args.think if args.ollama else None,
                    error_rate={f'{l}-{c}-{m}': avg(lambda r: r['lang'] == l and r['cond'] == c and r['mode'] == m, 'er')
                                for l in ('en', 'ja', 'fr') for c in ('clean', 'noise') for m in ('detect', 'pinned')},
                    error_rate_all=avg(lambda r: True, 'er'),
@@ -376,6 +406,7 @@ def main():
     sub = p.add_subparsers(dest='cmd', required=True)
     t = sub.add_parser('translate'); t.add_argument('--model', required=True); t.add_argument('--think', default='off')
     c = sub.add_parser('captions'); c.add_argument('--whisper', default='mlx-community/whisper-large-v3-turbo')
+    c.add_argument('--think', default='off', help='with --ollama: off, on, or low/medium/high'); c.add_argument('--ollama', help='instead of Whisper, a model that hears, through Ollama (e.g. ollama/gemma4:e4b-mlx)')
     m = sub.add_parser('mini'); m.add_argument('--model', default='ollama/qwen3.8:27b-mlx')
     m.add_argument('--mini-py', help="a mini.py to test instead of DropBox's installed one")
     m.add_argument('--tools-model', help="mini's router sends requests that need tools (files, web) to this model; the rest use --model")

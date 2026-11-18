@@ -3,6 +3,9 @@
 A long-running lab with one goal: run **GLM-5.x (744B MoE) on a 32 GB Apple M6 at
 5 tokens per second or more**, with usable answers.
 
+- **Choosing local models? Start here:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md):
+  which model for coding agents, chat assistants, translation, speech and images, with every
+  result table ([web page](https://kakkoidev.github.io/colibri-poc/local-ai.html); [data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
 - **Read first:** [the lab guide](docs/00-lab-guide.md): mission, bottleneck model,
   how to try ideas, how to follow research.
 - **Current scoreboard and every experiment:** [experiment log](docs/12-experiment-log.md).
@@ -33,6 +36,7 @@ expert streaming safely; those results do not transfer directly to GLM.
 12. [Smaller models for lower-end machines (plan)](docs/13-small-models.md)
 13. [GLM experiment log](docs/12-experiment-log.md) (add one: `.venv/bin/python glm_lab.py try ID "Title" --env KEY=VALUE`)
 14. [AI takeover instructions and live state](EXPERIMENT_HANDOFF.md)
+15. [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md)
 
 ```mermaid
 flowchart LR
