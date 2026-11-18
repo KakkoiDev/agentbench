@@ -8,6 +8,8 @@
    "ollama": "0.40.16"
   },
   "model_download_gb": {
+   "nemotron-3.5-lightning:30b-a3b-mlx": 19.0,
+   "muse-glimmer:30b-nvfp4-dflash": 19.0,
    "qwen3.6:35b-mlx": 23.0,
    "qwen3.8:27b-mtp-q4_K_M": 17.0,
    "qwen3.8:27b-dflash2-nvfp4": 19.0,
@@ -5172,6 +5174,19 @@
    "slowest_seconds": 37.9
   },
   {
+   "run": "dropbox-family-g12-checks31-r5-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 5,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 15.0,
+   "slowest_seconds": 24.3
+  },
+  {
    "run": "dropbox-family-g12-r1-gemma4-12b-mlx",
    "model": "gemma4:12b-mlx",
    "repeat": 1,
@@ -5406,6 +5421,45 @@
    "slowest_seconds": 40.9
   },
   {
+   "run": "dropbox-family-qwen3-8-27b-dflash2-nvfp4-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 18.8,
+   "slowest_seconds": 30.2
+  },
+  {
+   "run": "dropbox-family-qwen3-8-27b-dflash2-nvfp4-checks31-r2-qwen3-8-27b-dflash2-nvfp4",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 20.7,
+   "slowest_seconds": 31.2
+  },
+  {
+   "run": "dropbox-family-qwen3-8-27b-mtp-q4_K_M-checks31-r1-qwen3-8-27b-mtp-q4-k-m",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 165.9,
+   "slowest_seconds": 241.2
+  },
+  {
    "run": "dropbox-family-route-checks-r1-gemma4-e4b-mlx",
    "model": "gemma4:e4b-mlx",
    "repeat": 1,
@@ -5534,6 +5588,34 @@
    "out_of": 14,
    "seconds_each": 6.8,
    "slowest_seconds": 11.0,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-base-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 6.7,
+   "slowest_seconds": 11.8,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-base-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 7.1,
+   "slowest_seconds": 11.7,
    "stayed_quiet_right": "5/5"
   },
   {
@@ -5705,6 +5787,48 @@
    "stayed_quiet_right": "5/5"
   },
   {
+   "run": "dropbox-mini-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 16.0,
+   "slowest_seconds": 71.5,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks31-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 15.4,
+   "slowest_seconds": 74.5,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks31-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 13.5,
+   "slowest_seconds": 46.1,
+   "stayed_quiet_right": "5/5"
+  },
+  {
    "run": "dropbox-mini-gemma4-12b-mlx",
    "model": "gemma4:12b-mlx",
    "repeat": 1,
@@ -5775,6 +5899,34 @@
    "stayed_quiet_right": "3/3"
   },
   {
+   "run": "dropbox-mini-lang-base-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 8.9,
+   "slowest_seconds": 22.6,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-base-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 7.6,
+   "slowest_seconds": 12.3,
+   "stayed_quiet_right": "3/3"
+  },
+  {
    "run": "dropbox-mini-lang-checks-r1-qwen3-8-27b-mlx",
    "model": "qwen3.8:27b-mlx",
    "repeat": 1,
@@ -5829,6 +5981,48 @@
    "seconds_each": 25.9,
    "slowest_seconds": 148.8,
    "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 7,
+   "out_of": 8,
+   "seconds_each": 10.7,
+   "slowest_seconds": 28.9,
+   "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks31-r2-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 12.3,
+   "slowest_seconds": 55.6,
+   "stayed_quiet_right": "3/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks31-r3-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 3,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 18.0,
+   "slowest_seconds": 65.8,
+   "stayed_quiet_right": "3/3"
   },
   {
    "run": "dropbox-mini-lang-gemma4-12b-mlx",

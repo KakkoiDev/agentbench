@@ -31,7 +31,7 @@ The numbers live in generated files, so they never go stale in prose:
 - **Scoreboard** (best exact, best usable lossy, gap to 5 tok/s): top of
   [docs/12-experiment-log.md](12-experiment-log.md) and
   `site/data/experiments.json` → `scoreboard`.
-- **Website:** https://kakkoidev.github.io/colibri-poc/ (redeploys on every push that
+- **Website:** https://kakkoidev.github.io/mac-mini-m6-local-ai/ (redeploys on every push that
   touches `site/`).
 
 As of 2026-10-18: exact ~0.44 tok/s (about 4× the start), usable lossy ~1.9 tok/s

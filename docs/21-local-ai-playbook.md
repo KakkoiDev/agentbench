@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **219 bench runs** (15 more set aside, with the reason) across 11 benches and 18 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 31 hours.
+> **233 bench runs** (15 more set aside, with the reason) across 11 benches and 20 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 31 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
@@ -134,7 +134,7 @@ model alone did worse still.
 | Setup (no harness) | Family jobs | Assistant, English | Assistant, Japanese/French | Seconds per family job |
 |---|---|---|---|---|
 | qwen3.8 27B alone | 10/12 of 12 | 14/14 | 8/8 of 8 | 29.8 |
-| gemma4 12B alone | 12/12/12/12/11 of 12 | 14/14 of 14 | 8/8 of 8 | 21.02 |
+| gemma4 12B alone | 12/12/12/12/11 of 12 | 14/14/14/14 of 14 | 8/7/8/8 of 8 | 21.02 |
 | e4b for chat + gpt-oss for files | 8/7 of 12 | 14/13 of 14 | 6/6/5 of 8 | 19.1 |
 | gpt-oss 20B alone | 6/12 | 14/14 | 7/8 | 26.5 |
 | gemma4 e4b alone | 6/12 | 12/14 | 7/8 | 8.8 |
@@ -153,13 +153,13 @@ recognition was far behind Whisper and even behind the smaller e4b.
 |  | gemma4:12b | qwen3.8:27b |
 |---|---|---|
 | Family jobs | 12/12/12/12/11 of 12 | 10/12 of 12 |
-| Assistant, English | 14/14 of 14 | 14/14 |
-| Assistant, Japanese/French | 8/8 of 8 | 8/8 of 8 |
+| Assistant, English | 14/14/14/14 of 14 | 14/14 |
+| Assistant, Japanese/French | 8/7/8/8 of 8 | 8/8 of 8 |
 | Seconds per family job | 21.02 | 29.8 |
 | Coding, no extensions | 3/15 (v1, v2, v3, latest run each) | 14/15 (v1, v2, v3, latest run each) |
 | Speech to text | 34.1% errors | cannot hear |
 | Images (vision-v1, thinking off) | 21/25 | 24/25 |
-| Memory once loaded | 17 GB | not yet measured |
+| Memory once loaded | 8.4 GB | not yet measured |
 <!-- /generated:f_12b -->
 
 ### F6. The harness lifts weak models, and one rule backfired on a strong one
@@ -175,7 +175,7 @@ the model the family's folder as its home; **v3.1** adds one rule after the 12B 
 | gpt-oss 20B | 6/12 | 7/6 of 12 | 8/8 of 12 | — |
 | e4b + gpt-oss | 8/7 of 12 | 7/9 of 12 | 9/10 of 12 | — |
 | qwen3.8 27B | 10/12 of 12 | 12/12 of 12 | 12/12 of 12 | 12/12 |
-| gemma4 12B | 12/12/12/12/11 of 12 | — | 11/11 of 12 | 11/12/12/12 of 12 |
+| gemma4 12B | 12/12/12/12/11 of 12 | — | 11/11 of 12 | 11/12/12/12/12 of 12 |
 <!-- /generated:f_harness -->
 
 gpt-oss and the pair gained from each version. Qwen was already near the top. The 12B, at or near full marks
@@ -292,22 +292,62 @@ classifier was faster but less accurate.
 | ollama-gemma4-e4b-mlx | rules | 36/53 |
 <!-- /generated:f_routing -->
 
-### F13. Plan memory by what is loaded, not by the download
+### F13. Plan memory by what is loaded, not by the download; switching models is cheap
 
 A model takes much more memory once loaded than its download size, because of the context cache and
 runtime buffers. Two models that "fit" by download size can push a 32 GB Mac into swap: when that
 happened during a bench, an app crashed and the run scored lower (that run is set aside).
+Switching models, on the other hand, was cheap: loading a stopped model and getting its first word
+took seconds, not minutes, so swapping a butler model for a builder model when the house is quiet
+costs little. These loads were measured right after the models had been used, so their files were
+likely still in macOS's file cache; a load from a cold disk would take longer.
 
 <!-- generated:f_memory -->
-| Model | Download (GB) | Loaded (GB) | Context (tokens) | Measured by |
+| Model | Download (GB) | Loaded (GB) | Context (tokens) | Seconds to load and answer one word |
 |---|---|---|---|---|
-| gemma4:12b-mlx | 7.7 | 17.0 | 8192 | `ollama ps` in queue-20261117q.out |
+| gemma4:12b-mlx | 7.7 | 8.4 | 8192 | 2.3 |
+| gemma4:e4b-mlx | 9.5 | — | — | 3.3 |
+| gpt-oss:20b | 13.0 | 13.0 | 8192 | 5.8 |
+| qwen3.8:27b-dflash2-nvfp4 | 19.0 | 20.1 | 8192 | — |
+| qwen3.8:27b-mlx | 18.0 | — | — | 6.0 |
+| qwen3.8:27b-mtp-q4_K_M | 17.0 | 18.9 | 8192 | — |
 <!-- /generated:f_memory -->
 
 ### F14. Where a reply's time goes, and whether parallel requests help
 
+The test sends a system prompt about the size of mini's (rules plus tool list) and one everyday
+question. Three things show in the table:
+
+- **Ollama's prompt cache works when the system prompt stays the same.** Sending the same system
+  prompt again cuts reading time to almost nothing on the MLX builds. The multi-token-prediction
+  build reads the prompt again every time.
+- **Terse answers cut writing time the most.** Writing is most of a reply's time, and a two-sentence
+  answer writes a fraction of the tokens.
+- **Changing the system prompt throws the cache away.** The terse row adds one line to the system
+  prompt, so it pays the full reading cost again. A terse rule belongs in the fixed system prompt.
+
+gpt-oss reads prompts fast with or without the cache. qwen3.8:27b-mlx failed with a server error in
+this run and is being measured again.
+
 <!-- generated:f_speed -->
-_Measurement queued; this section fills in when it lands._
+| Model | Request | Prompt tokens read | Seconds reading | Tokens written | Seconds writing | Total seconds |
+|---|---|---|---|---|---|---|
+| gemma4:12b-mlx | first request | 4828 | 7.46 | 425 | 13.9 | 21.36 |
+| gemma4:12b-mlx | same system prompt again | 4830 | 0.12 | 424 | 13.08 | 13.21 |
+| gemma4:12b-mlx | asked for a terse answer | 4838 | 7.58 | 52 | 1.79 | 9.37 |
+| gpt-oss:20b | first request | 4444 | 0.2 | 388 | 10.27 | 10.49 |
+| gpt-oss:20b | same system prompt again | 4446 | 0.06 | 567 | 15.04 | 15.13 |
+| gpt-oss:20b | asked for a terse answer | 4452 | 0.15 | 103 | 2.71 | 2.88 |
+| qwen3.8:27b-dflash2-nvfp4 | first request | 4715 | 15.82 | 653 | 37.4 | 53.23 |
+| qwen3.8:27b-dflash2-nvfp4 | same system prompt again | 4717 | 0.26 | 345 | 19.92 | 20.19 |
+| qwen3.8:27b-dflash2-nvfp4 | asked for a terse answer | 4724 | 16.57 | 64 | 3.57 | 20.15 |
+| qwen3.8:27b-mtp-q4_K_M | first request | 4715 | 3.01 | 502 | 40.36 | 43.37 |
+| qwen3.8:27b-mtp-q4_K_M | same system prompt again | 4717 | 2.81 | 548 | 42.72 | 45.54 |
+| qwen3.8:27b-mtp-q4_K_M | asked for a terse answer | 4724 | 2.85 | 57 | 5.59 | 8.44 |
+
+Several requests at once, each writing exactly 256 tokens:
+
+_Measurement queued. A first try let each reply run to its own length, so totals could not be compared; it is set aside._
 <!-- /generated:f_speed -->
 
 ### F15. The graders needed fixing too
@@ -334,10 +374,8 @@ These follow from the findings above; the in-progress work below may change them
 
 ## In progress
 
-- Harness v3.1 on gemma4:12b and qwen (the clean-up rule from F6), and three to five repeats of the
-  12B on the assistant benches.
 - Speed: how a reply's time splits between reading the prompt and writing the answer, the effect of
-  Ollama's prompt cache and of terse answers, and gpt-oss with 2 and 4 requests at once (F14).
+  Ollama's prompt cache and of terse answers, qwen3.8:27b-mlx again, and 1, 2 and 4 requests at once with equal reply lengths (F14).
 - Faster builds of Qwen 3.8 (a drafter build and a multi-token-prediction build), the Qwen 3.6
   mixture-of-experts model, Meta's Muse-Glimmer-30B and NVIDIA's Nemotron 3.5 Lightning, on the same
   benches.
@@ -439,10 +477,10 @@ the extensions were tuned.
 <!-- generated:assistant -->
 | Test | Model | Setup | Passed (each run) | Seconds per request |
 |---|---|---|---|---|
-| assistant-en | gemma4:12b-mlx | one model | 14/14 of 14 | 7.1 |
+| assistant-en | gemma4:12b-mlx | one model | 14/14/14/14 of 14 | 7.0 |
 | assistant-en | gemma4:12b-mlx | one model, 3 at once | 14/14 | 18.8 |
 | assistant-en | gemma4:12b-mlx | one model, harness v3 | 14/14 | 12.1 |
-| assistant-en | gemma4:12b-mlx | one model, harness v3.1 | 14/14 | 14.8 |
+| assistant-en | gemma4:12b-mlx | one model, harness v3.1 | 14/14/14 of 14 | 14.57 |
 | assistant-en | gemma4:26b-mlx | one model | 13/14 | 11.4 |
 | assistant-en | gemma4:e4b-mlx | one model | 12/14 | 2.5 |
 | assistant-en | gemma4:e4b-mlx | one model, 3 at once | 14/14 | 6.8 |
@@ -452,12 +490,13 @@ the extensions were tuned.
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 14/14 | 8.9 |
 | assistant-en | gpt-oss:20b | one model | 14/14 | 6.5 |
 | assistant-en | gpt-oss:20b | one model, 3 at once | 14/14 | 13.8 |
+| assistant-en | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 14/14 | 16.0 |
 | assistant-en | qwen3.8:27b-mlx | one model | 14/14 | 10.2 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v2 | 14/14 | 10.8 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v3 | 14/14 | 15.1 |
-| assistant-lang | gemma4:12b-mlx | one model | 8/8 of 8 | 9.0 |
+| assistant-lang | gemma4:12b-mlx | one model | 8/7/8/8 of 8 | 8.62 |
 | assistant-lang | gemma4:12b-mlx | one model, harness v3 | 8/8 | 20.1 |
-| assistant-lang | gemma4:12b-mlx | one model, harness v3.1 | 7/8 | 25.9 |
+| assistant-lang | gemma4:12b-mlx | one model, harness v3.1 | 7/8/8 of 8 | 18.73 |
 | assistant-lang | gemma4:26b-mlx | one model | 7/8 | 13.6 |
 | assistant-lang | gemma4:e4b-mlx | one model | 7/8 | 3.0 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b | 6/6/5 of 8 | 5.87 |
@@ -465,12 +504,13 @@ the extensions were tuned.
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 5/8 | 5.6 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 5/8 | 10.8 |
 | assistant-lang | gpt-oss:20b | one model | 7/8 | 8.7 |
+| assistant-lang | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 7/8 | 10.7 |
 | assistant-lang | qwen3.8:27b-mlx | one model | 8/8 of 8 | 13.0 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v2 | 8/8 | 12.6 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v3 | 8/8 | 12.1 |
 | family-jobs | gemma4:12b-mlx | one model | 12/12/12/12/11 of 12 | 21.02 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3 | 11/11 of 12 | 17.5 |
-| family-jobs | gemma4:12b-mlx | one model, harness v3.1 | 11/12/12/12 of 12 | 16.25 |
+| family-jobs | gemma4:12b-mlx | one model, harness v3.1 | 11/12/12/12/12 of 12 | 16.0 |
 | family-jobs | gemma4:e4b-mlx | one model | 6/12 | 8.8 |
 | family-jobs | gemma4:e4b-mlx | routed to gpt-oss:20b | 8/7 of 12 | 19.1 |
 | family-jobs | gemma4:e4b-mlx | routed to gpt-oss:20b, 3 at once | 8/12 | 24.9 |
@@ -479,10 +519,12 @@ the extensions were tuned.
 | family-jobs | gpt-oss:20b | one model | 6/12 | 26.5 |
 | family-jobs | gpt-oss:20b | one model, harness v2 | 7/6 of 12 | 22.8 |
 | family-jobs | gpt-oss:20b | one model, harness v3 | 8/8 of 12 | 29.1 |
+| family-jobs | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 12/12 of 12 | 19.75 |
 | family-jobs | qwen3.8:27b-mlx | one model | 10/12 of 12 | 29.8 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v2 | 12/12 of 12 | 29.1 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3 | 12/12 of 12 | 27.45 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3.1 | 12/12 | 25.5 |
+| family-jobs | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 12/12 | 165.9 |
 <!-- /generated:assistant -->
 
 ### Routing

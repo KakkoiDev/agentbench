@@ -5,11 +5,11 @@ A long-running lab with one goal: run **GLM-5.x (744B MoE) on a 32 GB Apple M6 a
 
 - **Choosing local models? Start here:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md):
   which model for coding agents, chat assistants, translation, speech and images, with every
-  result table ([web page](https://kakkoidev.github.io/colibri-poc/local-ai.html); [data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
+  result table ([web page](https://kakkoidev.github.io/mac-mini-m6-local-ai/local-ai.html); [data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
 - **Read first:** [the lab guide](docs/00-lab-guide.md): mission, bottleneck model,
   how to try ideas, how to follow research.
 - **Current scoreboard and every experiment:** [experiment log](docs/12-experiment-log.md).
-- **Results website:** https://kakkoidev.github.io/colibri-poc/
+- **Results website:** https://kakkoidev.github.io/mac-mini-m6-local-ai/
 - **Research reviewed so far:** [research/watchlist.md](research/watchlist.md).
 - **Lab control app (local):** `make lab-app`, then open http://127.0.0.1:8766: what is running, a job queue, models (download, remove to Trash), benches, runs, experiments, research, and how GLM compares with frontier models. `make lab-app-install` keeps it running at login.
 

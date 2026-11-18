@@ -172,7 +172,7 @@ explicitly authorized. Run GPU campaigns and numerical GPU tests serially.
 ## Repository and environment
 
 - Local: `/Users/kakkoidev/Code/colibri-poc`
-- Public: https://github.com/KakkoiDev/colibri-poc
+- Public: https://github.com/KakkoiDev/mac-mini-m6-local-ai
 - Branch: `main`; last pushed commit before this work: `a08da39a8215760afcd2742ad134d0df5922eb0a`
 - New work described below is initially UNCOMMITTED; inspect status before editing.
 - Python: `.venv/bin/python` (3.12), pinned MLX/MLX-LM dependencies.

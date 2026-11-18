@@ -4,7 +4,7 @@ For a Designer AI. Supersedes [bench-page-tabs.md](bench-page-tabs.md), which wa
 drawn and is folded in here. Canvas: https://claude.ai/artifact/NUsd2xNrswXkng96jJtwSg,
 page "Results page" (it holds `Main.dc.html`, the report).
 
-Live site: https://kakkoidev.github.io/colibri-poc/ (source: `site/` in the repo).
+Live site: https://kakkoidev.github.io/mac-mini-m6-local-ai/ (source: `site/` in the repo).
 
 ## Why: the site grew into a mess
 

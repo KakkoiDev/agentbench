@@ -62,7 +62,7 @@
     {
      "id": "20261017T165844.803566Z",
      "name": "LRU expert streaming sweep",
-     "source": "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/08-expert-streaming.md",
+     "source": "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/08-expert-streaming.md",
      "protocol": "3 rounds, 5 prompts, up to 64 generated tokens, greedy, identical prefill chunks",
      "rows": [
       {
@@ -106,7 +106,7 @@
     {
      "id": "20261017T170136.134210Z",
      "name": "Packed cache, all 64 per layer",
-     "source": "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/08-expert-streaming.md",
+     "source": "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/08-expert-streaming.md",
      "protocol": "3 rounds, up to 128 generated tokens, paired with a resident baseline",
      "rows": [
       {
@@ -127,7 +127,7 @@
     {
      "id": "20261017T171558.896165Z",
      "name": "Fixed-slot cache screen",
-     "source": "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/09-two-track-experiments.md",
+     "source": "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/09-two-track-experiments.md",
      "protocol": "2 rounds, 5 prompts, up to 32 generated tokens (a screen, not a controlled comparison)",
      "rows": [
       {

@@ -672,7 +672,7 @@
   "usable": true,
   "everyday": true,
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/published-results/glm-bench-v1/review.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/published-results/glm-bench-v1/review.md"
   ]
  },
  {
@@ -787,8 +787,8 @@
   "tradeoffs": "Answers are short; ask for detail when needed. Generation speed (tok/s) is unchanged: the gain is fewer tokens.",
   "verdict": "improves",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/published-results/glm-bench-v1/report.md",
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/published-results/glm-bench-v1/review.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/published-results/glm-bench-v1/report.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/published-results/glm-bench-v1/review.md"
   ]
  },
  {
@@ -1182,7 +1182,7 @@
   "tradeoffs": "Config files only; nothing measured.",
   "verdict": "confirmed",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b",
    "https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/config.json",
    "https://huggingface.co/Qwen/Qwen3.6-35B-A3B/blob/main/config.json"
@@ -1204,7 +1204,7 @@
   "tradeoffs": "",
   "verdict": "measured",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1222,7 +1222,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1240,7 +1240,7 @@
   "tradeoffs": "Full residency must be verified; skip unsafe capacities on this 32 GB machine. CPU results must not be presented as Metal.",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1258,7 +1258,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1276,7 +1276,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1294,7 +1294,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/13-small-models.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/13-small-models.md",
    "https://artificialanalysis.ai/models/comparisons/qwen3-8-27b-vs-qwen3-6-35b-a3b"
   ]
  },
@@ -1328,7 +1328,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1357,7 +1357,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1387,7 +1387,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1418,7 +1418,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md",
    "https://github.com/JustVugg/colibri/blob/main/docs/env-vars.md"
   ],
   "plan": {
@@ -1450,7 +1450,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1482,7 +1482,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "code",
@@ -1511,7 +1511,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1538,7 +1538,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1566,7 +1566,7 @@
   "conclusion": "",
   "tradeoffs": "",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1593,7 +1593,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ]
  },
  {
@@ -1610,7 +1610,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ]
  },
  {
@@ -1627,7 +1627,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ]
  },
  {
@@ -1644,7 +1644,7 @@
   "tradeoffs": "",
   "verdict": "not run",
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/19-next-speed-experiments.md"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/19-next-speed-experiments.md"
   ],
   "plan": {
    "prompt": "sky",
@@ -1708,10 +1708,10 @@
    "compare_with": "gemma4-e4b-ollama and qwen38-27b-ollama (quality and single-request speed), and Ollama with OLLAMA_NUM_PARALLEL for the same N if time allows"
   },
   "sources": [
-   "https://github.com/KakkoiDev/colibri-poc/blob/main/docs/09-two-track-experiments.md",
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/09-two-track-experiments.md",
    "https://huggingface.co/allenai/OLMoE-1B-7B-0125",
    "https://github.com/ml-explore/mlx-lm",
-   "https://github.com/KakkoiDev/colibri-poc/tree/main/published-results/olmoe-concurrency-20261022"
+   "https://github.com/KakkoiDev/mac-mini-m6-local-ai/tree/main/published-results/olmoe-concurrency-20261022"
   ]
  },
  {

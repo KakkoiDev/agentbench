@@ -6,7 +6,7 @@ one is, what to install next, which experiments to run, and the benches every mo
 
 Read first for context: [docs/00-lab-guide.md](../../docs/00-lab-guide.md) (mission and
 method). The public results page ([glm-performance-page.md](glm-performance-page.md),
-https://kakkoidev.github.io/colibri-poc/) stays separate: it is read-only and public. This
+https://kakkoidev.github.io/mac-mini-m6-local-ai/) stays separate: it is read-only and public. This
 app is **private, local, and can start and stop work**.
 
 ## Goal and users

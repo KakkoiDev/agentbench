@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var GH = 'https://github.com/KakkoiDev/colibri-poc/blob/main/';
+  var GH = 'https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/';
   var ICON = {
     dashboard: 'M7 4.5v15l12-7.5z', results: 'M4 5h16M4 12h16M4 19h16M9 5v14',
     models: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',

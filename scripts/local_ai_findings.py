@@ -194,29 +194,46 @@ def f_routing(D):
     return table(["Router", "How", "Right"], rows)
 
 
+def load_times(res):
+    """Seconds from a stopped model to its first token, from the LOAD lines queue logs keep."""
+    t = {}
+    for f in sorted(Path(res).glob("*.out")):
+        for m, s in re.findall(r"LOAD (\S+) ([\d.]+) s", f.read_text(errors="ignore")):
+            t[m] = round(float(s), 1)
+    return t
+
+
 def f_memory(D, sizes):
-    loaded = D.loaded()
+    loaded, lt = D.loaded(), load_times(D.res)
     rows = []
-    for m in sorted(set(loaded) | {k for k in sizes if k in loaded}):
-        gb, ctx, src = loaded[m]
-        rows.append([m, sizes.get(m, "—"), gb, ctx, src])
-    return table(["Model", "Download (GB)", "Loaded (GB)", "Context (tokens)", "Measured by"], rows) if rows else "_Not measured yet._"
+    for m in sorted(set(loaded) | set(lt)):
+        gb, ctx, src = loaded.get(m, ("—", "—", ""))
+        rows.append([m, sizes.get(m, "—"), gb, ctx, lt.get(m, "—")])
+    return (table(["Model", "Download (GB)", "Loaded (GB)", "Context (tokens)", "Seconds to load and answer one word"], rows)
+            if rows else "_Not measured yet._")
 
 
 def f_speed(D):
     sp = D.speed()
     if not sp:
         return "_Measurement queued; this section fills in when it lands._"
-    rows, par = [], []
+    latest = {}  # newest file wins per model and case
     for x in sp:
-        if x.get("case") in ("first", "cached", "terse"):
-            rows.append([x["model"], {"first": "first request", "cached": "same system prompt again", "terse": "asked for a terse answer"}[x["case"]],
-                         x["prompt_tokens"], x["prompt_s"], x["out_tokens"], x["out_s"], x["wall"]])
-        elif str(x.get("case", "")).startswith("parallel"):
-            par.append([x["model"], x["case"].split("-")[1], x["wall"], ", ".join(map(str, x["each"])), x["out_tokens"]])
+        if x.get("case") in ("first", "cached", "terse") or x.get("fixed_len"):
+            latest[(x["model"], x["case"])] = x
+    rows, par = [], []
+    names = {"first": "first request", "cached": "same system prompt again", "terse": "asked for a terse answer"}
+    for (model, case), x in latest.items():
+        if case in names:
+            rows.append([model, names[case], x["prompt_tokens"], x["prompt_s"], x["out_tokens"], x["out_s"], x["wall"]])
+        else:
+            par.append([model, case.split("-")[1], x["wall"], x["out_tokens"], x["tokens_per_s"]])
     out = table(["Model", "Request", "Prompt tokens read", "Seconds reading", "Tokens written", "Seconds writing", "Total seconds"], rows)
+    out += "\n\nSeveral requests at once, each writing exactly 256 tokens:\n\n"
     if par:
-        out += "\n\nSeveral requests at once (same prompt size):\n\n" + table(["Model", "Requests at once", "Seconds until all done", "Seconds each", "Tokens written in all"], par)
+        out += table(["Model", "Requests at once", "Seconds until all done", "Tokens written in all", "Tokens per second in all"], sorted(par, key=lambda r: (r[0], int(r[1]))))
+    else:
+        out += "_Measurement queued. A first try let each reply run to its own length, so totals could not be compared; it is set aside._"
     return out
 
 

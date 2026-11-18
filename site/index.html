@@ -133,7 +133,7 @@ a.sh-name{display:flex;flex-direction:column;color:var(--ink);text-decoration:no
 <div class="col-wide sh-in">
 <a class="sh-name" href="index.html"><strong>Colibri lab</strong><span>Technical notes · GLM-5.3 and others on a 32 GB Apple M6</span></a>
 <nav class="sh-nav" aria-label="Site">
-<a href="local-ai.html">Local AI findings</a><a href="index.html" aria-current="page">Report</a><a href="bench.html">Benchmarks</a><a href="findings.html">Findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/colibri-poc">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
+<a href="local-ai.html">Local AI findings</a><a href="index.html" aria-current="page">Report</a><a href="bench.html">Benchmarks</a><a href="findings.html">Findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
 <a href="archive.html">All results &amp; parallel stress</a></nav>
 <div class="theme" role="group" aria-label="Colour theme"><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
 </div>
@@ -242,7 +242,7 @@ a.sh-name{display:flex;flex-direction:column;color:var(--ink);text-decoration:no
   <h2><span class="n">7</span>What didn't work</h2>
   <p class="muted" id="failed-intro"></p>
   <div class="tbl"><table id="tbl-neg"><thead><tr><th>What was tried</th><th>Kind</th><th class="num">tok/s</th><th>Why it didn't help</th><th>Run</th></tr></thead><tbody></tbody></table></div>
-  <p class="muted small">Single run each. Vulkan needed a <a href="https://github.com/KakkoiDev/colibri-poc/blob/main/patches/colibri-moltenvk-portability.diff">2-line MoltenVK opt-in patch</a> in a test clone.</p>
+  <p class="muted small">Single run each. Vulkan needed a <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/patches/colibri-moltenvk-portability.diff">2-line MoltenVK opt-in patch</a> in a test clone.</p>
 </div></section>
 
 <section id="log"><div class="wrap">
@@ -250,7 +250,7 @@ a.sh-name{display:flex;flex-direction:column;color:var(--ink);text-decoration:no
   <p class="muted">Every GLM experiment: what changed, what it was compared with, and what it did. Changes under ~10% are noise (single runs).</p>
   <div class="filters" role="group" aria-label="Filter by verdict" id="log-filters"></div>
   <div class="tbl"><table id="tbl-log"><thead><tr><th>Experiment</th><th>Category</th><th>Verdict</th><th class="num">tok/s (ref → new)</th><th class="num">Change</th><th class="num">Prompt reading s</th><th>Output</th><th>Details</th></tr></thead><tbody></tbody></table></div>
-  <p class="muted small">Generated from <a href="https://github.com/KakkoiDev/colibri-poc/blob/main/experiments/glm-experiments.json">experiments/glm-experiments.json</a> by <code>glm_lab.py</code>; full text in <a href="https://github.com/KakkoiDev/colibri-poc/blob/main/docs/12-experiment-log.md">the experiment log</a>.</p>
+  <p class="muted small">Generated from <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/experiments/glm-experiments.json">experiments/glm-experiments.json</a> by <code>glm_lab.py</code>; full text in <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/12-experiment-log.md">the experiment log</a>.</p>
 </div></section>
 
 <section id="run"><div class="wrap">
@@ -280,22 +280,22 @@ make -C &lt;colibri&gt;/c clean glm METAL=1</code></pre>
   <ul id="caveat-list"></ul>
   <p class="muted small" id="method"></p>
   <ul class="links small">
-    <li><a href="https://github.com/KakkoiDev/colibri-poc/blob/main/published-results/glm-20261018/runs.csv">Raw runs (runs.csv)</a></li>
-    <li><a href="https://github.com/KakkoiDev/colibri-poc/tree/main/published-results/glm-20261018">All generated text</a></li>
+    <li><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/published-results/glm-20261018/runs.csv">Raw runs (runs.csv)</a></li>
+    <li><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/tree/main/published-results/glm-20261018">All generated text</a></li>
     <li><a href="data/glm-performance.json">Page data (JSON)</a></li>
-    <li><a href="https://github.com/KakkoiDev/colibri-poc/blob/main/docs/11-glm-on-this-mac.md">GLM on this Mac</a></li>
-    <li><a href="https://github.com/KakkoiDev/colibri-poc/blob/main/docs/09-two-track-experiments.md">Two-track experiments</a></li>
-    <li><a href="https://github.com/KakkoiDev/colibri-poc/blob/main/docs/10-next-experiments.md">Next experiments</a></li>
+    <li><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/11-glm-on-this-mac.md">GLM on this Mac</a></li>
+    <li><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/09-two-track-experiments.md">Two-track experiments</a></li>
+    <li><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/10-next-experiments.md">Next experiments</a></li>
   </ul>
 </div></section>
 </main>
 
-<footer><div class="wrap">Engine: <a href="https://github.com/JustVugg/colibri">Colibri</a> by JustVugg; thanks to its authors. Static page, no tracking or analytics. Source: <a href="https://github.com/KakkoiDev/colibri-poc">KakkoiDev/colibri-poc</a>.</div></footer>
+<footer><div class="wrap">Engine: <a href="https://github.com/JustVugg/colibri">Colibri</a> by JustVugg; thanks to its authors. Static page, no tracking or analytics. Source: <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">KakkoiDev/mac-mini-m6-local-ai</a>.</div></footer>
 
 <script>
 (function () {
   'use strict';
-  var RAW = 'https://github.com/KakkoiDev/colibri-poc/blob/main/published-results/glm-20261018/';
+  var RAW = 'https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/published-results/glm-20261018/';
   var NS = 'http://www.w3.org/2000/svg';
   var WHY = {
     'c7-pipe4-direct': 'Same as 8 readers within noise; the SSD, not the reader count, is the limit.',

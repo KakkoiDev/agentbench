@@ -6,25 +6,25 @@ Start with the findings: 15 measured findings, each with its evidence table, the
 
 ## Local AI: practical lessons
 
-- [Local AI on a 32 GB Mac mini: findings](https://github.com/KakkoiDev/colibri-poc/blob/main/docs/21-local-ai-playbook.md): 15 findings with their evidence, recommendations, all result tables, how to reproduce (web page: https://kakkoidev.github.io/colibri-poc/local-ai.html)
-- [summary.json](https://kakkoidev.github.io/colibri-poc/data/local-ai/summary.json): one entry per bench + model + setup, with every repeat's score, mean, min, max, minutes or seconds
-- [runs.csv](https://kakkoidev.github.io/colibri-poc/data/local-ai/runs.csv): one row per run, including set-aside runs and why
-- [runs.json](https://kakkoidev.github.io/colibri-poc/data/local-ai/runs.json): the same with per-task detail, versions and machine
-- [schema.json](https://kakkoidev.github.io/colibri-poc/data/local-ai/schema.json): what each field means
+- [Local AI on a 32 GB Mac mini: findings](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/21-local-ai-playbook.md): 15 findings with their evidence, recommendations, all result tables, how to reproduce (web page: https://kakkoidev.github.io/mac-mini-m6-local-ai/local-ai.html)
+- [summary.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/summary.json): one entry per bench + model + setup, with every repeat's score, mean, min, max, minutes or seconds
+- [runs.csv](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/runs.csv): one row per run, including set-aside runs and why
+- [runs.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/runs.json): the same with per-task detail, versions and machine
+- [schema.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/schema.json): what each field means
 
 ## How the benches work
 
-- [AGENTS.md](https://github.com/KakkoiDev/colibri-poc/blob/main/AGENTS.md): rules for running benches here (one GPU job at a time, never retype numbers)
-- [agent_bench.py](https://github.com/KakkoiDev/colibri-poc/blob/main/agent_bench.py): coding-agent suites (pi + Ollama, hidden tests)
-- [dropbox_bench.py](https://github.com/KakkoiDev/colibri-poc/blob/main/dropbox_bench.py): assistant, family jobs, translation, speech to text
-- [scripts/collect_local_ai.py](https://github.com/KakkoiDev/colibri-poc/blob/main/scripts/collect_local_ai.py): builds the data files and the playbook tables
+- [AGENTS.md](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/AGENTS.md): rules for running benches here (one GPU job at a time, never retype numbers)
+- [agent_bench.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/agent_bench.py): coding-agent suites (pi + Ollama, hidden tests)
+- [dropbox_bench.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/dropbox_bench.py): assistant, family jobs, translation, speech to text
+- [scripts/collect_local_ai.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/scripts/collect_local_ai.py): builds the data files and the playbook tables
 
 ## GLM-5.x on 32 GB
 
-- [Lab guide](https://github.com/KakkoiDev/colibri-poc/blob/main/docs/00-lab-guide.md): mission, bottleneck model, method
-- [Experiment log](https://github.com/KakkoiDev/colibri-poc/blob/main/docs/12-experiment-log.md): every GLM experiment and its result
+- [Lab guide](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/00-lab-guide.md): mission, bottleneck model, method
+- [Experiment log](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/12-experiment-log.md): every GLM experiment and its result
 
 ## Optional
 
-- [Results website](https://kakkoidev.github.io/colibri-poc/): GLM speed story and earlier quality tables
-- [Completed GLM, Gemma and Qwen comparison](https://github.com/KakkoiDev/colibri-poc/blob/main/docs/17-completed-bench-comparison.md): short-answer quality and speed, October 2026
+- [Results website](https://kakkoidev.github.io/mac-mini-m6-local-ai/): GLM speed story and earlier quality tables
+- [Completed GLM, Gemma and Qwen comparison](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/17-completed-bench-comparison.md): short-answer quality and speed, October 2026
