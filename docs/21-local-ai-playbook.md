@@ -308,6 +308,7 @@ likely still in macOS's file cache; a load from a cold disk would take longer.
 | gemma4:12b-mlx | 7.7 | 8.4 | 8192 | 2.3 |
 | gemma4:e4b-mlx | 9.5 | — | — | 3.3 |
 | gpt-oss:20b | 13.0 | 13.0 | 8192 | 5.8 |
+| muse-glimmer:30b-nvfp4-dflash | 19.0 | 19.4 | 8192 | — |
 | qwen3.6:35b-mlx | 23.0 | 23.3 | 8192 | — |
 | qwen3.8:27b-dflash2-nvfp4 | 19.0 | 20.1 | 8192 | — |
 | qwen3.8:27b-mlx | 18.0 | — | — | 6.0 |
@@ -348,6 +349,9 @@ this run and is being measured again.
 | qwen3.6:35b-mlx | first request | 4715 | 2.67 | 353 | 5.41 | 8.08 |
 | qwen3.6:35b-mlx | same system prompt again | 4717 | 0.17 | 503 | 7.56 | 7.74 |
 | qwen3.6:35b-mlx | asked for a terse answer | 4724 | 2.71 | 50 | 0.87 | 3.59 |
+| muse-glimmer:30b-nvfp4-dflash | first request | 4396 | 15.6 | 327 | 22.12 | 37.72 |
+| muse-glimmer:30b-nvfp4-dflash | same system prompt again | 4398 | 0.12 | 336 | 22.98 | 23.1 |
+| muse-glimmer:30b-nvfp4-dflash | asked for a terse answer | 4404 | 0.3 | 195 | 11.45 | 11.76 |
 
 Several requests at once, each writing exactly 256 tokens:
 

@@ -468,7 +468,7 @@ LEARNINGS = [
         ("Use Whisper for speech.", "Whisper made far fewer errors than any chat model that accepts audio, in every language. Noise hurts French most.", [10]),
         ("The smallest models translate short messages best.", "Translation did not improve with size: the small Gemma models led, and were also the fastest.", [11]),
         ("Route with rules first, then a one-word question.", "Simple rules (a file name, an attachment, tool words) route most messages with no model at all. For the rest, asking a small model for one word (CHAT or TOOLS) did best.", [12]),
-        ("A mixture-of-experts model writes fast but may wander.", "Qwen 3.6 35B-A3B writes several times faster than the dense 27B, but lost its way on multi-step family jobs. Fast tokens are not fast jobs.", []),
+        ("Fast writing is not fast or safe file work.", "Qwen 3.6 35B-A3B (mixture of experts) writes several times faster than the dense 27B, yet several family jobs hit the 10-minute limit, and in both runs it emptied a folder it was only asked to clean out, without asking. Test the jobs you need, not tokens per second.", []),
     ]),
     ("The harness around the model", [
         ("House rules and after-turn checks lift weak models.", "Checking that a claimed save really happened, and sending the model back when it answered without looking, raised every weaker model's score.", [6]),
