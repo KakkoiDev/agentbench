@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **233 bench runs** (15 more set aside, with the reason) across 11 benches and 20 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 31 hours.
+> **242 bench runs** (16 more set aside, with the reason) across 11 benches and 21 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 32 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
@@ -308,6 +308,7 @@ likely still in macOS's file cache; a load from a cold disk would take longer.
 | gemma4:12b-mlx | 7.7 | 8.4 | 8192 | 2.3 |
 | gemma4:e4b-mlx | 9.5 | — | — | 3.3 |
 | gpt-oss:20b | 13.0 | 13.0 | 8192 | 5.8 |
+| qwen3.6:35b-mlx | 23.0 | 23.3 | 8192 | — |
 | qwen3.8:27b-dflash2-nvfp4 | 19.0 | 20.1 | 8192 | — |
 | qwen3.8:27b-mlx | 18.0 | — | — | 6.0 |
 | qwen3.8:27b-mtp-q4_K_M | 17.0 | 18.9 | 8192 | — |
@@ -344,6 +345,9 @@ this run and is being measured again.
 | qwen3.8:27b-mtp-q4_K_M | first request | 4715 | 3.01 | 502 | 40.36 | 43.37 |
 | qwen3.8:27b-mtp-q4_K_M | same system prompt again | 4717 | 2.81 | 548 | 42.72 | 45.54 |
 | qwen3.8:27b-mtp-q4_K_M | asked for a terse answer | 4724 | 2.85 | 57 | 5.59 | 8.44 |
+| qwen3.6:35b-mlx | first request | 4715 | 2.67 | 353 | 5.41 | 8.08 |
+| qwen3.6:35b-mlx | same system prompt again | 4717 | 0.17 | 503 | 7.56 | 7.74 |
+| qwen3.6:35b-mlx | asked for a terse answer | 4724 | 2.71 | 50 | 0.87 | 3.59 |
 
 Several requests at once, each writing exactly 256 tokens:
 
@@ -490,10 +494,12 @@ the extensions were tuned.
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 14/14 | 8.9 |
 | assistant-en | gpt-oss:20b | one model | 14/14 | 6.5 |
 | assistant-en | gpt-oss:20b | one model, 3 at once | 14/14 | 13.8 |
+| assistant-en | qwen3.6:35b-mlx | one model, harness v3.1 | 14/14 | 58.5 |
 | assistant-en | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 14/14 | 16.0 |
 | assistant-en | qwen3.8:27b-mlx | one model | 14/14 | 10.2 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v2 | 14/14 | 10.8 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v3 | 14/14 | 15.1 |
+| assistant-en | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 14/14 | 80.2 |
 | assistant-lang | gemma4:12b-mlx | one model | 8/7/8/8 of 8 | 8.62 |
 | assistant-lang | gemma4:12b-mlx | one model, harness v3 | 8/8 | 20.1 |
 | assistant-lang | gemma4:12b-mlx | one model, harness v3.1 | 7/8/8 of 8 | 18.73 |
@@ -504,10 +510,12 @@ the extensions were tuned.
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 5/8 | 5.6 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 5/8 | 10.8 |
 | assistant-lang | gpt-oss:20b | one model | 7/8 | 8.7 |
+| assistant-lang | qwen3.6:35b-mlx | one model, harness v3.1 | 6/8 | 16.3 |
 | assistant-lang | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 7/8 | 10.7 |
 | assistant-lang | qwen3.8:27b-mlx | one model | 8/8 of 8 | 13.0 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v2 | 8/8 | 12.6 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v3 | 8/8 | 12.1 |
+| assistant-lang | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 8/8 | 61.8 |
 | family-jobs | gemma4:12b-mlx | one model | 12/12/12/12/11 of 12 | 21.02 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3 | 11/11 of 12 | 17.5 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3.1 | 11/12/12/12/12 of 12 | 16.0 |
@@ -519,12 +527,13 @@ the extensions were tuned.
 | family-jobs | gpt-oss:20b | one model | 6/12 | 26.5 |
 | family-jobs | gpt-oss:20b | one model, harness v2 | 7/6 of 12 | 22.8 |
 | family-jobs | gpt-oss:20b | one model, harness v3 | 8/8 of 12 | 29.1 |
+| family-jobs | qwen3.6:35b-mlx | one model, harness v3.1 | 10/8 of 12 | 158.4 |
 | family-jobs | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 12/12 of 12 | 19.75 |
 | family-jobs | qwen3.8:27b-mlx | one model | 10/12 of 12 | 29.8 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v2 | 12/12 of 12 | 29.1 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3 | 12/12 of 12 | 27.45 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3.1 | 12/12 | 25.5 |
-| family-jobs | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 12/12 | 165.9 |
+| family-jobs | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 12/12 of 12 | 167.5 |
 <!-- /generated:assistant -->
 
 ### Routing

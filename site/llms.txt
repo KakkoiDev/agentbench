@@ -1,8 +1,15 @@
-# colibri-poc
+# mac-mini-m6-local-ai
 
 > A one-Mac lab (Apple M6, 32 GB) measuring what local AI models can really do: coding agents, chat assistants, routing between two models, translation, speech to text and image reading, plus a long-running effort to run GLM-5.x (744B) on the same machine. Results come with repeats, set-aside runs and the exact commands.
 
-Start with the findings: 15 measured findings, each with its evidence table, then recommendations and every result table. The data files are the source of truth; quote numbers from them, not from memory. Scores list every repeat; with 5-task suites, a one-task difference is often noise.
+Start with the site's Home page for the top picks (daily use, coding, smartest) and Models for one page per model with every bench result, how we run it and where to get it. For the evidence, read the findings: 15 measured findings, each with its evidence table, then recommendations and every result table. The data files are the source of truth; quote numbers from them, not from memory. Scores list every repeat; with 5-task suites, a one-task difference is often noise.
+
+## Which model to run
+
+- [Home: top picks](https://kakkoidev.github.io/mac-mini-m6-local-ai/): the best 3 models for daily use, coding and best quality on a 32 GB Mac mini, computed from the data, plus specialists and a quick setup
+- [Models](https://kakkoidev.github.io/mac-mini-m6-local-ai/models.html): every model tested; each links to its page (models/<name>.html) with scores, speed, memory, setup, observations and download command
+- [Learnings](https://kakkoidev.github.io/mac-mini-m6-local-ai/learnings.html): what works and what does not (thinking, memory, harness, coding agents, speech, translation), each tip linked to its evidence, plus how our setup works and links to the code
+- [Assistant harness (mini.py)](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/harness/dropbox-mini/mini.py): the code the assistant benches run
 
 ## Local AI: practical lessons
 
@@ -26,5 +33,5 @@ Start with the findings: 15 measured findings, each with its evidence table, the
 
 ## Optional
 
-- [Results website](https://kakkoidev.github.io/mac-mini-m6-local-ai/): GLM speed story and earlier quality tables
+- [GLM report](https://kakkoidev.github.io/mac-mini-m6-local-ai/glm.html): GLM speed story and earlier quality tables
 - [Completed GLM, Gemma and Qwen comparison](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/17-completed-bench-comparison.md): short-answer quality and speed, October 2026

@@ -373,6 +373,10 @@ def main():
                                  [[m.get("chip"), f"{m.get('memory_gb')} GB", m.get("macos"), m.get("ollama"), ", ".join(pis)]])
         fill(DOC, parts)
         (ROOT / "site" / "local-ai.html").write_text(md_page.page(DOC.read_text(), datetime.date.today().isoformat()))
+        import site_build
+        n = site_build.build(ROOT, summary, rows, local_ai_findings.Data(summary, rows, RES), sizes,
+                             local_ai_findings.load_times(RES), meta["machine"], DOC.read_text(), datetime.date.today().isoformat())
+        print(f"site: home, models, learnings and {n} model pages")
     print(f"{len(rows)} runs, {len(summary)} groups -> {OUT.relative_to(ROOT)}" + (f"; tables refreshed in {DOC.relative_to(ROOT)}" if DOC.exists() else ""))
 
 

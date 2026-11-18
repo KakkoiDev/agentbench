@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisper (mlx-whisper) on a 32 GB Mac mini M6</title>
+<meta name="description" content="The speech model to use. Far fewer errors than any chat model that hears, in every language.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="../site.css">
+<link rel="stylesheet" href="../v2.css">
+<script src="../site.js"></script>
+</head>
+<body class="pp" data-theme="auto">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.body.setAttribute('data-theme',t)}catch(e){}</script>
+<header class="sh">
+<div class="col-wide sh-in">
+<a class="sh-name" href="../index.html"><strong>Mac mini M6 lab</strong><span>Local AI on one 32 GB Mac: what to run, measured</span></a>
+<nav class="sh-nav" aria-label="Site"><a href="../index.html">Home</a><a href="../models.html" aria-current=page>Models</a><a href="../learnings.html">Learnings</a><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">Code<span class="sh-ext" aria-hidden="true"> ↗</span></a></nav>
+<div class="theme" role="group" aria-label="Colour theme"><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
+</div>
+</header>
+<main class="col-wide v2" >
+
+<nav class="crumb note" aria-label="Breadcrumb"><a href="../models.html">Models</a> / Whisper (mlx-whisper)</nav>
+<div class="ptitle"><h1>Whisper (mlx-whisper)</h1><p class="dek">The speech model to use. Far fewer errors than any chat model that hears, in every language.</p>
+<div class="mc-c"><span class="chip">speech to text</span><span class="chip">language detection</span><span class="chip chip-k">Speech</span></div></div>
+<section class="sec" aria-label="Get it"><div class="pull"><code>pip install mlx-whisper</code><button type="button" class="copy" data-cmd="pip install mlx-whisper" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.textContent='Copied'})">Copy</button></div><p class="note"><a href="https://huggingface.co/mlx-community/whisper-large-v3-turbo">large-v3-turbo</a> · <a href="https://huggingface.co/mlx-community/whisper-large-v3-mlx">large-v3</a> · <a href="https://github.com/ml-explore/mlx-examples/tree/main/whisper">mlx-whisper</a></p></section>
+<section class="sec" aria-labelledby="glance"><div class="sec-h"><h2 id="glance">At a glance</h2></div><div class="tiles"><div class="tile"><span class="tl">Assistant</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Coding</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Images</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Translation</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Speech errors</span><span class="tv">7.8%</span><span class="note">whisper-large-v3-mlx</span></div><div class="tile"><span class="tl">Download</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Loaded</span><span class="tv">—</span><span class="note"></span></div><div class="tile"><span class="tl">Writing speed</span><span class="tv">—</span><span class="note">one request</span></div><div class="tile"><span class="tl">Load and first word</span><span class="tv">—</span><span class="note"></span></div></div></section>
+<div class="two">
+<section class="sec" aria-labelledby="good"><div class="sec-h"><h2 id="good">Good for</h2></div><ul class="list"><li>Transcribing English, Japanese and French voice messages.</li><li>Detecting the spoken language.</li></ul></section>
+<section class="sec" aria-labelledby="weak"><div class="sec-h"><h2 id="weak">Not good for</h2></div><ul class="list"><li>Noisy French is still hard for every size.</li></ul></section>
+</div>
+<section class="sec" aria-labelledby="setup"><div class="sec-h"><h2 id="setup">How to run it well</h2></div><ul class="list"><li>large-v3-turbo: nearly the accuracy of large-v3, much faster. small if memory is tight.</li><li>Run it outside Ollama with mlx-whisper; it loads in seconds and frees its memory after.</li></ul>
+<p class="note">The code behind these setups: <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/harness/dropbox-mini/mini.py">assistant harness</a> · <a href="https://github.com/KakkoiDev/pi-core">pi extensions</a> · <a href="../learnings.html#setup">how our setup works</a></p></section>
+
+<section class="sec" aria-labelledby="facts"><div class="sec-h"><h2 id="facts">Model facts</h2></div><dl class="facts"><div><dt>Maker</dt><dd>OpenAI; MLX conversions by mlx-community</dd></div><div><dt>Architecture</dt><dd>encoder-decoder speech recognition</dd></div><div><dt>Parameters</dt><dd>74M (base) to 1.55B (large-v3)</dd></div><div><dt>Context</dt><dd>30-second windows</dd></div><div><dt>Quantization</dt><dd>MLX</dd></div><div><dt>Runs on</dt><dd>mlx-whisper (Python)</dd></div><div><dt>License</dt><dd>MIT</dd></div></dl></section>
+
+<section class="sec" aria-labelledby="results"><div class="sec-h"><h2 id="results">All bench results</h2></div>
+<h3 id="speech-to-text">Speech to text</h3><p class="note">Spoken clips in English, Japanese and French, clean and noisy; error rate (lower is better).</p><div class="tblbox"><table class="mdt"><thead><tr><th scope="col">Setup</th><th scope="col">Error %</th><th scope="col">Time</th><th scope="col">Runs</th></tr></thead><tbody><tr><th scope="row"><code>whisper-base-mlx</code> · Whisper via mlx-whisper</th><td class="n">37</td><td class="n"></td><td class="n">1</td></tr><tr><th scope="row"><code>whisper-large-v3-mlx</code> · Whisper via mlx-whisper</th><td class="n">7.8</td><td class="n"></td><td class="n">1</td></tr><tr><th scope="row"><code>whisper-large-v3-turbo</code> · Whisper via mlx-whisper</th><td class="n">8.9</td><td class="n"></td><td class="n">1</td></tr><tr><th scope="row"><code>whisper-medium-mlx</code> · Whisper via mlx-whisper</th><td class="n">10.5</td><td class="n"></td><td class="n">1</td></tr><tr><th scope="row"><code>whisper-small-mlx</code> · Whisper via mlx-whisper</th><td class="n">16.5</td><td class="n"></td><td class="n">1</td></tr></tbody></table></div></section>
+
+<footer class="foot">
+<span>Every number is generated from the bench results by <a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/scripts/collect_local_ai.py">collect_local_ai.py</a>; none is typed by hand.</span>
+<span>Data: <a href="../data/local-ai/summary.json">summary.json</a> · <a href="../data/local-ai/runs.json">runs.json</a> · <a href="../data/local-ai/runs.csv">runs.csv</a> · <a href="../llms.txt">llms.txt</a></span>
+<span><a href="../local-ai.html">Full research note</a> · <a href="../glm.html">Earlier GLM / Colibri experiments</a></span>
+</footer>
+</main>
+</body>
+</html>

@@ -1,15 +1,22 @@
-# colibri-poc
+# mac-mini-m6-local-ai
 
-A long-running lab with one goal: run **GLM-5.x (744B MoE) on a 32 GB Apple M6 at
-5 tokens per second or more**, with usable answers.
+Which local AI to run on a **Mac mini M6 with 32 GB**, and how to set it up, measured on one machine:
+house assistant, coding agent, translation, speech to text and image reading.
 
-- **Choosing local models? Start here:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md):
-  which model for coding agents, chat assistants, translation, speech and images, with every
-  result table ([web page](https://kakkoidev.github.io/mac-mini-m6-local-ai/local-ai.html); [data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
+- **Website:** https://kakkoidev.github.io/mac-mini-m6-local-ai/ : top picks for daily use, coding and
+  best quality; a page per model (scores, speed, memory, setup, download); and the learnings.
+- **Evidence:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md), every finding with
+  its result table ([data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
+- **Harness code:** [harness/dropbox-mini](harness/dropbox-mini/) (the assistant the benches drive) and
+  [pi-core](https://github.com/KakkoiDev/pi-core) (coding-agent extensions).
+
+The repository started as a lab to run **GLM-5.x (744B MoE) on the same 32 GB Mac at 5 tokens per
+second or more**; that work continues below.
+
 - **Read first:** [the lab guide](docs/00-lab-guide.md): mission, bottleneck model,
   how to try ideas, how to follow research.
 - **Current scoreboard and every experiment:** [experiment log](docs/12-experiment-log.md).
-- **Results website:** https://kakkoidev.github.io/mac-mini-m6-local-ai/
+- **GLM results page:** https://kakkoidev.github.io/mac-mini-m6-local-ai/glm.html
 - **Research reviewed so far:** [research/watchlist.md](research/watchlist.md).
 - **Lab control app (local):** `make lab-app`, then open http://127.0.0.1:8766: what is running, a job queue, models (download, remove to Trash), benches, runs, experiments, research, and how GLM compares with frontier models. `make lab-app-install` keeps it running at login.
 

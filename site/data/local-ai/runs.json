@@ -3762,6 +3762,52 @@
   },
   {
    "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-dflash2-nvfp4-off-r1",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "20/20",
+   "minutes": 21.0,
+   "tool_calls": 54,
+   "output_tokens": 26442,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "api-client": {
+     "solved": true,
+     "seconds": 322.6
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 522.9
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 196.7
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 109.8
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 110.4
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
    "run": "agentic-v2-qwen3-8-27b-mlx-off-flat-r1",
    "model": "qwen3.8:27b-mlx",
    "setup": "flat",
@@ -4048,6 +4094,40 @@
     }
    },
    "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-8-27b-mtp-q4_K_M-off-r1",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 2,
+   "out_of": 2,
+   "hidden_tests": "8/8",
+   "minutes": 23.0,
+   "tool_calls": 14,
+   "output_tokens": 4776,
+   "timeouts": 1,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "parse-config": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 478.4
+    }
+   },
+   "set_aside": "incomplete run"
   },
   {
    "bench": "coding-v3",
@@ -4576,6 +4656,52 @@
     "ttl-cache": {
      "solved": true,
      "seconds": 257.0
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-dflash2-nvfp4-off-r1",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "36/38",
+   "minutes": 18.6,
+   "tool_calls": 33,
+   "output_tokens": 24126,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": false,
+     "seconds": 336.4
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 146.5
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 181.1
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 183.0
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 267.9
     }
    },
    "set_aside": null
@@ -5421,6 +5547,32 @@
    "slowest_seconds": 40.9
   },
   {
+   "run": "dropbox-family-qwen3-6-35b-mlx-checks31-r1-qwen3-6-35b-mlx",
+   "model": "qwen3.6:35b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 10,
+   "out_of": 12,
+   "seconds_each": 86.5,
+   "slowest_seconds": 600.0
+  },
+  {
+   "run": "dropbox-family-qwen3-6-35b-mlx-checks31-r2-qwen3-6-35b-mlx",
+   "model": "qwen3.6:35b-mlx",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 8,
+   "out_of": 12,
+   "seconds_each": 230.3,
+   "slowest_seconds": 600.0
+  },
+  {
    "run": "dropbox-family-qwen3-8-27b-dflash2-nvfp4-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "repeat": 1,
@@ -5458,6 +5610,19 @@
    "out_of": 12,
    "seconds_each": 165.9,
    "slowest_seconds": 241.2
+  },
+  {
+   "run": "dropbox-family-qwen3-8-27b-mtp-q4_K_M-checks31-r2-qwen3-8-27b-mtp-q4-k-m",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.1",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 169.1,
+   "slowest_seconds": 253.2
   },
   {
    "run": "dropbox-family-route-checks-r1-gemma4-e4b-mlx",
@@ -5787,6 +5952,20 @@
    "stayed_quiet_right": "5/5"
   },
   {
+   "run": "dropbox-mini-checks31-r1-qwen3-6-35b-mlx",
+   "model": "qwen3.6:35b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 58.5,
+   "slowest_seconds": 302.6,
+   "stayed_quiet_right": "5/5"
+  },
+  {
    "run": "dropbox-mini-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "repeat": 1,
@@ -5798,6 +5977,20 @@
    "out_of": 14,
    "seconds_each": 16.0,
    "slowest_seconds": 71.5,
+   "stayed_quiet_right": "5/5"
+  },
+  {
+   "run": "dropbox-mini-checks31-r1-qwen3-8-27b-mtp-q4-k-m",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-en",
+   "setup": "one model, harness v3.1",
+   "score": 14,
+   "out_of": 14,
+   "seconds_each": 80.2,
+   "slowest_seconds": 235.5,
    "stayed_quiet_right": "5/5"
   },
   {
@@ -5983,6 +6176,20 @@
    "stayed_quiet_right": "2/3"
   },
   {
+   "run": "dropbox-mini-lang-checks31-r1-qwen3-6-35b-mlx",
+   "model": "qwen3.6:35b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 6,
+   "out_of": 8,
+   "seconds_each": 16.3,
+   "slowest_seconds": 48.7,
+   "stayed_quiet_right": "2/3"
+  },
+  {
    "run": "dropbox-mini-lang-checks31-r1-qwen3-8-27b-dflash2-nvfp4",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "repeat": 1,
@@ -5995,6 +6202,20 @@
    "seconds_each": 10.7,
    "slowest_seconds": 28.9,
    "stayed_quiet_right": "2/3"
+  },
+  {
+   "run": "dropbox-mini-lang-checks31-r1-qwen3-8-27b-mtp-q4-k-m",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-18",
+   "bench": "assistant-lang",
+   "setup": "one model, harness v3.1",
+   "score": 8,
+   "out_of": 8,
+   "seconds_each": 61.8,
+   "slowest_seconds": 113.1,
+   "stayed_quiet_right": "3/3"
   },
   {
    "run": "dropbox-mini-lang-checks31-r2-gemma4-12b-mlx",

@@ -1,0 +1,58 @@
+(version 1)
+; Sandbox for mini's pi runs, per request. mini works in the files of the person
+; who asked: the admin's whole DropBox folder, or another person's own folder.
+; Later rules win. Params (-D): WORKSPACE (that person's files), WS_RE (the same,
+; regex-escaped), DROPBOX (the DropBox folder), STATE (mini's own folder),
+; HOME, ATTACHMENT (a chat attachment to read, or empty).
+(allow default)
+
+; Writes: temp, mini's state, and the person's files only.
+(deny file-write*)
+(allow file-write*
+  (subpath (param "STATE"))
+  (subpath "/private/tmp")
+  (subpath "/private/var/folders")
+  (literal "/dev/null")
+  (regex #"^/dev/tty")
+  (regex #"^/dev/fd/"))
+(deny file-write* (subpath (param "DROPBOX")))
+(allow file-write* (subpath (param "WORKSPACE")))
+
+; Reads in the home folder: only what mini needs (its own folder, pi's extensions) and, below,
+; the person's files. Without this mini could read the Mac owner's Downloads, Documents, Desktop…
+; for anyone who asks it. The system, Homebrew and Nix (pi, node, python) stay readable.
+(deny file-read* (subpath (param "HOME")))
+(allow file-read-metadata (literal (param "HOME")))
+(allow file-read* (subpath (param "STATE")))
+; mini.py puts a read rule for each pi extension's folder in place of the next line.
+;; EXTENSIONS
+
+; Reads inside DropBox: the person's files only.
+(deny file-read* (subpath (param "DROPBOX")))
+(allow file-read* (subpath (param "WORKSPACE")))
+; The folders above them may be looked up (not read or listed): tools resolve a file's full path
+; before writing it, and that fails without this when the person's files are .homes/<name>/files.
+(allow file-read-metadata (literal (param "UP1")) (literal (param "UP2")) (literal (param "UP3")))
+
+; Never DropBox's hidden data, even inside the person's files: chat transcripts,
+; accounts, push keys, other people's folders.
+(deny file-read* file-write* (regex (string-append "^" (param "WS_RE") "/\\.")))
+
+; A file attached to the message being answered.
+(allow file-read* (literal (param "ATTACHMENT")))
+
+; Secrets elsewhere on the Mac.
+(deny file-read*
+  (subpath (string-append (param "HOME") "/.ssh"))
+  (subpath (string-append (param "HOME") "/.gnupg"))
+  (subpath (string-append (param "HOME") "/.aws"))
+  (subpath (string-append (param "HOME") "/.config"))
+  (subpath (string-append (param "HOME") "/.local/state/dropbox-agent"))
+  (subpath (string-append (param "HOME") "/Library/Keychains"))
+  (literal (string-append (param "HOME") "/.pi/agent/auth.json")))
+
+; Network: this Mac only (Ollama, DropBox's search proxy).
+(deny network-outbound)
+(allow network-outbound
+  (remote ip "localhost:*")
+  (remote unix-socket))

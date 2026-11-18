@@ -145,6 +145,7 @@ PAGE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="v2.css">
 <script src="site.js"></script>
 <style>
 .ra .sec{{display:flex;flex-direction:column;gap:14px}}
@@ -170,7 +171,7 @@ PAGE = """<!doctype html>
 <div class="col-wide sh-in">
 <a class="sh-name" href="index.html"><strong>Mac mini M6 lab</strong><span>Local AI on one 32 GB Mac: what works, measured</span></a>
 <nav class="sh-nav" aria-label="Site">
-<a href="local-ai.html" aria-current="page">Local AI findings</a><a href="index.html">GLM report</a><a href="bench.html">Benchmarks</a><a href="findings.html">GLM findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
+<a href="index.html">Home</a><a href="models.html">Models</a><a href="learnings.html">Learnings</a><a href="local-ai.html" aria-current="page">Research note</a><a href="glm.html">GLM report</a><a href="bench.html">Benchmarks</a><a href="findings.html">GLM findings</a><a href="speed.html">Speed runs</a><a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">Repository<span class="sh-ext" aria-hidden="true"> ↗</span></a>
 </nav>
 <div class="theme" role="group" aria-label="Colour theme"><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
 </div>
