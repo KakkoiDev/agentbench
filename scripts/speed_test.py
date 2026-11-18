@@ -1,4 +1,7 @@
-"""Usage: python3 scripts/speed_test.py MODEL [MODEL ...]  (writes results/speed/speed-DATE.json)
+"""Usage: python3 scripts/speed_test.py [--sweep] MODEL [MODEL ...]  (writes results/speed/speed-DATE.json)
+
+--sweep (the lab's speed mode, lab.py speed) also tries the settings that change speed: a 32k context
+instead of 8k, thinking on, and 1, 2 and 4 requests at once for every model.
 
 Where a butler reply's time goes, per model: prompt reading (prefill) vs writing (decode),
 first vs repeated system prompt (Ollama's prompt cache), normal vs terse replies, and
@@ -15,11 +18,11 @@ ASK = "What's a good way to keep a weekly grocery list with my partner? Give me 
 
 LONG = "Write a detailed weekly meal plan for a family of four, day by day, with a shopping list."
 
-def call(model, system, ask=ASK, think=False, num_predict=None):
+def call(model, system, ask=ASK, think=False, num_predict=None, num_ctx=8192):
     body = {"model": model, "stream": False, "think": think, "keep_alive": "10m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": ask}],
-            "options": {"num_ctx": 8192}}
-    if model.startswith("gpt-oss"): body["think"] = "low"
+            "options": {"num_ctx": num_ctx}}
+    if model.startswith("gpt-oss"): body["think"] = "medium" if think else "low"
     if num_predict: body["options"]["num_predict"] = num_predict
     t = time.time()
     try:
@@ -30,8 +33,9 @@ def call(model, system, ask=ASK, think=False, num_predict=None):
                 prompt_tokens=r.get("prompt_eval_count", 0), prompt_s=round(r.get("prompt_eval_duration", 0) / 1e9, 2),
                 out_tokens=r.get("eval_count", 0), out_s=round(r.get("eval_duration", 0) / 1e9, 2))
 
+SWEEP = "--sweep" in sys.argv
 out = []
-for model in sys.argv[1:]:
+for model in [a for a in sys.argv[1:] if not a.startswith("--")]:
     call(model, SYSTEM, "hi")  # load it
     ps = json.load(urllib.request.urlopen("http://127.0.0.1:11434/api/ps", timeout=10))
     for m in ps.get("models", []):
@@ -40,7 +44,19 @@ for model in sys.argv[1:]:
                      context=m.get("context_length")); out.append(r); print(json.dumps(r), flush=True)
     for name, system, ask in [("first", SYSTEM + " ", ASK), ("cached", SYSTEM + " ", ASK + " Thanks."), ("terse", SYSTEM + " " + TERSE, ASK)]:
         r = dict(model=model, case=name, **call(model, system, ask)); out.append(r); print(json.dumps(r), flush=True)
-    if model.startswith("gpt-oss") or "-mtp-" in model:
+    if SWEEP:
+        try:
+            r = dict(model=model, case="think", **call(model, SYSTEM + " ", ASK, think=True)); out.append(r); print(json.dumps(r), flush=True)
+        except SystemExit as e:  # a model without thinking
+            print(e, flush=True)
+        r = dict(model=model, case="ctx32k", **call(model, SYSTEM + "  ", ASK, num_ctx=32768)); out.append(r); print(json.dumps(r), flush=True)
+        ps = json.load(urllib.request.urlopen("http://127.0.0.1:11434/api/ps", timeout=10))
+        for m in ps.get("models", []):
+            if m.get("name") == model or m.get("model") == model:
+                r = dict(model=model, case="loaded-32k", size_gb=round(m.get("size", 0) / 1e9, 1), context=m.get("context_length"))
+                out.append(r); print(json.dumps(r), flush=True)
+        call(model, SYSTEM + " ", "hi")  # back to 8k for the parallel test
+    if SWEEP or model.startswith("gpt-oss") or "-mtp-" in model:
         for n in (1, 2, 4):
             t = time.time()
             with cf.ThreadPoolExecutor(n) as ex:

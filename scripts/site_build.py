@@ -171,7 +171,7 @@ def pct(q):
 
 
 # ---------------------------------------------------------------- page shell
-NAV = [("index.html", "Home"), ("models.html", "Models"), ("learnings.html", "Learnings")]
+NAV = [("index.html", "Home"), ("models.html", "Models"), ("speed.html", "Speed"), ("intelligence.html", "Intelligence"), ("learnings.html", "Learnings")]
 
 
 def shell(title, body, current, depth=0, desc=""):
@@ -479,7 +479,7 @@ def model_page(S, m):
                      + table(["Step (exact)", "Tokens/s", "Seconds reading the prompt"], prog, (1, 2))
                      + "<h3>Tried and not kept</h3>" + table(["Change", "Tokens/s"], neg, (1,))
                      + ("<h3>Skipping experts: speed against output</h3>" + table(["Setting", "Tokens/s", "Output"], lossy, (1,)) if lossy else "")
-                     + f'<p class="note">{" ".join(E(x) for x in g["caveats"][:2])} Full detail: <a href="../glm.html">GLM report</a> · <a href="../speed.html">every speed run</a> · <a href="../findings.html">findings</a>.</p></section>')
+                     + f'<p class="note">{" ".join(E(x) for x in g["caveats"][:2])} Full detail: <a href="../glm.html">GLM report</a> · <a href="../glm-speed.html">every speed run</a> · <a href="../findings.html">findings</a>.</p></section>')
 
     # speed
     spd = next((S.speed[k] for k in m["keys"] if k in S.speed), None)
@@ -516,6 +516,73 @@ def model_page(S, m):
     return shell(f"{m['name']} on a 32 GB Mac mini M6", body, "models.html", depth=1, desc=m["summary"])
 
 
+# ---------------------------------------------------------------- the two bench modes
+def speed_page(S):
+    rows = []
+    for m in MODELS:
+        sp = next((S.speed[k] for k in m["keys"] if k in S.speed), None)
+        if not sp or "first" not in sp:
+            continue
+        f, c, t = sp["first"], sp.get("cached"), sp.get("terse")
+        th, x32, l8, l32 = sp.get("think"), sp.get("ctx32k"), sp.get("loaded"), sp.get("loaded-32k")
+        write = f["out_tokens"] / f["out_s"] if f.get("out_s") else None
+        read = f["prompt_tokens"] / f["prompt_s"] if f.get("prompt_s") else None
+        par = {int(k.split("-")[1]): v for k, v in sp.items() if k.startswith("parallel-") and v.get("fixed_len")}
+        best = []
+        if c and f.get("prompt_s") and c["prompt_s"] < f["prompt_s"] / 2:
+            best.append(f"fixed system prompt: reading {fmt(f['prompt_s'])} s → {fmt(c['prompt_s'])} s")
+        if t:
+            best.append(f"terse replies: {fmt(f['wall'])} s → {fmt(t['wall'])} s")
+        if th:
+            best.append("thinking off" + (f" (on: {fmt(th['wall'])} s)" if th["wall"] > f["wall"] * 1.2 else ": on costs little"))
+        if l8 and l32:
+            best.append(f"8k context: {l8['size_gb']:g} GB loaded, 32k: {l32['size_gb']:g} GB")
+        if par:
+            one = par.get(1, {}).get("tokens_per_s")
+            top = max(par.items(), key=lambda kv: kv[1]["tokens_per_s"])
+            best.append(f"{top[0]} requests at once: {fmt(top[1]['tokens_per_s'])} tok/s in all" + (f" (1 alone: {fmt(one)})" if one and top[0] != 1 else "")
+                        if one and top[1]["tokens_per_s"] > one * 1.3 else "one request at a time: parallel requests just queue")
+        rows.append([f'<a href="models/{m["slug"]}.html">{E(m["name"])}</a>', fmt(round(write)) if write else "—", fmt(round(read)) if read else "—",
+                     fmt(f["wall"]), fmt(t["wall"]) if t else "—", f"{l8['size_gb']:g}" if l8 else "—",
+                     "<br>".join(E(b) for b in best)])
+    rows.sort(key=lambda r: -float(r[1]) if r[1] != "—" else 0)
+    glm = ""
+    if S.glm:
+        h = S.glm["headline"]
+        glm = (f'<p>Beyond memory: <a href="models/glm-5.3.html">GLM-5.3 744B</a> streamed from the SSD writes {fmt(h["exact_tok_s"])} tokens/s exact, '
+               f'and {fmt(h["lossy_tok_s_at_0_5"])} tokens/s when low-weight experts are skipped (the output changes). See <a href="models/glm-5.3.html#glmspeed">how we got there</a>.</p>')
+    body = f"""
+<div class="ptitle"><h1>Speed</h1>
+<p class="dek">How fast each model is on the Mac mini M6, and which settings make it faster. Speed mode: <code>lab.py speed MODEL</code>, minutes per model.</p></div>
+<section class="sec">{table(["Model", "Writing tok/s", "Prompt reading tok/s", "Seconds, first reply", "Seconds, terse reply", "GB loaded (8k)", "Best speed settings, measured"], rows, (1, 2, 3, 4, 5))}
+<p class="note">One request with a system prompt the size of the assistant's (about 4,700 tokens) and an everyday question; then the same prompt again, a terse reply, thinking on, a 32k context, and 1, 2 and 4 requests at once with 256-token replies. Models without a row have not run speed mode yet.</p>
+{glm}</section>
+"""
+    return shell("Speed: local models on a 32 GB Mac mini M6", body, "speed.html", desc="Writing speed, prompt reading, memory and the fastest settings for each local model on a Mac mini M6 32 GB.")
+
+
+def intelligence_page(S):
+    cols = [("Assistant", lambda m: S.daily(m) and pct(S.daily(m)["q"])), ("Hard jobs", lambda m: S.hard(m) and pct(S.hard(m)["q"])),
+            ("Coding v1-v3", lambda m: S.coding(m) and pct(S.coding(m)["q"])), ("Hard coding", lambda m: S.hard(m, "coding-v4") and pct(S.hard(m, "coding-v4")["q"])),
+            ("Images", lambda m: S.vision(m) and pct(S.vision(m)["q"])), ("Translation chrF", lambda m: S.translation(m) and fmt(S.translation(m)["mean"])),
+            ("Speech errors", lambda m: S.speech(m) and f"{fmt(S.speech(m)['mean'])}%"), ("October quiz", lambda m: S.quiz(m) and f"{S.quiz(m)['correct']}/24")]
+    rows = []
+    for m in MODELS:
+        vals = [f(m) or "—" for _, f in cols]
+        if all(v == "—" for v in vals):
+            continue
+        sm = S.smartest(m)
+        rows.append((sm["q"] if sm else -1, [f'<a href="models/{m["slug"]}.html">{E(m["name"])}</a>', pct(sm["q"]) if sm else "—"] + [E(v) for v in vals]))
+    rows.sort(key=lambda r: -r[0])
+    body = f"""
+<div class="ptitle"><h1>Intelligence</h1>
+<p class="dek">What each model can actually do, with the harness it would run in. Intelligence mode: <code>lab.py intelligence MODEL</code>, hours per model.</p></div>
+<section class="sec">{table(["Model", "Overall"] + [c for c, _ in cols], [r for _, r in rows], tuple(range(1, len(cols) + 2)))}
+<p class="note">Overall: the average of assistant, coding, hard jobs, hard coding and images, where run (at least two). The hard suites are made so that no model gets everything, so they spread the strong models apart; each model's page says what it managed and where it fell short. Percentages are of the maximum score.</p></section>
+"""
+    return shell("Intelligence: local models on a 32 GB Mac mini M6", body, "intelligence.html", desc="What each local model can do on a Mac mini M6 32 GB: assistant, hard jobs, coding, images, translation, speech.")
+
+
 # ---------------------------------------------------------------- learnings
 LEARNINGS = [
     ("Thinking", [
@@ -546,13 +613,13 @@ LEARNINGS = [
     ]),
     ("Giant models from the SSD (GLM-5.3, October)", [
         ("A model ten times bigger than memory runs, but slowly.", "GLM-5.3 (744B, mixture of experts) runs on the 32 GB Mac by reading the experts each token needs from the SSD. It answered our quiz correctly, at well under one token per second.", [("GLM report", "glm.html"), ("GLM-5.3 page", "models/glm-5.3.html")]),
-        ("The SSD sets the speed limit.", "Each token needs about 12.7 GB of experts; the SSD delivers about 6.5 GB/s. No setting can make exact decoding faster than roughly half a token per second on this Mac.", [("Speed runs", "speed.html")]),
+        ("The SSD sets the speed limit.", "Each token needs about 12.7 GB of experts; the SSD delivers about 6.5 GB/s. No setting can make exact decoding faster than roughly half a token per second on this Mac.", [("GLM speed runs", "glm-speed.html")]),
         ("Use the GPU and overlap the reads.", "Moving expert math to Metal and reading the next experts while computing the current ones were the big wins: several times faster than the engine as first installed.", [("GLM report", "glm.html")]),
         ("Caching experts in RAM barely helps.", "Giving the engine more memory for an expert cache hardly raised the hit rate: the experts a prompt needs change from token to token.", [("Findings", "findings.html")]),
         ("If a model fits in memory, keep it all there.", "On the small OLMoE, streaming experts through a cache was more than twice as slow as keeping every expert loaded, even with a cache big enough for all of them: loading and packing cost time on every token. Streaming is for models that cannot fit.", [("Findings", "findings.html"), ("OLMoE page", "models/olmoe-1b-7b.html")]),
         ("Skipping experts is faster and changes the answer.", "Skipping experts with a low routing weight wrote up to four times faster, but changed the text; at higher thresholds answers broke. Treat it as a different model and check the answers.", [("GLM-5.3 page", "models/glm-5.3.html#glmspeed")]),
         ("Smaller files are not always faster.", "The 2- and 3-bit GGUF builds of GLM read less from the SSD but were slower than int4: unpacking them cost more than the reads saved.", [("GLM-5.3 page", "models/glm-5.3.html#quiz")]),
-        ("Thread count depends on the core layout.", "On the M6 the engine sized itself to the two fastest cores. Twelve threads made CPU-only and lossy runs faster; exact GPU runs did not change.", [("Speed runs", "speed.html")]),
+        ("Thread count depends on the core layout.", "On the M6 the engine sized itself to the two fastest cores. Twelve threads made CPU-only and lossy runs faster; exact GPU runs did not change.", [("GLM speed runs", "glm-speed.html")]),
     ]),
     ("Last month's quiz (October)", [
         ("Ask for terse answers, then check them.", "On the 24-question quiz, asking for the briefest answer cut GLM's answer time about four times and kept every GLM build and most Ollama models at or near full marks. One exception: gpt-oss with thinking off got most terse answers wrong. Check each model.", [("Comparison", "comparison.html"), ("gpt-oss page", "models/gpt-oss-20b.html#quiz")]),
@@ -594,7 +661,7 @@ def learnings_page(S):
 </ol>
 <h3>The code</h3><ul class="list">{code}</ul></section>
 <section class="sec" aria-labelledby="more"><div class="sec-h"><h2 id="more">More</h2></div>
-<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. October's work is still published in full: the <a href="glm.html">GLM report</a>, <a href="bench.html">quiz answers</a>, <a href="comparison.html">quiz comparison</a>, <a href="speed.html">GLM speed runs</a>, <a href="findings.html">GLM findings</a> and <a href="concurrency.html">requests at once</a>.</p></section>
+<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. October's work is still published in full: the <a href="glm.html">GLM report</a>, <a href="bench.html">quiz answers</a>, <a href="comparison.html">quiz comparison</a>, <a href="glm-speed.html">GLM speed runs</a>, <a href="findings.html">GLM findings</a> and <a href="concurrency.html">requests at once</a>.</p></section>
 """
     return shell("Learnings: running local AI on a 32 GB Mac mini M6", body, "learnings.html",
                  desc="Tips and observations from benching local models on a Mac mini M6 32 GB: thinking, memory, harness, coding agents, speech, translation.")
@@ -679,6 +746,8 @@ def build(root, summary, rows, data, sizes, load_times, machine, doc_text, today
     (site / "index.html").write_text(home(S))
     (site / "models.html").write_text(models_page(S))
     (site / "learnings.html").write_text(learnings_page(S))
+    (site / "speed.html").write_text(speed_page(S))
+    (site / "intelligence.html").write_text(intelligence_page(S))
     (site / "models").mkdir(exist_ok=True)
     for m in MODELS:
         (site / "models" / f"{m['slug']}.html").write_text(model_page(S, m))

@@ -235,7 +235,7 @@ MODELS = [
         "pull": "git clone https://github.com/JustVugg/colibri",
         "links": [("Colibri engine", "https://github.com/JustVugg/colibri"),
                   ("Full GLM report", "https://kakkoidev.github.io/mac-mini-m6-local-ai/glm.html"),
-                  ("Speed runs", "https://kakkoidev.github.io/mac-mini-m6-local-ai/speed.html"),
+                  ("Speed runs", "https://kakkoidev.github.io/mac-mini-m6-local-ai/glm-speed.html"),
                   ("Artificial Analysis listing", "https://artificialanalysis.ai/models")],
         "summary": "A frontier-class model more than ten times larger than the Mac's memory, run by reading its experts from the SSD: right answers, very slowly.",
         "good": ["Showing that a frontier-class model runs at all on a 32 GB Mac, computed exactly.",
