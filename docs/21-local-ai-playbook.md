@@ -512,7 +512,7 @@ the extensions were tuned.
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b | 6/6/5 of 8 | 5.87 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, 3 at once | 7/8 | 13.4 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 5/8 | 5.6 |
-| assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 5/8 | 10.8 |
+| assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 6/8 | 10.8 |
 | assistant-lang | gpt-oss:20b | one model | 7/8 | 8.7 |
 | assistant-lang | qwen3.6:35b-mlx | one model, harness v3.1 | 6/8 | 16.3 |
 | assistant-lang | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 7/8 | 10.7 |

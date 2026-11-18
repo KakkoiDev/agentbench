@@ -151,7 +151,10 @@ def dropbox_runs():
                "date": __import__("datetime").date.fromtimestamp((d / "results.json").stat().st_mtime).isoformat()}
         # mini.py harness versions of 2026-11-17/18: v2 = rules + after-turn checks, v3 = + reads, language, HOME,
         # v3.1 = v3 + "clean up" means ask first
-        checks = ", harness v3.1" if "checks31" in base else ", harness v3" if "checks3" in base else ", harness v2" if "checks" in base else ""
+        # v3.2 = v3.1 + read-only clean-ups, language and lost-line checks, retry empty turns, fallback answer
+        checks = ", harness v3.2" if "checks32" in base else ", harness v3.1" if "checks31" in base else ", harness v3" if "checks3" in base else ", harness v2" if "checks" in base else ""
+        if "smoke" in base:
+            row["set_aside"] = "smoke test of a new harness version"
         if job == "mini":
             if s.get("total") == 12:
                 row["set_aside"] = "older 12-case version of the test"

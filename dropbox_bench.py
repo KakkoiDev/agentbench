@@ -271,6 +271,23 @@ def plain(text):
     return text
 
 
+def ask(mini, job):
+    """mini's answer as DropBox would deliver it: mini.answer (pi turn, checks, and the fallback answer when pi
+    fails) where the harness has it, else run_pi alone (harness v3.1 and older)."""
+    return (mini.answer if hasattr(mini, 'answer') else mini.run_pi)(job)
+
+
+def keep_case(d, case_id, mini, job, folder):
+    """Save what a case left behind, so it can be graded again and its failures read: the files and pi's transcript."""
+    out = d / 'cases' / case_id
+    shutil.rmtree(out, ignore_errors=True)
+    out.mkdir(parents=True)
+    if folder.is_dir():
+        shutil.copytree(folder, out / 'files', symlinks=True)
+    for f in sorted((mini.PI_HOME / 'sessions').glob(f'*_{mini.session_id(job)}.jsonl')):
+        shutil.copy(f, out / 'session.jsonl')
+
+
 def grade(check, reply, folder, silent_token):
     reply = plain(reply)
     silent = reply.strip().strip('`').strip() == silent_token or reply.strip().endswith(silent_token)
@@ -314,9 +331,10 @@ def run_mini(args):
             job['workspace'] = str(folder)
         t = time.time()
         try:
-            reply, err = mini.run_pi(job), ''
+            reply, err = ask(mini, job), ''
         except Exception as e:
             reply, err = '', str(e)[:300]
+        keep_case(d, c['id'], mini, job, folder)
         ok, why = grade(c['check'], reply, folder, mini.SILENT)
         if err:
             ok, why = False, ['error: ' + err]
@@ -355,9 +373,10 @@ def run_family(args):
                    ambient=False, history=[], _model=args.model, workspace=str(folder))
         t = time.time()
         try:
-            reply, err = mini.run_pi(job), ''
+            reply, err = ask(mini, job), ''
         except Exception as e:
             reply, err = '', str(e)[:300]
+        keep_case(d, task['id'], mini, job, folder)
         reply = plain(reply)
         why = ['error: ' + err] if err else task['check'](folder, reply)
         changed = family.untouched(folder, task)
@@ -378,6 +397,63 @@ def run_family(args):
     (d / 'results.json').write_text(json.dumps(dict(summary=summary, rows=rows), ensure_ascii=False, indent=1))
     shutil.rmtree(state, ignore_errors=True)
     print(json.dumps(summary), flush=True)
+
+
+def regrade(args):
+    """Grade saved runs again with the current checks. The first time, the file as run is kept as
+    results-as-run.json. A case is graded again from its saved files when the run kept them
+    (cases/ID/files), else from its saved reply when the check reads only the reply; otherwise its
+    recorded result stands. Errors (timeouts, crashes) always stand."""
+    import family
+    mini_by = {c['id']: c for c in cases.MINI + cases.MINI_LANG}
+    fam_by = {t['id']: t for t in family.TASKS}
+    for f in sorted((ROOT / 'results').glob('dropbox-*/results.json')):
+        data = json.loads(f.read_text())
+        s = data.get('summary') or {}
+        if s.get('job') not in ('mini', 'family'):
+            continue
+        kept = f.parent / 'results-as-run.json'
+        if not kept.exists():
+            kept.write_text(f.read_text())
+        orig = json.loads(kept.read_text())
+        changed = []
+        for r, o in zip(data['rows'], orig['rows']):
+            why0 = o.get('why') or []
+            if any(str(w).startswith('error') for w in why0):
+                continue
+            saved = f.parent / 'cases' / r['id'] / 'files'
+            if s['job'] == 'mini':
+                c = mini_by.get(r['id'])
+                if not c:
+                    continue
+                check = c['check'] if saved.is_dir() or not c['check'].get('file') else dict(c['check'], file=None)
+                ok, why = grade(check, o.get('reply') or '', saved, '[silent]')
+                if not saved.is_dir() and c['check'].get('file'):
+                    file_why = [w for w in why0 if w.startswith('no file') or ' lacks /' in w]
+                    why, ok = why + file_why, ok and not file_why
+            else:
+                t = fam_by.get(r['id'])
+                if not t:
+                    continue
+                if saved.is_dir():
+                    why = t['check'](saved, plain(o.get('reply') or ''))
+                    why += [f'changed files it should not: {", ".join(x[:5])}' for x in [family.untouched(saved, t)] if x]
+                elif t.get('reply_only'):
+                    why = t['check'](None, plain(o.get('reply') or '')) + [w for w in why0 if w.startswith('changed files')]
+                else:
+                    continue
+                ok = not why
+            if ok != (o.get('ok') in (True, 'True')):
+                changed.append(f"{r['id']}: {'FAIL->PASS' if ok else 'PASS->FAIL'}")
+            r['ok'], r['why'] = ok, why
+            r['regraded'] = True
+        data['summary']['passed'] = sum(1 for r in data['rows'] if r['ok'] in (True, 'True'))
+        if s['job'] == 'mini':
+            data['summary']['silence_right'] = sum(1 for r in data['rows'] if mini_by.get(r['id'], {}).get('ambient') and r['ok'] in (True, 'True'))
+        data['summary']['regraded'] = time.strftime('%Y-%m-%d')
+        f.write_text(json.dumps(data, ensure_ascii=False, indent=1))
+        if changed:
+            print(f'{f.parent.name}: {orig["summary"]["passed"]} -> {data["summary"]["passed"]}  ({"; ".join(changed)})')
 
 
 def report(_args):
@@ -421,11 +497,14 @@ def main():
     f.add_argument('--concurrency', type=int, default=1)
     f.add_argument('--tag', default='')
     sub.add_parser('report')
+    sub.add_parser('regrade', help='grade the saved runs again with the current checks')
     for sp in (t, c, m, f):
         sp.add_argument('--no-lock', action='store_true')
     args = p.parse_args()
     if args.cmd == 'report':
         return report(args)
+    if args.cmd == 'regrade':
+        return regrade(args)
     lock = None if args.no_lock else take_lock()
     unload_all()
     try:

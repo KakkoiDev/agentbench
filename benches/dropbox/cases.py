@@ -115,5 +115,5 @@ MINI_LANG = [
     dict(id='fr-date', history=[], author='Marc', text='@mini si on est le lundi 16 novembre 2026, quelle date serons-nous dans 10 jours, et quel jour ?',
          check=dict(silent=False, has=[r'26', r'jeudi'])),
     dict(id='fr-no-invent', history=_TEAM, author='Marc', text='@mini à quelle heure est la fête de lancement ?',
-         check=dict(silent=False, has=[r"pas|aucun|inconnu|ne sais"])),
+         check=dict(silent=False, has=[r"pas|aucun|inconnu|ne sais|\bnon\b|mentionn|indiqu|précis"])),  # "Non mentionné" is right too (fixed 2026-11-18)
 ]
