@@ -1376,6 +1376,21 @@
   },
   {
    "bench": "coding-v2",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    4
+   ],
+   "mean": 4,
+   "min": 4,
+   "max": 4,
+   "minutes": 15.2
+  },
+  {
+   "bench": "coding-v2",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "off",
    "setup_meaning": "pi with no extensions",
@@ -1464,6 +1479,21 @@
    "min": 5,
    "max": 5,
    "minutes": 30.95
+  },
+  {
+   "bench": "coding-v2",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    4
+   ],
+   "mean": 4,
+   "min": 4,
+   "max": 4,
+   "minutes": 51.9
   },
   {
    "bench": "coding-v3",
@@ -1589,6 +1619,21 @@
   },
   {
    "bench": "coding-v3",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    3
+   ],
+   "mean": 3,
+   "min": 3,
+   "max": 3,
+   "minutes": 32.2
+  },
+  {
+   "bench": "coding-v3",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "off",
    "setup_meaning": "pi with no extensions",
@@ -1662,6 +1707,21 @@
    "min": 3,
    "max": 4,
    "minutes": 46.65
+  },
+  {
+   "bench": "coding-v3",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 66.9
   },
   {
    "bench": "family-jobs",

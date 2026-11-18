@@ -39,8 +39,23 @@ class Site:
         self.load_times, self.machine, self.fslug = load_times, machine, findings_slugs
         self.loaded = data.loaded()
         self.speed = {}
+        self.oct, self.par, self.glm = {}, [], {}
         for x in data.speed():
             self.speed.setdefault(x["model"], {})[x["case"]] = x
+
+    def quiz(self, m):
+        """Last month's 24-question quiz: the best setting by correct answers, then by speed."""
+        best = None
+        for name in m.get("oct", []):
+            d = self.oct.get(name)
+            for r in (d["summary"] if d else []):
+                key = (r["correct"], r["config"] in ("exact", "native"), -r["answer_s"])
+                if best is None or key > best[0]:
+                    best = (key, dict(r, bench=d))
+        return best and best[1]
+
+    def tested(self, m):
+        return bool(self.groups(m) or any(n in self.oct for n in m.get("oct", [])))
 
     def groups(self, m, bench=None):
         keys = m["keys"]
@@ -256,6 +271,7 @@ home assistant and a coding agent really do. These are the models to pick, and t
      "tasks solved across the coding suites with pi and no extensions where we ran it (otherwise the model's best single-run setup); ties go to the faster model.", c_cards)}
 {sec(("smartest", "Smartest, any speed"), "The most capable model this Mac can run when you can wait: the closest to frontier quality you get locally.",
      "the average of assistant, coding and image scores; a model needs at least two of the three. Speed is ignored.", s_cards)}
+<p class="note">Beyond 32 GB: <a href="models/glm-5.3.html">GLM-5.3 (744B)</a> runs on this Mac by streaming its experts from the SSD. It is rated well above anything here, and writes well under one token per second.</p>
 <section class="sec" aria-labelledby="spec"><div class="sec-h"><h2 id="spec">Specialists</h2></div>
 <ul class="specs">{spec_html}</ul></section>
 <section class="sec" aria-labelledby="start"><div class="sec-h"><h2 id="start">Set it up in five minutes</h2></div>
@@ -274,7 +290,7 @@ home assistant and a coding agent really do. These are the models to pick, and t
 
 
 # ---------------------------------------------------------------- models list
-KIND = {"chat": "Chat and agents", "vision": "Images", "speech": "Speech", "router": "Router"}
+KIND = {"chat": "Chat and agents", "vision": "Images", "speech": "Speech", "router": "Router", "ssd": "Too big for RAM"}
 
 
 def models_page(S):
@@ -282,9 +298,10 @@ def models_page(S):
     for m in MODELS:
         d, c, v, t, sp = S.daily(m), S.coding(m), S.vision(m), S.translation(m), S.speech(m)
         mem, dl, ws = S.mem(m), S.download(m), S.write_speed(m)
-        tested = bool(S.groups(m))
+        tested, qz = S.tested(m), S.quiz(m)
         stats = [x for x in [d and f"Assistant {pct(d['q'])}", c and f"Coding {pct(c['q'])}", v and f"Images {pct(v['q'])}",
-                             t and f"Translation chrF {fmt(t['mean'])}", sp and f"Speech {fmt(sp['mean'])}% errors"] if x]
+                             t and f"Translation chrF {fmt(t['mean'])}", sp and f"Speech {fmt(sp['mean'])}% errors",
+                             qz and f"October quiz {qz['correct']}/{qz['graded']}"] if x]
         sizes = [x for x in [dl and f"{fmt(dl)} GB download", mem and f"{mem[0]:g} GB loaded", ws and f"{ws} tokens/s"] if x]
         cards.append(
             f'<li class="mcard" data-kind="{m["kind"]}" data-name="{E(m["name"].lower())}" data-daily="{d["q"] if d else -1}" '
@@ -297,14 +314,14 @@ def models_page(S):
             f'<span class="mc-t"><code>{E(m["tag"])}</code> · {E(m["maker"])}</span></a></li>')
     body = f"""
 <div class="ptitle"><h1>Models we tested</h1>
-<p class="dek">{len(MODELS)} models on the same Mac mini, with what each is good for, how we run it, and every bench result.</p></div>
+<p class="dek">{len(MODELS)} models on the same Mac mini, from 1B-active test beds to a 744B model streamed from the SSD, with what each is good for, how we run it, and every bench result since October.</p></div>
 <div class="filters" role="group" aria-label="Filter and sort">
 <div class="fld"><span class="lbl">Show</span><div class="seg" id="kind">
-<button type="button" aria-pressed="true" data-k="all">All</button><button type="button" aria-pressed="false" data-k="chat">Chat and agents</button><button type="button" aria-pressed="false" data-k="vision">Images</button><button type="button" aria-pressed="false" data-k="speech">Speech</button><button type="button" aria-pressed="false" data-k="router">Router</button></div></div>
+<button type="button" aria-pressed="true" data-k="all">All</button><button type="button" aria-pressed="false" data-k="chat">Chat and agents</button><button type="button" aria-pressed="false" data-k="vision">Images</button><button type="button" aria-pressed="false" data-k="speech">Speech</button><button type="button" aria-pressed="false" data-k="router">Router</button><button type="button" aria-pressed="false" data-k="ssd">Too big for RAM</button></div></div>
 <div class="fld"><label for="sort">Sort by</label><select id="sort"><option value="daily">Assistant score</option><option value="coding">Coding score</option><option value="mem">Memory, smallest first</option><option value="name">Name</option></select></div>
 </div>
 <ul class="mlist" id="mlist">{"".join(cards)}</ul>
-<p class="note">Assistant: family jobs and assistant tests, best harness setup. Coding: hidden-test tasks solved, pi with no extensions where run. Images: both image suites. Percentages are of the maximum score.</p>
+<p class="note">Assistant: family jobs and assistant tests, best harness setup. Coding: hidden-test tasks solved, pi with no extensions where run. Images: both image suites. Percentages are of the maximum score. October quiz: last month's 24 graded questions, best setting; it is easy, so most models get it all right.</p>
 <script>
 (function(){{var L=document.getElementById('mlist'),k='all';
 function apply(){{var s=document.getElementById('sort').value,c=[].slice.call(L.children);
@@ -331,6 +348,10 @@ def model_page(S, m):
              ("Loaded", f"{mem[0]:g} GB" if mem else "—", mem and (f"at {mem[1]} tokens of context" if mem[1] else "")),
              ("Writing speed", f"{ws} tok/s" if ws else "—", "one request"),
              ("Load and first word", f"{fmt(lt)} s" if lt else "—", lt and "file cache warm")]
+    qz = S.quiz(m)
+    if qz:
+        tiles.append(("October quiz", f"{qz['correct']}/{qz['graded']}", f"best setting: {qz['style']}, {qz['bench']['labels'].get(qz['config'], qz['config'])}"))
+    tiles = [t for t in tiles if t[1] != "—"]
     tiles_html = "".join(f'<div class="tile"><span class="tl">{k}</span><span class="tv">{E(val)}</span><span class="note">{E(sub or "")}</span></div>' for k, val, sub in tiles)
     facts = [("Maker", m["maker"]), ("Architecture", m["arch"]), ("Parameters", m["params"]), ("Context", m["context"]),
              ("Quantization", m["quant"]), ("Runs on", m["runner"]), ("License", m["license"])]
@@ -356,6 +377,50 @@ def model_page(S, m):
     if set_aside:
         res.append("<h3>Runs set aside</h3>" + table(["Run", "Why"], [[E(r["run"]), E(r["set_aside"])] for r in set_aside]))
 
+    # last month's quiz
+    oct_html = ""
+    qrows = []
+    for name in m.get("oct", []):
+        d = S.oct.get(name)
+        if not d:
+            continue
+        for r in sorted(d["summary"], key=lambda r: (r["style"], r["config"] != "exact", r["config"])):
+            build = (f"{E(d['model'])} · " if len(m["oct"]) > 1 else "")
+            qrows.append([build + E(r["style"]) + " · " + E(d["labels"].get(r["config"], r["config"])), f"{r['correct']}/{r['graded']}",
+                          fmt(round(r["answer_s"], 1)), fmt(round(r["decode_tok_s"], 2))])
+    if qrows:
+        oct_html = ('<section class="sec" aria-labelledby="quiz"><div class="sec-h"><h2 id="quiz">October quiz: 24 graded questions</h2></div>'
+                    '<p class="note">Last month\'s first bench: 24 short questions (facts, arithmetic, a little code and Japanese) graded automatically, asked two ways: '
+                    '<em>normal</em> and <em>terse</em> (answer as briefly as possible). For Ollama, <em>exact</em> is thinking off, temperature zero and a short output budget; '
+                    '<em>Ollama defaults</em> is thinking on with up to 4,096 tokens. For GLM, <em>exact</em> computes every expert; <em>skip 0.3</em> and <em>skip 0.5</em> skip experts '
+                    'whose routing weight is below that value, which is faster but changes the output. One run per setting on a busy Mac.</p>'
+                    + table(["Prompt · setting", "Correct", "Seconds per answer", "Writing tokens/s"], qrows, (1, 2, 3))
+                    + f'<p class="note">Answers and grading: <a href="../bench.html">Benchmarks</a> · data: '
+                    + " · ".join(f'<a href="../data/bench-{E(n)}.json">{E(n)}</a>' if n != "v1" else '<a href="../data/bench-v1.json">v1</a>' for n in m["oct"] if n in S.oct)
+                    + "</p></section>")
+    par_rows = [[E(x["model"]), "yes" if x["status"] == "supported" else "no", fmt(round(x["capability"]["wall_s"], 1)), fmt(round(x["capability"]["total_tok_s"], 1))]
+                for x in S.par if x["model"].removesuffix("-mlx") == m["tag"].removesuffix("-mlx")]
+    if par_rows:
+        oct_html += ('<section class="sec" aria-labelledby="par"><div class="sec-h"><h2 id="par">Two requests at once (October)</h2></div>'
+                     '<p class="note">Two clients sent a request at the same moment. "Overlapped" means the server wrote both replies at the same time instead of one after the other.</p>'
+                     + table(["Model", "Overlapped", "Seconds for both", "Tokens per second, both"], par_rows, (2, 3)) + "</section>")
+    if m.get("extra") == "glm" and S.glm:
+        g = S.glm
+        prog = [[E(g["starting_point"]["measured_label"]), fmt(g["starting_point"]["measured_tok_s"]), fmt(round(g["starting_point"]["measured_prefill_s"]))]]
+        prog += [[E(x["label"]), fmt(x["tok_s"]), fmt(round(x["prefill_s"]))] for x in g["exact_progression"]]
+        neg = [[E(x["label"]), fmt(x["tok_s"]) if x["tok_s"] is not None else E(x["status"].replace("_", " "))] for x in g["exact_negative"]]
+        lossy = [[E(x["label"]), fmt(x["tok_s"]), E(x.get("quality", ""))] for x in g.get("lossy_threshold_curve", [])]
+        h, c = g["headline"], g["ceiling"]
+        oct_html += (f'<section class="sec" aria-labelledby="glmspeed"><div class="sec-h"><h2 id="glmspeed">Making it faster</h2></div>'
+                     f'<p>Each step below was kept because it helped; exact output throughout. The engine as first installed wrote {fmt(g["starting_point"]["measured_tok_s"])} tokens per second; '
+                     f'the best exact setup wrote {fmt(h["exact_tok_s"])}, {fmt(h["exact_speedup_vs_start"])} times faster. Skipping low-weight experts reached {fmt(h["lossy_tok_s_at_0_5"])} tokens per second '
+                     f'with changed output. The ceiling: about {fmt(c["expert_bytes_per_token_gb"])} GB of experts per token over an SSD that delivers about {fmt(c["ssd_max_gbs"])} GB/s '
+                     f'caps exact decoding near {E(c["exact_ceiling_tok_s"])} tokens per second; {fmt(c["target_tok_s"])} tokens per second would need about {fmt(c["needed_gbs_at_5_tok_s"])} GB/s.</p>'
+                     + table(["Step (exact)", "Tokens/s", "Seconds reading the prompt"], prog, (1, 2))
+                     + "<h3>Tried and not kept</h3>" + table(["Change", "Tokens/s"], neg, (1,))
+                     + ("<h3>Skipping experts: speed against output</h3>" + table(["Setting", "Tokens/s", "Output"], lossy, (1,)) if lossy else "")
+                     + f'<p class="note">{" ".join(E(x) for x in g["caveats"][:2])} Full detail: <a href="../glm.html">GLM report</a> · <a href="../speed.html">every speed run</a> · <a href="../findings.html">findings</a>.</p></section>')
+
     # speed
     spd = next((S.speed[k] for k in m["keys"] if k in S.speed), None)
     speed_html = ""
@@ -374,18 +439,18 @@ def model_page(S, m):
 <div class="ptitle"><h1>{E(m["name"])}</h1><p class="dek">{E(m["summary"])}</p>
 <div class="mc-c">{chips(m["abilities"])}<span class="chip chip-k">{E(KIND[m["kind"]])}</span></div></div>
 <section class="sec" aria-label="Get it">{pull_box(m["pull"])}<p class="note">{links}</p></section>
-<section class="sec" aria-labelledby="glance"><div class="sec-h"><h2 id="glance">At a glance</h2></div><div class="tiles">{tiles_html}</div></section>
+{f'<section class="sec" aria-labelledby="glance"><div class="sec-h"><h2 id="glance">At a glance</h2></div><div class="tiles">{tiles_html}</div></section>' if tiles else ""}
 <div class="two">
 <section class="sec" aria-labelledby="good"><div class="sec-h"><h2 id="good">Good for</h2></div>{lst(m["good"])}</section>
 <section class="sec" aria-labelledby="weak"><div class="sec-h"><h2 id="weak">Not good for</h2></div>{lst(m["weak"])}</section>
 </div>
 <section class="sec" aria-labelledby="setup"><div class="sec-h"><h2 id="setup">How to run it well</h2></div>{lst(m["setup"])}
-<p class="note">The code behind these setups: <a href="{REPO}harness/dropbox-mini/mini.py">assistant harness</a> · <a href="https://github.com/KakkoiDev/pi-core">pi extensions</a> · <a href="../learnings.html#setup">how our setup works</a></p></section>
+<p class="note">The code behind these setups: <a href="{REPO}harness/dropbox-mini/mini.py">assistant harness</a> · <a href="https://github.com/KakkoiDev/pi-core/tree/cutoff-cause">pi extensions</a> · <a href="../learnings.html#setup">how our setup works</a></p></section>
 {f'<section class="sec" aria-labelledby="obs"><div class="sec-h"><h2 id="obs">What we saw</h2></div>{lst(m["notes"])}</section>' if m["notes"] else ""}
 <section class="sec" aria-labelledby="facts"><div class="sec-h"><h2 id="facts">Model facts</h2></div><dl class="facts">{facts_html}</dl></section>
 {speed_html}
-<section class="sec" aria-labelledby="results"><div class="sec-h"><h2 id="results">All bench results</h2></div>
-{"".join(res) if res else '<p>Benches are running; results appear here as they land.</p>'}</section>
+{f'<section class="sec" aria-labelledby="results"><div class="sec-h"><h2 id="results">All bench results</h2></div>{"".join(res)}</section>' if res else ("" if oct_html else '<section class="sec"><p>Benches are running; results appear here as they land.</p></section>')}
+{oct_html}
 """
     return shell(f"{m['name']} on a 32 GB Mac mini M6", body, "models.html", depth=1, desc=m["summary"])
 
@@ -418,6 +483,23 @@ LEARNINGS = [
         ("Ask for short answers.", "Writing is most of a reply's time. A two-sentence answer writes a fraction of the tokens. Put the rule in the fixed system prompt.", [14]),
         ("MLX is fastest, one request at a time.", "Ollama's MLX runner (tags ending in -mlx) answers one request at a time; several at once just queue. The standard runner can serve several with OLLAMA_NUM_PARALLEL; whether that raises total throughput is being measured.", [14]),
     ]),
+    ("Giant models from the SSD (GLM-5.3, October)", [
+        ("A model ten times bigger than memory runs, but slowly.", "GLM-5.3 (744B, mixture of experts) runs on the 32 GB Mac by reading the experts each token needs from the SSD. It answered our quiz correctly, at well under one token per second.", [("GLM report", "glm.html"), ("GLM-5.3 page", "models/glm-5.3.html")]),
+        ("The SSD sets the speed limit.", "Each token needs about 12.7 GB of experts; the SSD delivers about 6.5 GB/s. No setting can make exact decoding faster than roughly half a token per second on this Mac.", [("Speed runs", "speed.html")]),
+        ("Use the GPU and overlap the reads.", "Moving expert math to Metal and reading the next experts while computing the current ones were the big wins: several times faster than the engine as first installed.", [("GLM report", "glm.html")]),
+        ("Caching experts in RAM barely helps.", "Giving the engine more memory for an expert cache hardly raised the hit rate: the experts a prompt needs change from token to token.", [("Findings", "findings.html")]),
+        ("If a model fits in memory, keep it all there.", "On the small OLMoE, streaming experts through a cache was more than twice as slow as keeping every expert loaded, even with a cache big enough for all of them: loading and packing cost time on every token. Streaming is for models that cannot fit.", [("Findings", "findings.html"), ("OLMoE page", "models/olmoe-1b-7b.html")]),
+        ("Skipping experts is faster and changes the answer.", "Skipping experts with a low routing weight wrote up to four times faster, but changed the text; at higher thresholds answers broke. Treat it as a different model and check the answers.", [("GLM-5.3 page", "models/glm-5.3.html#glmspeed")]),
+        ("Smaller files are not always faster.", "The 2- and 3-bit GGUF builds of GLM read less from the SSD but were slower than int4: unpacking them cost more than the reads saved.", [("GLM-5.3 page", "models/glm-5.3.html#quiz")]),
+        ("Thread count depends on the core layout.", "On the M6 the engine sized itself to the two fastest cores. Twelve threads made CPU-only and lossy runs faster; exact GPU runs did not change.", [("Speed runs", "speed.html")]),
+    ]),
+    ("Last month's quiz (October)", [
+        ("Ask for terse answers, then check them.", "On the 24-question quiz, asking for the briefest answer cut GLM's answer time about four times and kept every GLM build and most Ollama models at or near full marks. One exception: gpt-oss with thinking off got most terse answers wrong. Check each model.", [("Comparison", "comparison.html"), ("gpt-oss page", "models/gpt-oss-20b.html#quiz")]),
+        ("A short output budget hides what a model knows.", "With thinking off and a short budget, normal answers were often cut off and scored lower; with the model's defaults the same models scored near full marks.", [("Comparison", "comparison.html")]),
+        ("Bigger is not better on easy questions.", "Gemma 4 31B scored no higher than the 26B mixture-of-experts Gemma, which writes about three times faster. Gemma 4 E4B got everything right fastest when asked to be terse.", [("Gemma 4 31B", "models/gemma4-31b.html"), ("Gemma 4 E4B", "models/gemma4-e4b.html")]),
+        ("Not every model serves two requests at once.", "Asked twice at the same moment, gpt-oss on Ollama wrote both replies together; Gemma 4 26B and Qwen 3.8 answered one after the other.", [("Parallel tests", "concurrency.html")]),
+        ("An easy quiz cannot rank strong models.", "Most models got 24/24 with the right setting, so we moved on to the harder benches above: family jobs, coding with hidden tests, images, translation and speech.", []),
+    ]),
     ("Testing", [
         ("Read the failures, not just the score.", "Reading failures one by one found three grader bugs that marked right answers wrong. Small benches need their failures read.", [15]),
         ("Repeat runs before believing a gap.", "Suites are small (5 coding tasks, 12 family jobs); one task can be the whole difference. Look at the repeats; a single run is an indication.", []),
@@ -430,14 +512,15 @@ def learnings_page(S):
     for title, tips in LEARNINGS:
         items = []
         for head, text, fs in tips:
-            ev = " ".join(f'<a href="local-ai.html#{S.fslug[f]}">F{f}</a>' for f in fs if f in S.fslug)
+            ev = " ".join(f'<a href="{E(f[1])}">{E(f[0])}</a>' if isinstance(f, tuple) else f'<a href="local-ai.html#{S.fslug[f]}">F{f}</a>'
+                          for f in fs if isinstance(f, tuple) or f in S.fslug)
             items.append(f'<li class="tip"><strong>{inline(head)}</strong> {inline(text)}{f" <span class=note>Evidence: {ev}</span>" if ev else ""}</li>')
         sid = re.sub(r"\W+", "-", title.lower()).strip("-")
         secs.append(f'<section class="sec" aria-labelledby="{sid}"><div class="sec-h"><h2 id="{sid}">{E(title)}</h2></div><ul class="tips">{"".join(items)}</ul></section>')
     code = "".join(f'<li><a href="{E(u)}">{E(n)}</a> — {E(d)}</li>' for n, u, d in CODE)
     body = f"""
 <div class="ptitle"><h1>Learnings</h1>
-<p class="dek">What works and what does not when you run AI on a 32 GB Mac mini, from our benches. Each tip links to its evidence in the <a href="local-ai.html">research note</a>.</p></div>
+<p class="dek">What works and what does not when you run AI on a 32 GB Mac mini, from our benches since October: running a 744B model from the SSD, last month's quiz, and this month's assistant, coding, image, translation and speech benches. Each tip links to its evidence.</p></div>
 {"".join(secs)}
 <section class="sec" aria-labelledby="setup"><div class="sec-h"><h2 id="setup">How our setup works</h2></div>
 <ol class="list">
@@ -450,7 +533,7 @@ def learnings_page(S):
 </ol>
 <h3>The code</h3><ul class="list">{code}</ul></section>
 <section class="sec" aria-labelledby="more"><div class="sec-h"><h2 id="more">More</h2></div>
-<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. Earlier experiments with GLM on the Colibri engine are in the <a href="glm.html">GLM archive</a>.</p></section>
+<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. October's work is still published in full: the <a href="glm.html">GLM report</a>, <a href="bench.html">quiz answers</a>, <a href="comparison.html">quiz comparison</a>, <a href="speed.html">GLM speed runs</a>, <a href="findings.html">GLM findings</a> and <a href="concurrency.html">requests at once</a>.</p></section>
 """
     return shell("Learnings: running local AI on a 32 GB Mac mini M6", body, "learnings.html",
                  desc="Tips and observations from benching local models on a Mac mini M6 32 GB: thinking, memory, harness, coding agents, speech, translation.")
@@ -519,6 +602,15 @@ def build(root, summary, rows, data, sizes, load_times, machine, doc_text, today
             fslug[int(mm.group(2))] = md_page.slug(mm.group(1))
     S = Site(summary, rows, data, sizes, load_times, machine, fslug)
     S.today = today
+    dd = site / "data"
+    for b in json.loads((dd / "benches.json").read_text())["benches"]:
+        f = dd / Path(b["file"]).name
+        if f.exists():
+            S.oct[b["name"]] = json.loads(f.read_text())
+    if (dd / "parallel-capability.json").exists():
+        S.par = json.loads((dd / "parallel-capability.json").read_text())
+    if (dd / "glm-performance.json").exists():
+        S.glm = json.loads((dd / "glm-performance.json").read_text())
     (site / "v2.css").write_text(CSS.lstrip())
     (site / "index.html").write_text(home(S))
     (site / "models.html").write_text(models_page(S))

@@ -3762,6 +3762,52 @@
   },
   {
    "bench": "coding-v2",
+   "run": "agentic-v2-qwen3-6-35b-mlx-off-r1",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "19/20",
+   "minutes": 15.2,
+   "tool_calls": 75,
+   "output_tokens": 50330,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 355.5
+    },
+    "parse-config": {
+     "solved": true,
+     "seconds": 284.8
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 136.3
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 73.0
+    },
+    "thread-safe-metrics": {
+     "solved": true,
+     "seconds": 61.6
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v2",
    "run": "agentic-v2-qwen3-8-27b-dflash2-nvfp4-off-r1",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "off",
@@ -4104,12 +4150,12 @@
    "repeat": 1,
    "thinking": "off",
    "date": "2026-11-18",
-   "score": 2,
-   "out_of": 2,
-   "hidden_tests": "8/8",
-   "minutes": 23.0,
-   "tool_calls": 14,
-   "output_tokens": 4776,
+   "score": 4,
+   "out_of": 5,
+   "hidden_tests": "19/20",
+   "minutes": 51.9,
+   "tool_calls": 35,
+   "output_tokens": 12082,
    "timeouts": 1,
    "tests_tampered": 0,
    "versions": {
@@ -4118,16 +4164,28 @@
    },
    "extensions": [],
    "per_task": {
+    "api-client": {
+     "solved": false,
+     "seconds": 777.1
+    },
     "parse-config": {
      "solved": true,
      "seconds": 900.0
+    },
+    "perf-sessions": {
+     "solved": true,
+     "seconds": 331.0
+    },
+    "refactor-money": {
+     "solved": true,
+     "seconds": 629.8
     },
     "thread-safe-metrics": {
      "solved": true,
      "seconds": 478.4
     }
    },
-   "set_aside": "incomplete run"
+   "set_aside": null
   },
   {
    "bench": "coding-v3",
@@ -4662,6 +4720,52 @@
   },
   {
    "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-6-35b-mlx-off-r1",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 3,
+   "out_of": 5,
+   "hidden_tests": "35/38",
+   "minutes": 32.2,
+   "tool_calls": 73,
+   "output_tokens": 79061,
+   "timeouts": 0,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 516.0
+    },
+    "daily-totals": {
+     "solved": false,
+     "seconds": 692.4
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 362.9
+    },
+    "order-state-machine": {
+     "solved": false,
+     "seconds": 198.7
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 161.2
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
    "run": "agentic-v3-qwen3-8-27b-dflash2-nvfp4-off-r1",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "off",
@@ -4943,6 +5047,52 @@
     "ttl-cache": {
      "solved": true,
      "seconds": 451.8
+    }
+   },
+   "set_aside": null
+  },
+  {
+   "bench": "coding-v3",
+   "run": "agentic-v3-qwen3-8-27b-mtp-q4_K_M-off-r1",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "repeat": 1,
+   "thinking": "off",
+   "date": "2026-11-18",
+   "score": 5,
+   "out_of": 5,
+   "hidden_tests": "38/38",
+   "minutes": 66.9,
+   "tool_calls": 25,
+   "output_tokens": 16362,
+   "timeouts": 3,
+   "tests_tampered": 0,
+   "versions": {
+    "pi": "1.1.0",
+    "ollama": "0.40.16"
+   },
+   "extensions": [],
+   "per_task": {
+    "build-order": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "daily-totals": {
+     "solved": true,
+     "seconds": 824.9
+    },
+    "kv-cli": {
+     "solved": true,
+     "seconds": 900.0
+    },
+    "order-state-machine": {
+     "solved": true,
+     "seconds": 489.1
+    },
+    "ttl-cache": {
+     "solved": true,
+     "seconds": 900.0
     }
    },
    "set_aside": null

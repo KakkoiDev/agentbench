@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **242 bench runs** (16 more set aside, with the reason) across 11 benches and 21 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 32 hours.
+> **246 bench runs** (15 more set aside, with the reason) across 11 benches and 21 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 34 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
