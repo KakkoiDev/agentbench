@@ -59,7 +59,17 @@ def main():
                 if i in children or wait_until.get(i, 0) > time.time():
                     continue
                 m = heavy.BY_ID[i]
-                cmd = ['hf', 'download', m['repo'], '--revision', m['revision'], '--local-dir', str(m['dir'])] + (m['files'] or [])
+                # never fill the disk: start only if what this one still needs, plus what the running ones
+                # still need, plus 20 GB, is free
+                need = heavy.remaining(i) + sum(heavy.remaining(j) for j in children) + 20e9
+                if heavy.free_bytes() < need:
+                    if not children:
+                        heavy.mark(heavy.FAILED, i, f'not enough free disk: needs {need / 1e9:.0f} GB, {heavy.free_bytes() / 1e9:.0f} GB free')
+                    continue
+                if m['kind'] == 'ollama':
+                    cmd = [str(heavy.PY), str(Path(__file__).resolve().parent / 'heavy.py'), 'pull', i]
+                else:
+                    cmd = ['hf', 'download', m['repo'], '--revision', m['revision'], '--local-dir', str(m['dir'])] + (m['files'] or [])
                 log = open(heavy.log_of(i), 'a')
                 log.write(f"\n{time.strftime('%F %T')} start: {' '.join(cmd)}\n")
                 log.flush()
