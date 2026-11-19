@@ -14,11 +14,11 @@
     experiments: 'M9 3h6M10 3v6L4 19a1 1 0 0 0 1 1.5h14A1 1 0 0 0 20 19l-6-10V3',
     benches: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', runs: 'M4 17l6-5-6-5M12 19h8',
     research: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',
-    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16', downloads: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16', 'benches-live': 'M4 19h16M7 16V9M12 16V5M17 16v-4', downloads: 'M12 3v12M7 10l5 5 5-5M4 21h16',
     settings: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4',
     compare: 'M4 20V10M10 20V4M16 20v-7M22 20H2', run: 'M7 4l12 8-12 8z', guide: 'M12 5v14M5 12h14'
   };
-  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['downloads', 'Downloads'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
+  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['benches-live', 'Benches'], ['downloads', 'Downloads'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
   var ADVANCED = [['dashboard', 'Status and bench grid'], ['queue', 'Queue and logs'], ['now', 'Machine status'], ['runs', 'Engine runs'],
                   ['leaderboard', 'Leaderboard'], ['experiments', 'Experiments'], ['research', 'Research'], ['settings', 'Settings']];
   var CFG = { exact: 'exact', d030: 'skip 0.3', d050: 'skip 0.5', d030t12: 'skip 0.3 · 12 threads', d040t12: 'skip 0.4 · 12 threads',
@@ -285,6 +285,42 @@
       });
       put(main, header('Downloads', 'The big models for our experiments. Queue the ones you want, in order, and choose how many download at once.'),
           top, section('Models', null, h('div', { class: 'stack' }, cards)));
+    });
+  }
+  // ---------- the bench queue (results/resume_queue.py): every Ollama model, smallest first ----------
+  function screenBenchQueue(main) {
+    return api('/api/bench-queue').then(function (d) {
+      var CH = { done: 'st-done', 'done (earlier)': 'st-done', running: 'st-running', pending: 'st-waiting', failed: 'st-failed', stopped: 'st-blocked' };
+      function act(path, word) {
+        return function (ev) { ev.target.disabled = true; post(path, {}).then(function (r) { toast(word + (r.note ? ': ' + r.note : '')); setTimeout(route, 1500); }, function (e) { toast(e.message, true); route(); }); };
+      }
+      var jobs = d.jobs || [], c = d.counts || {}, cur = jobs.filter(function (j) { return j.state === 'running'; })[0];
+      var total = jobs.length, fin = (c.done || 0) + (c.failed || 0);
+      var top = card([
+        h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'Bench queue' }), chip(d.running ? 'st-running' : 'st-blocked', d.running ? 'Running' : 'Stopped')),
+        meter(fin, total || 1, 'Jobs finished'),
+        h('div', { class: 'row between' }, h('span', { text: 'Jobs finished' }), h('strong', { class: 'num', text: fin + ' of ' + total + (c.failed ? ' (' + c.failed + ' failed)' : '') })),
+        h('div', { class: 'row between' }, h('span', { text: 'All done' }), h('strong', { text: d.left_s ? 'in about ' + dur(d.left_s) + ' (' + at(d.left_s) + ')' : d.running ? 'estimate after the first jobs' : '—' })),
+        cur ? h('div', { class: 'stack' },
+          h('div', { class: 'row between' }, h('strong', { text: 'Now: ' + cur.model + ' · ' + cur.desc }), h('span', { class: 'hint', text: dur(cur.elapsed_s) })),
+          cur.progress ? meter(cur.progress.done, cur.progress.total || 1, 'Current job') : null,
+          cur.progress ? h('span', { class: 'hint', text: cur.progress.done + ' of ' + cur.progress.total + (cur.kind === 'coding' ? ' tasks' : cur.kind === 'speed' ? ' measurements' : ' cases') + (cur.progress.last ? ' · ' + cur.progress.last : '') }) : null) : null,
+        h('div', { class: 'row' }, d.running ? h('button', { type: 'button', class: 'btn btn-danger', text: 'Stop the queue', onclick: act('/api/bench-queue/stop', 'Stopped') })
+                                             : h('button', { type: 'button', class: 'btn btn-primary', text: jobs.length && fin + (c['done (earlier)'] || 0) < total ? 'Resume the queue' : 'Start the queue', onclick: act('/api/bench-queue/start', 'Started') })),
+        h('span', { class: 'hint', text: 'Every Ollama model, smallest first: speed mode, then family jobs, hard jobs, assistant tests and hard coding on harness v3.2. One GPU job at a time; mini is paused while it runs. Stopping loses only the job in progress; Resume skips what finished.' })
+      ]);
+      var byModel = [], seen = {};
+      jobs.forEach(function (j) { if (!seen[j.model]) { seen[j.model] = { model: j.model, jobs: [] }; byModel.push(seen[j.model]); } seen[j.model].jobs.push(j); });
+      var groups = byModel.map(function (g) {
+        var done = g.jobs.filter(function (j) { return /^done/.test(j.state); }).length;
+        return h('details', { class: 'x', open: g.jobs.some(function (j) { return j.state === 'running'; }) ? '' : null },
+          h('summary', {}, h('span', { text: g.model + ' — ' + done + ' of ' + g.jobs.length + ' done' })),
+          h('div', { class: 'stack', style: 'padding:8px 0' }, g.jobs.map(function (j) {
+            return h('div', { class: 'row between' }, h('span', { text: j.desc }),
+              h('span', { class: 'row' }, j.ended && j.started ? h('span', { class: 'hint', text: dur(j.ended - j.started) }) : null, chip(CH[j.state] || 'st-waiting', j.state)));
+          })));
+      });
+      put(main, header('Benches', 'Progress of the bench queue for every Ollama model, smallest model first.'), top, section('By model, in order', null, h('div', { class: 'stack' }, groups)));
     });
   }
   function screenNow(main) {
@@ -1883,7 +1919,7 @@
   var ROUTES = { dashboard: screenDashboard, results: screenResults, models: screenModels, install: screenModels, benches: function (m) { return screenResults(m, 'coverage'); },
                  phone: screenPhone, now: screenNow, queue: screenQueue, settings: screenSettings, runs: screenRuns, experiments: screenExperiments,
                  leaderboard: screenLeaderboard, research: screenResearch, start: screenDashboard,
-                 compare: screenCompare, run: screenRun, guide: screenGuide, downloads: screenDownloads };
+                 compare: screenCompare, run: screenRun, guide: screenGuide, downloads: screenDownloads, 'benches-live': screenBenchQueue };
   var NAV_OF = { bench: 'results', benches: 'results', install: 'models', start: 'run', task: 'results', agentic: 'results' };
   function route() {
     clearInterval(timer);
@@ -1896,7 +1932,7 @@
       : name === 'agentic' ? function (m) { return screenAgenticRun(m, dec(parts[1])); } : ROUTES[name] || screenCompare;
     renderNav(NAV_OF[name] || (ROUTES[name] ? name : 'compare'));
     var title = { dashboard: 'Status and bench grid', results: 'Results', bench: 'Answers', models: 'Models', install: 'Models', phone: 'Open on phone',
-                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run', downloads: 'Downloads' }[name] ||
+                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run', downloads: 'Downloads', 'benches-live': 'Benches' }[name] ||
       (ADVANCED.filter(function (s) { return s[0] === name; })[0] || [0, 'Run benchmarks'])[1];
     document.title = title + ' · GLM lab';
     function load(keepScroll, focus) {
@@ -1919,7 +1955,7 @@
     }
     load(false, route.started);
     route.started = true;
-    if (fn === screenNow || fn === screenQueue || fn === screenDownloads) timer = setInterval(function () { if (!document.querySelector('.scrim') && !document.querySelector('details.x[open]') && !(document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName))) load(true); }, fn === screenNow || fn === screenDownloads ? 5000 : 10000);
+    if (fn === screenNow || fn === screenQueue || fn === screenDownloads || fn === screenBenchQueue) timer = setInterval(function () { if (!document.querySelector('.scrim') && !document.querySelector('details.x[open]') && !(document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName))) load(true); }, fn === screenNow || fn === screenDownloads || fn === screenBenchQueue ? 5000 : 10000);
     if (fn !== screenNow && fn !== screenDashboard) api('/api/now').then(setGpu).catch(function () {});
   }
   window.addEventListener('hashchange', route);

@@ -338,6 +338,16 @@ def jobs():
             out.append(dict(kind='Colibri engine', title='Engine not started by a lab job', gpu=True,
                             detail='parent: ' + short(parent.get('command', ''), 120), pid=p['pid'], command=short(p['command']),
                             elapsed_s=p['elapsed_s'], holds_lock=p['pid'] in holders, engine_pid=None, foreign=True, stoppable=False))
+    try:   # the bench queue (results/resume_queue.py): its running job uses the GPU
+        bq = benchq.status()
+        for j in bq.get('jobs', []):
+            if bq.get('running') and j.get('state') == 'running':
+                pr = j.get('progress') or {}
+                out.append(dict(kind='Bench queue', title=f"{j['model']} · {j['desc']}", gpu=True, pid=bq.get('pid'),
+                                progress=dict(done=pr.get('done', 0), total=pr.get('total') or 1) if pr else None,
+                                elapsed_s=j.get('elapsed_s'), stoppable=False, detail='Benches screen'))
+    except Exception:
+        pass
     return out, sorted(holders)
 
 
@@ -983,6 +993,11 @@ def act(path, body):
         if not m:
             raise actions.ActionError('unknown model')
         return actions.remove_model(m, busy_model_paths())
+    if path in ('/api/bench-queue/start', '/api/bench-queue/stop'):
+        try:
+            return benchq.start() if path.endswith('start') else benchq.stop()
+        except ValueError as ex:
+            raise actions.ActionError(str(ex))
     if path == '/api/heavy-downloads/queue':
         try:
             return dict(queue=heavy.set_queue(body.get('ids'), body.get('parallel')))
@@ -1079,6 +1094,7 @@ API = {
     '/api/agentic-task': lambda q: compare.agentic_task(q.get('name', [''])[0], q.get('task', [''])[0]),
     '/api/storage': lambda q: storage(),
     '/api/heavy-downloads': lambda q: heavy.status(),
+    '/api/bench-queue': lambda q: benchq.status(),
 }
 TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
          '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png',
@@ -1087,6 +1103,7 @@ TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=u
 
 import remote_access
 import heavy
+import benchq
 
 
 class Handler(BaseHTTPRequestHandler):
