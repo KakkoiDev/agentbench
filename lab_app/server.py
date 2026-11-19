@@ -983,6 +983,10 @@ def act(path, body):
         if not m:
             raise actions.ActionError('unknown model')
         return actions.remove_model(m, busy_model_paths())
+    if path == '/api/heavy-downloads/start':
+        return heavy.start()
+    if path == '/api/heavy-downloads/pause':
+        return heavy.pause()
     if path == '/api/download':
         js, _ = jobs()
         if any(j.get('kind') == 'Download' for j in js):
@@ -1063,6 +1067,7 @@ API = {
     '/api/agentic-runs': lambda q: compare.agentic_list(),
     '/api/agentic-task': lambda q: compare.agentic_task(q.get('name', [''])[0], q.get('task', [''])[0]),
     '/api/storage': lambda q: storage(),
+    '/api/heavy-downloads': lambda q: heavy.status(),
 }
 TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
          '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png',
@@ -1070,6 +1075,7 @@ TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=u
 
 
 import remote_access
+import heavy
 
 
 class Handler(BaseHTTPRequestHandler):

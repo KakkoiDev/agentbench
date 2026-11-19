@@ -14,11 +14,11 @@
     experiments: 'M9 3h6M10 3v6L4 19a1 1 0 0 0 1 1.5h14A1 1 0 0 0 20 19l-6-10V3',
     benches: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', runs: 'M4 17l6-5-6-5M12 19h8',
     research: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',
-    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16', downloads: 'M12 3v12M7 10l5 5 5-5M4 21h16',
     settings: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4',
     compare: 'M4 20V10M10 20V4M16 20v-7M22 20H2', run: 'M7 4l12 8-12 8z', guide: 'M12 5v14M5 12h14'
   };
-  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
+  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['downloads', 'Downloads'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
   var ADVANCED = [['dashboard', 'Status and bench grid'], ['queue', 'Queue and logs'], ['now', 'Machine status'], ['runs', 'Engine runs'],
                   ['leaderboard', 'Leaderboard'], ['experiments', 'Experiments'], ['research', 'Research'], ['settings', 'Settings']];
   var CFG = { exact: 'exact', d030: 'skip 0.3', d050: 'skip 0.5', d030t12: 'skip 0.3 · 12 threads', d040t12: 'skip 0.4 · 12 threads',
@@ -231,6 +231,45 @@
     ]);
   }
 
+  // ---------- big model downloads (results/downloads.sh, one after another; resumable) ----------
+  function gbs(b) { return b == null ? '—' : (b / 1e9).toFixed(b >= 1e10 ? 1 : 2) + ' GB'; }
+  function screenDownloads(main) {
+    return api('/api/heavy-downloads').then(function (d) {
+      var CHIP = { done: 'st-done', downloading: 'st-running', waiting: 'st-waiting', paused: 'st-blocked', 'not started': 'st-waiting' };
+      function act(path, word) {
+        return function (ev) {
+          ev.target.disabled = true;
+          post(path, {}).then(function (r) { toast(word + (r.note ? ': ' + r.note : '')); setTimeout(route, 1500); },
+                              function (e) { toast(e.message, true); ev.target.disabled = false; });
+        };
+      }
+      var top = card([
+        h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'All downloads' }),
+          chip(d.running ? 'st-running' : 'st-blocked', d.running ? 'Downloading' : 'Paused')),
+        h('div', { class: 'row between' }, h('span', { text: 'Speed' }), h('strong', { class: 'num', text: d.speed ? (d.speed / 1e6).toFixed(1) + ' MB/s' : '—' })),
+        h('div', { class: 'row between' }, h('span', { text: 'Left to download' }), h('strong', { class: 'num', text: gbs(d.left_bytes) })),
+        h('div', { class: 'row between' }, h('span', { text: 'All done' }), h('strong', { text: d.eta_s ? 'in ' + dur(d.eta_s) + ' (' + at(d.eta_s) + ')' : d.running ? 'measuring…' : 'paused' })),
+        h('div', { class: 'row between' }, h('span', { text: 'Free disk' }), h('strong', { class: 'num', text: gbs(d.free_bytes) })),
+        h('div', { class: 'row' }, d.running
+          ? h('button', { type: 'button', class: 'btn btn-danger', text: 'Pause downloads', onclick: act('/api/heavy-downloads/pause', 'Paused') })
+          : h('button', { type: 'button', class: 'btn btn-primary', text: 'Start downloads', onclick: act('/api/heavy-downloads/start', 'Started') })),
+        h('span', { class: 'hint', text: 'One model at a time, in this order. Pausing keeps the partial files; Start picks up where they stopped. Speed is measured over the last minute.' })
+      ]);
+      var cards = d.items.map(function (i) {
+        return card([
+          h('div', { class: 'row between' }, h('h2', { text: i.name }), chip(CHIP[i.state] || 'st-waiting', i.state)),
+          h('p', { class: 'muted', text: i.why }),
+          meter(i.bytes, i.expected || 1, i.name),
+          h('div', { class: 'row between' }, h('strong', { class: 'num', text: gbs(i.bytes) + ' of ' + gbs(i.expected) }),
+            h('span', { class: 'hint', text: i.expected ? Math.floor(100 * i.bytes / i.expected) + '%' : '' })),
+          i.state === 'downloading' ? h('div', { class: 'row between' }, h('span', { text: (i.speed ? (i.speed / 1e6).toFixed(1) + ' MB/s' : 'measuring…') }),
+            h('span', { text: i.eta_s ? 'done in ' + dur(i.eta_s) + ' (' + at(i.eta_s) + ')' : '' })) : null,
+          h('span', { class: 'hint', text: 'For ' + i.engine + ' · ' + i.repo + (i.files ? ' · ' + i.files.join(', ') : '') + ' → ' + i.dir })
+        ]);
+      });
+      put(main, header('Downloads', 'The big models (about 350 GB in all), downloading one after another.'), top, section('Models', null, h('div', { class: 'stack' }, cards)));
+    });
+  }
   function screenNow(main) {
     return api('/api/now').then(function (d) {
       setGpu(d);
@@ -1827,7 +1866,7 @@
   var ROUTES = { dashboard: screenDashboard, results: screenResults, models: screenModels, install: screenModels, benches: function (m) { return screenResults(m, 'coverage'); },
                  phone: screenPhone, now: screenNow, queue: screenQueue, settings: screenSettings, runs: screenRuns, experiments: screenExperiments,
                  leaderboard: screenLeaderboard, research: screenResearch, start: screenDashboard,
-                 compare: screenCompare, run: screenRun, guide: screenGuide };
+                 compare: screenCompare, run: screenRun, guide: screenGuide, downloads: screenDownloads };
   var NAV_OF = { bench: 'results', benches: 'results', install: 'models', start: 'run', task: 'results', agentic: 'results' };
   function route() {
     clearInterval(timer);
@@ -1840,7 +1879,7 @@
       : name === 'agentic' ? function (m) { return screenAgenticRun(m, dec(parts[1])); } : ROUTES[name] || screenCompare;
     renderNav(NAV_OF[name] || (ROUTES[name] ? name : 'compare'));
     var title = { dashboard: 'Status and bench grid', results: 'Results', bench: 'Answers', models: 'Models', install: 'Models', phone: 'Open on phone',
-                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run' }[name] ||
+                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run', downloads: 'Downloads' }[name] ||
       (ADVANCED.filter(function (s) { return s[0] === name; })[0] || [0, 'Run benchmarks'])[1];
     document.title = title + ' · GLM lab';
     function load(keepScroll, focus) {
@@ -1863,7 +1902,7 @@
     }
     load(false, route.started);
     route.started = true;
-    if (fn === screenNow || fn === screenQueue) timer = setInterval(function () { if (!document.querySelector('.scrim') && !document.querySelector('details.x[open]') && !(document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName))) load(true); }, fn === screenNow ? 5000 : 10000);
+    if (fn === screenNow || fn === screenQueue || fn === screenDownloads) timer = setInterval(function () { if (!document.querySelector('.scrim') && !document.querySelector('details.x[open]') && !(document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName))) load(true); }, fn === screenNow || fn === screenDownloads ? 5000 : 10000);
     if (fn !== screenNow && fn !== screenDashboard) api('/api/now').then(setGpu).catch(function () {});
   }
   window.addEventListener('hashchange', route);
