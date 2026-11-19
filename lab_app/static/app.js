@@ -235,39 +235,56 @@
   function gbs(b) { return b == null ? '—' : (b / 1e9).toFixed(b >= 1e10 ? 1 : 2) + ' GB'; }
   function screenDownloads(main) {
     return api('/api/heavy-downloads').then(function (d) {
-      var CHIP = { done: 'st-done', downloading: 'st-running', waiting: 'st-waiting', paused: 'st-blocked', 'not started': 'st-waiting' };
-      function act(path, word) {
+      var CHIP = { done: 'st-done', downloading: 'st-running', queued: 'st-waiting', 'queued, paused': 'st-blocked', paused: 'st-blocked', failed: 'st-failed', 'not queued': 'st-waiting' };
+      function act(path, body, word) {
         return function (ev) {
-          ev.target.disabled = true;
-          post(path, {}).then(function (r) { toast(word + (r.note ? ': ' + r.note : '')); setTimeout(route, 1500); },
-                              function (e) { toast(e.message, true); ev.target.disabled = false; });
+          if (ev && ev.target) ev.target.disabled = true;
+          post(path, body || {}).then(function (r) { if (word) toast(word + (r.note ? ': ' + r.note : '')); setTimeout(route, word ? 1200 : 0); },
+                                     function (e) { toast(e.message, true); route(); });
         };
       }
+      var q = d.queue.slice();
+      function setQ(list, par) { return act('/api/heavy-downloads/queue', { ids: list, parallel: par == null ? d.parallel : par }); }
+      var notDone = d.items.filter(function (i) { return i.state !== 'done'; }).map(function (i) { return i.id; });
+      var par = h('select', { 'aria-label': 'Downloads at once', onchange: function (e) { setQ(q, +e.target.value)(); } },
+        d.items.map(function (_, k) { return h('option', { value: k + 1, selected: d.parallel === k + 1 ? '' : null, text: k + 1 === d.items.length ? 'All at once (' + (k + 1) + ')' : (k + 1) + ' at a time' }); }));
       var top = card([
-        h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'All downloads' }),
+        h('div', { class: 'row between' }, h('h2', { class: 'eyebrow', text: 'Download queue' }),
           chip(d.running ? 'st-running' : 'st-blocked', d.running ? 'Downloading' : 'Paused')),
+        h('div', { class: 'row between' }, h('label', { text: 'How many at once' }), par),
         h('div', { class: 'row between' }, h('span', { text: 'Speed' }), h('strong', { class: 'num', text: d.speed ? (d.speed / 1e6).toFixed(1) + ' MB/s' : '—' })),
-        h('div', { class: 'row between' }, h('span', { text: 'Left to download' }), h('strong', { class: 'num', text: gbs(d.left_bytes) })),
-        h('div', { class: 'row between' }, h('span', { text: 'All done' }), h('strong', { text: d.eta_s ? 'in ' + dur(d.eta_s) + ' (' + at(d.eta_s) + ')' : d.running ? 'measuring…' : 'paused' })),
+        h('div', { class: 'row between' }, h('span', { text: 'Left in the queue' }), h('strong', { class: 'num', text: gbs(d.left_bytes) })),
+        h('div', { class: 'row between' }, h('span', { text: 'Queue done' }), h('strong', { text: d.eta_s ? 'in ' + dur(d.eta_s) + ' (' + at(d.eta_s) + ')' : d.running ? 'measuring…' : '—' })),
         h('div', { class: 'row between' }, h('span', { text: 'Free disk' }), h('strong', { class: 'num', text: gbs(d.free_bytes) })),
-        h('div', { class: 'row' }, d.running
-          ? h('button', { type: 'button', class: 'btn btn-danger', text: 'Pause downloads', onclick: act('/api/heavy-downloads/pause', 'Paused') })
-          : h('button', { type: 'button', class: 'btn btn-primary', text: 'Start downloads', onclick: act('/api/heavy-downloads/start', 'Started') })),
-        h('span', { class: 'hint', text: 'One model at a time, in this order. Pausing keeps the partial files; Start picks up where they stopped. Speed is measured over the last minute.' })
+        h('div', { class: 'row' },
+          d.running ? h('button', { type: 'button', class: 'btn btn-danger', text: 'Pause downloads', onclick: act('/api/heavy-downloads/pause', {}, 'Paused') })
+                    : h('button', { type: 'button', class: 'btn btn-primary', text: 'Start downloads', disabled: q.length ? null : '', onclick: act('/api/heavy-downloads/start', {}, 'Started') }),
+          notDone.some(function (i) { return q.indexOf(i) < 0; }) ? h('button', { type: 'button', class: 'btn', text: 'Queue all', onclick: setQ(q.concat(notDone.filter(function (i) { return q.indexOf(i) < 0; }))) }) : null,
+          q.length ? h('button', { type: 'button', class: 'btn', text: 'Clear queue', onclick: setQ([]) }) : null),
+        h('span', { class: 'hint', text: 'Downloads run in queue order, as many at once as you choose; the connection is shared between them. Pausing keeps the partial files; Start picks up where they stopped.' })
       ]);
       var cards = d.items.map(function (i) {
+        var pos = q.indexOf(i.id), inQ = pos >= 0;
+        function move(dir) { var l = q.slice(), k = pos + dir; l.splice(pos, 1); l.splice(k, 0, i.id); return setQ(l); }
         return card([
-          h('div', { class: 'row between' }, h('h2', { text: i.name }), chip(CHIP[i.state] || 'st-waiting', i.state)),
+          h('div', { class: 'row between' }, h('h2', { text: (inQ ? (pos + 1) + '. ' : '') + i.name }), chip(CHIP[i.state] || 'st-waiting', i.state)),
           h('p', { class: 'muted', text: i.why }),
           meter(i.bytes, i.expected || 1, i.name),
           h('div', { class: 'row between' }, h('strong', { class: 'num', text: gbs(i.bytes) + ' of ' + gbs(i.expected) }),
             h('span', { class: 'hint', text: i.expected ? Math.floor(100 * i.bytes / i.expected) + '%' : '' })),
           i.state === 'downloading' ? h('div', { class: 'row between' }, h('span', { text: (i.speed ? (i.speed / 1e6).toFixed(1) + ' MB/s' : 'measuring…') }),
             h('span', { text: i.eta_s ? 'done in ' + dur(i.eta_s) + ' (' + at(i.eta_s) + ')' : '' })) : null,
+          i.failed ? h('p', { class: 'muted', text: 'Gave up: ' + i.failed + ' Queue it again to retry.' }) : null,
+          i.state === 'done' ? null : h('div', { class: 'row' },
+            inQ ? h('button', { type: 'button', class: 'btn btn-sm', text: 'Remove from queue', onclick: setQ(q.filter(function (x) { return x !== i.id; })) })
+                : h('button', { type: 'button', class: 'btn btn-sm btn-primary', text: 'Add to queue', onclick: setQ(q.concat([i.id])) }),
+            inQ && pos > 0 ? h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Move up', text: '↑', onclick: move(-1) }) : null,
+            inQ && pos < q.length - 1 ? h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Move down', text: '↓', onclick: move(1) }) : null),
           h('span', { class: 'hint', text: 'For ' + i.engine + ' · ' + i.repo + (i.files ? ' · ' + i.files.join(', ') : '') + ' → ' + i.dir })
         ]);
       });
-      put(main, header('Downloads', 'The big models (about 350 GB in all), downloading one after another.'), top, section('Models', null, h('div', { class: 'stack' }, cards)));
+      put(main, header('Downloads', 'The big models for our experiments. Queue the ones you want, in order, and choose how many download at once.'),
+          top, section('Models', null, h('div', { class: 'stack' }, cards)));
     });
   }
   function screenNow(main) {

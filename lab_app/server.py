@@ -983,10 +983,21 @@ def act(path, body):
         if not m:
             raise actions.ActionError('unknown model')
         return actions.remove_model(m, busy_model_paths())
+    if path == '/api/heavy-downloads/queue':
+        try:
+            return dict(queue=heavy.set_queue(body.get('ids'), body.get('parallel')))
+        except ValueError as ex:
+            raise actions.ActionError(str(ex))
     if path == '/api/heavy-downloads/start':
-        return heavy.start()
+        try:
+            return heavy.start()
+        except ValueError as ex:
+            raise actions.ActionError(str(ex))
     if path == '/api/heavy-downloads/pause':
-        return heavy.pause()
+        try:
+            return heavy.pause()
+        except ValueError as ex:
+            raise actions.ActionError(str(ex))
     if path == '/api/download':
         js, _ = jobs()
         if any(j.get('kind') == 'Download' for j in js):

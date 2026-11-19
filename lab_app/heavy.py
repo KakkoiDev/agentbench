@@ -1,18 +1,24 @@
-"""The big model downloads (100+ GB each) for the Downloads screen: progress, speed, time left, start
-and pause.
+"""The big model downloads (100+ GB each) for the Downloads screen: a queue you choose and order,
+how many download at once, progress, speed and time left.
 
-The downloads themselves are results/downloads.sh: one model after another (the connection is the
-limit), each with `hf download`, which resumes partial files when started again. Pausing stops
-that script and its `hf download`; the partial files stay. Nothing here starts a download by
-itself: only the Start button does.
+lab_app/heavy_runner.py does the downloading (`hf download`, which resumes partial files), started
+by the Start button and stopped by Pause; the partial files stay. The queue and settings are in
+models/heavy-queue.json, finished models in models/heavy-done.json. Nothing here starts a download
+by itself.
 """
 import json, os, signal, subprocess, threading, time, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MODELS = ROOT / 'models'
-SCRIPT = ROOT / 'results' / 'downloads.sh'
 SIZES = MODELS / 'heavy-sizes.json'   # expected bytes per model, read once from Hugging Face
+STATE = Path(os.environ.get('HEAVY_STATE_DIR') or MODELS)   # a test points this elsewhere
+QUEUE = STATE / 'heavy-queue.json'    # {"queue": [ids in order], "parallel": n}
+DONE = STATE / 'heavy-done.json'      # id -> when it finished
+FAILED = STATE / 'heavy-failed.json'  # id -> why it was given up
+RUNNER_PID = STATE / 'heavy-runner.pid'
+RUNNER = Path(__file__).resolve().parent / 'heavy_runner.py'
+PY = ROOT / '.venv' / 'bin' / 'python'
 
 HEAVY = [
     dict(id='qwen-flash-next-mlx', name='Qwen3.8-Flash-Next 4-bit (MLX)', engine='SlotStream',
@@ -27,9 +33,70 @@ HEAVY = [
          repo='antirez/qwen3.8-flash-next-gguf', revision='main', files=['Qwen3.8-Flash-Next-Q2.gguf'],
          dir=MODELS / 'ds4', out=ROOT / 'results' / 'download-ds4.out', done='QWEN38_DS4_DONE',
          why='The same model in ds4\'s format: 8.4 tokens/s measured on a 32 GB M1 Max.'),
+    dict(id='deepseek-v41-flash-ds4', name='DeepSeek V4.1 Flash Q2 (ds4)', engine='ds4',
+         repo='antirez/deepseek-v4.1-flash-gguf', revision='main', files=['DeepSeek-V4.1-Flash-1017-IQ2_XXS-Q2_K-imatrix.gguf'],
+         dir=MODELS / 'ds4', out=None, done=None,
+         why='552B (about 16B used per token), rated above full GLM-5.3 (AA 45.1 vs 44.8) while reading a third to half the bytes per token; '
+             'estimated 1.5-2.5 tokens/s here vs 0.43 for GLM-5.3. ds4 sizes it for 128 GB Macs: check it runs in 32 GB before relying on it.'),
 ]
 
+BY_ID = {m['id']: m for m in HEAVY}
 _lock = threading.Lock()
+
+
+def read_json(path, default=None):
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {} if default is None else default
+
+
+def write_json(path, data):
+    tmp = path.with_suffix('.tmp')
+    tmp.write_text(json.dumps(data, indent=1))
+    tmp.replace(path)
+
+
+def read_queue():
+    q = read_json(QUEUE, {'queue': [], 'parallel': 1})
+    q['queue'] = [i for i in q.get('queue', []) if i in BY_ID]
+    q['parallel'] = max(1, min(len(HEAVY), int(q.get('parallel') or 1)))
+    return q
+
+
+def mark(path, i, value):
+    with _lock:
+        d = read_json(path)
+        d[i] = value
+        write_json(path, d)
+
+
+def drop_from_queue(i):
+    with _lock:
+        q = read_queue()
+        q['queue'] = [x for x in q['queue'] if x != i]
+        write_json(QUEUE, q)
+
+
+def log_of(i):
+    return (STATE if os.environ.get('HEAVY_STATE_DIR') else ROOT / 'results') / f'download-{i}.out'
+
+
+def runner_pid():
+    try:
+        pid = int(RUNNER_PID.read_text())
+        os.kill(pid, 0)
+        return pid
+    except (OSError, ValueError):
+        return None
+
+
+def _legacy_done(m):
+    """Finished by the earlier downloads.sh chain (its done markers)."""
+    out = {'qwen-flash-next-mlx': ('download-qwen-flash-next.out', 'QWEN_FLASH_NEXT_DONE'),
+           'glm53-flash-ds4': ('download-ds4.out', 'GLM53F_DS4_DONE'), 'qwen-flash-next-ds4': ('download-ds4.out', 'QWEN38_DS4_DONE')}.get(m['id'])
+    f = ROOT / 'results' / out[0] if out else None
+    return bool(f and f.exists() and out[1] in f.read_text(errors='ignore'))
 _samples = {}   # id -> [(time, bytes)], for the speed over the last minute
 
 
@@ -74,52 +141,96 @@ def _bytes(m, oids):
     return total
 
 
+import re
+HF_RE = re.compile(r'(?:^|/|\s)\.?hf(?:-wrapped)? download\b')   # nix runs hf as .hf-wrapped
+
+
 def _procs():
     out = subprocess.run(['ps', '-axo', 'pid=,command='], capture_output=True, text=True).stdout
     rows = [l.strip().split(None, 1) for l in out.splitlines() if l.strip()]
-    return [(int(r[0]), r[1]) for r in rows if len(r) == 2 and ('downloads.sh' in r[1] or 'hf download' in r[1])]
+    return [(int(r[0]), r[1]) for r in rows if len(r) == 2 and ('downloads.sh' in r[1] or HF_RE.search(r[1]))]
 
 
 def status():
     sizes, procs, now = _expected(), _procs(), time.time()
-    script_running = any('downloads.sh' in c for _, c in procs)
+    q, done, failed, pid = read_queue(), read_json(DONE), read_json(FAILED), runner_pid()
     items, total_speed = [], 0.0
     for m in HEAVY:
         got = _bytes(m, sizes.get(m['id'] + ':oids', []))
         want = sizes.get(m['id'])
-        log = m['out'].read_text(errors='ignore') if m['out'].exists() else ''
-        done = m['done'] in log or (want and got >= want and not any(m['repo'] in c for _, c in procs))
-        active = any(m['repo'] in c for _, c in procs)
+        active = any(m['repo'] in c and HF_RE.search(c) and (m['files'] is None or any(f in c for f in m['files'])) for _, c in procs)
+        is_done = m['id'] in done or _legacy_done(m)
         with _lock:
-            s = [x for x in _samples.get(m['id'], []) if now - x[0] <= 90] + [(now, got)]
-            _samples[m['id']] = s
-        speed = (s[-1][1] - s[0][1]) / (s[-1][0] - s[0][0]) if active and len(s) > 1 and s[-1][0] - s[0][0] >= 5 else None
+            smp = [x for x in _samples.get(m['id'], []) if now - x[0] <= 90] + [(now, got)]
+            _samples[m['id']] = smp
+        speed = (smp[-1][1] - smp[0][1]) / (smp[-1][0] - smp[0][0]) if active and smp[-1][0] - smp[0][0] >= 5 else None
         total_speed += speed or 0
-        state = 'done' if done else 'downloading' if active else 'waiting' if script_running else 'paused' if got else 'not started'
+        pos = q['queue'].index(m['id']) + 1 if m['id'] in q['queue'] else None
+        state = ('done' if is_done else 'failed' if m['id'] in failed else 'downloading' if active
+                 else ('queued' if pid else 'queued, paused') if pos else 'paused' if got else 'not queued')
         items.append(dict(id=m['id'], name=m['name'], engine=m['engine'], why=m['why'], repo=m['repo'],
                           files=m['files'], dir=str(m['dir'].relative_to(ROOT)), bytes=got, expected=want, state=state,
-                          speed=speed, eta_s=(want - got) / speed if speed and want and want > got else None))
-    left = sum((i['expected'] or 0) - i['bytes'] for i in items if i['state'] != 'done')
+                          position=pos, failed=failed.get(m['id']), speed=speed,
+                          eta_s=(want - got) / speed if speed and want and want > got else None))
+    items.sort(key=lambda x: (x['position'] is None, x['position'] or 0))
+    left = sum((i['expected'] or 0) - i['bytes'] for i in items if i['position'] and i['state'] != 'done')
     st = os.statvfs(MODELS)
-    return dict(items=items, running=script_running, speed=total_speed or None,
+    return dict(items=items, running=bool(pid), parallel=q['parallel'], queue=q['queue'], speed=total_speed or None,
                 left_bytes=left, eta_s=left / total_speed if total_speed else None,
                 free_bytes=st.f_bavail * st.f_frsize, checked=now)
 
 
+def set_queue(ids, parallel=None):
+    """The queue, in order (ids not yet done); and how many download at once."""
+    if not isinstance(ids, list) or not all(isinstance(i, str) and i in BY_ID for i in ids):
+        raise ValueError('ids: a list of model ids from the Downloads screen')
+    with _lock:
+        q = read_queue()
+        q['queue'] = list(dict.fromkeys(ids))
+        if parallel is not None:
+            q['parallel'] = max(1, min(len(HEAVY), int(parallel)))
+        write_json(QUEUE, q)
+    failed = read_json(FAILED)
+    if any(i in failed for i in ids):  # queueing a failed model again means: try again
+        write_json(FAILED, {k: v for k, v in failed.items() if k not in ids})
+    return read_queue()
+
+
 def start():
-    if any('downloads.sh' in c for _, c in _procs()):
+    if runner_pid():
         return dict(ok=True, note='already running')
-    subprocess.Popen(['sh', str(SCRIPT)], cwd=ROOT, start_new_session=True,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if not read_queue()['queue']:
+        raise ValueError('the queue is empty: add a model first')
+    for pid, c in _procs():   # the earlier downloads.sh chain, if it still runs
+        if 'downloads.sh' in c:
+            os.kill(pid, signal.SIGTERM)
+    subprocess.Popen([str(PY), str(RUNNER)], cwd=ROOT, start_new_session=True,
+                     stdout=open(ROOT / 'results' / 'download-runner.out', 'a'), stderr=subprocess.STDOUT)
     return dict(ok=True, note='started')
 
 
 def pause():
     stopped = []
-    for pid, c in _procs():
+    pid = runner_pid()
+    if pid:
+        os.kill(pid, signal.SIGTERM)   # it stops its own hf downloads
+        stopped.append(pid)
+    for p, c in _procs():
         try:
-            os.kill(pid, signal.SIGTERM)
-            stopped.append(pid)
+            os.kill(p, signal.SIGTERM)
+            stopped.append(p)
         except ProcessLookupError:
             pass
+    for _ in range(20):   # a download that ignores the stop for 10 s is killed
+        if not _procs():
+            break
+        time.sleep(0.5)
+    for p, _ in _procs():
+        try:
+            os.kill(p, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    left = _procs()
+    if left:
+        raise ValueError('could not stop: ' + ', '.join(str(p) for p, _ in left))
     return dict(ok=True, stopped=stopped)
