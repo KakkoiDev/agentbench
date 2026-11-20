@@ -25,7 +25,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'benches' / 'dropbox'))
+sys.path.insert(0, str(ROOT / 'benches'))
 import cases  # noqa: E402
+import local_engines  # noqa: E402
 
 OLLAMA = 'http://127.0.0.1:11434'
 DROPBOX = Path.home() / '.local' / 'share' / 'dropbox'
@@ -319,6 +321,7 @@ def run_mini(args):
     mini = load_mini(state, args.mini_py)
     mini.CURRENT['tools'] = args.tools_model or ''  # mini's own router picks the model per request
     mini.prepare_home()
+    local_engines.add_providers(mini.PI_HOME / 'models.json')  # mlxlm/, mtplx/, ds4/... next to ollama/
     CASES = cases.MINI_LANG if args.cases == 'lang' else cases.MINI
 
     def one(c):
@@ -366,6 +369,7 @@ def run_family(args):
     state = Path(tempfile.mkdtemp(prefix='family-bench-')).resolve()
     mini = load_mini(state, args.mini_py)
     mini.prepare_home()
+    local_engines.add_providers(mini.PI_HOME / 'models.json')  # mlxlm/, mtplx/, ds4/... next to ollama/
     mini.CURRENT['tools'] = args.tools_model or ''
     tasks = [t for t in family.TASKS if not args.only or t['id'] in args.only.split(',')]
 

@@ -232,6 +232,9 @@ def run(args):
         print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
         fcntl.flock(lock, fcntl.LOCK_EX)
     home = pi_home(args.ollama_url)
+    sys.path.insert(0, str(ROOT / 'benches'))
+    import local_engines
+    local_engines.add_providers(home / 'models.json')  # mlxlm/, mtplx/, ds4/... next to ollama/
     meta = out_dir / 'meta.json'
     if not meta.exists():
         meta.write_text(json.dumps({
