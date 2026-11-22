@@ -108,8 +108,8 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None, star
     else:
         ws.mkdir(parents=True)
         T.write_files(task, ws)
-    cmd = ['/usr/bin/sandbox-exec', '-f', str(SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
-           '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', model, '--thinking', args.thinking, '--offline',
+    cmd = ['/usr/bin/sandbox-exec', '-f', str(getattr(T, 'SANDBOX', SANDBOX)), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
+           '-D', f'HOME={Path.home()}', '-D', f'REPO={ROOT}', 'pi', '-p', '--model', model, '--thinking', args.thinking, '--offline',
            '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
            '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', (instruction or task['instruction']) + SUFFIX]
     env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), **(extra_env or {}))
@@ -243,7 +243,7 @@ def run(args):
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
             'terse': TERSE if args.terse else None,
-            'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': SANDBOX.read_text(), 'suffix': SUFFIX}, indent=1))
+            'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': Path(getattr(T, 'SANDBOX', SANDBOX)).read_text(), 'suffix': SUFFIX}, indent=1))
     exts = [e for e in args.extension.split(',') if e]
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
     if args.rerun:  # measure again: earlier task runs move to attempts/rerun-<time>/ (kept, never deleted)

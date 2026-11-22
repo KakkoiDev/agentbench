@@ -23,6 +23,7 @@ import flaws  # noqa: E402
 from arena import workspace, replays  # noqa: E402
 
 PY = str(workspace.PY)
+SANDBOX = REPO / 'arena' / 'sandbox.sb'   # reads kept to the task (agent_bench uses it for this bench)
 DOCS = REPO / 'arena' / 'harness' / 'docs'
 SCRIPT = '#!/bin/sh\n# {doc}\nARENA_REPLAYS_DIR="{rep}" exec "{py}" "$(dirname "$0")/{tool}" "{repo}" "$@"\n'
 

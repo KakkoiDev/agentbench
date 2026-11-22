@@ -93,8 +93,8 @@ def session(model, minutes=30, thinking='off'):
     home = agent_bench.pi_home()
     local_engines.add_providers(home / 'models.json')
     champ = league.reigning()
-    cmd = ['/usr/bin/sandbox-exec', '-f', str(agent_bench.SANDBOX), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
-           '-D', f'HOME={Path.home()}', 'pi', '-p', '--model', model, '--thinking', thinking, '--offline', '--no-session', '--no-approve',
+    cmd = ['/usr/bin/sandbox-exec', '-f', str(ARENA / 'sandbox.sb'), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
+           '-D', f'HOME={Path.home()}', '-D', f'REPO={REPO}', 'pi', '-p', '--model', model, '--thinking', thinking, '--offline', '--no-session', '--no-approve',
            '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--mode', 'json',
            INSTRUCTION.format(champ=champ, worst=_worst(st)) + agent_bench.SUFFIX]
     env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), ARENA_BUDGET_MS='1000')

@@ -23,6 +23,7 @@ sys.path.insert(0, str(REPO))
 from arena import workspace  # noqa: E402
 
 PY = str(workspace.PY)
+SANDBOX = REPO / 'arena' / 'sandbox.sb'   # reads kept to the task (agent_bench uses it for this bench)
 HARNESS_FILES = {'AGENT.md', 'eval', 'eval_tool.py', 'tune', 'tune_tool.py', 'replays', 'replays_tool.py', 'docs', 'skills', '__pycache__'}
 ROUNDS = 3
 

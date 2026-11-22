@@ -13,7 +13,9 @@ seeds you don't see, against the same pool.
 
 ## How to work
 
-1. Read `docs/bot-guide.md` and `docs/rules.md` (every number), then `skills/arena-combat/SKILL.md`.
+1. Read `docs/rules.md` (every number) and `skills/arena-combat/SKILL.md`. `docs/bot-guide.md` is long (mostly
+   the network protocol): look things up in it with grep rather than reading it all. Everything you need is
+   in this folder; files outside it are not part of the task (most can't be read from here).
 2. Run `./eval` to see where the current bot stands: wins per opponent, and how the losses went
    (who did the damage, with what, zone time, stuns, pickups).
 3. Change `strategy.py`, run `./eval` again, keep what wins more. Every game starts with 0-8 ticks of random
