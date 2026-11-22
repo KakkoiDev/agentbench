@@ -109,9 +109,15 @@ class Site:
                 continue
             got += pick["mean"]; total += pick["out_of"]; mins += pick.get("minutes") or 0
             parts.append((suite, pick)); early |= pick["runs"] < 2 and not plain
+        hard = max(self.groups(m, "coding-v4"), key=lambda g: g["mean"], default=None)   # the hard suite, in tests passed
+        if hard:
+            parts.append(("coding-v4", hard))
+            mins += hard.get("minutes") or 0
         if len(parts) < 2:
             return None
-        return dict(q=got / total, got=got, total=total, minutes=mins, parts=parts, early=early or len(parts) < 3)
+        # v1-v3 (tasks solved) and the hard suite (tests passed) count half each, so the suite that separates strong models weighs in
+        q = (got / total + hard["mean"] / hard["out_of"]) / 2 if hard and total else hard["mean"] / hard["out_of"] if hard else got / total
+        return dict(q=q, got=got, total=total, minutes=mins, parts=parts, hard=hard, early=early or len(parts) < 3)
 
     def vision(self, m):
         a, b = self._best(m, "vision-v1"), self._best(m, "vision-v2")
@@ -134,8 +140,10 @@ class Site:
         return dict(q=g["mean"] / g["out_of"], g=g) if g else None
 
     def smartest(self, m):
-        parts = [x["q"] for x in (self.daily(m), self.coding(m), self.vision(m), self.hard(m), self.hard(m, "coding-v4")) if x]
-        return dict(q=statistics.mean(parts), n=len(parts)) if len(parts) >= 2 else None
+        # coding is required (it includes the hard suite): without it, the areas nearly every model aces would decide
+        c = self.coding(m) or (self.hard(m, "coding-v4") and dict(q=self.hard(m, "coding-v4")["q"]))
+        parts = [x["q"] for x in (self.daily(m), c, self.vision(m), self.hard(m)) if x]
+        return dict(q=statistics.mean(parts), n=len(parts)) if c and len(parts) >= 3 else None
 
     def mem(self, m):
         for k in m["keys"]:
@@ -249,7 +257,7 @@ def home(S):
 
     d_cards = [card(i, m, [f"Family jobs {runs(d['fam'])}", f"Assistant {runs(d['en'])} · {runs(d['la'])}",
                            f"{fmt(d['secs'])} s per family job · {E(d['setup'])}"], d["early"]) for i, (m, d) in enumerate(daily)]
-    c_cards = [card(i, m, [f"{fmt(c['got'])} of {c['total']} tasks solved", " · ".join(f"{s.split('-')[1]}: {fmt(p['mean'])}/{p['out_of']} ({E(p['setup'])})" for s, p in c["parts"]),
+    c_cards = [card(i, m, [f"Coding score {pct(c['q'])}" + (f" · {fmt(c['got'])} of {c['total']} tasks" if c['total'] else ""), " · ".join(f"{s.split('-')[1]}: {fmt(p['mean'])}/{p['out_of']}" + (" tests" if s == "coding-v4" else "") for s, p in c["parts"]),
                            f"{c['minutes']:.0f} min for the suites"], c["early"]) for i, (m, c) in enumerate(coding)]
     s_cards = []
     for i, (m, s) in enumerate(smart):
@@ -284,9 +292,9 @@ home assistant and a coding agent really do. These are the models to pick, and t
 {sec(("daily", "Daily use: the house assistant"), "Chat, answer from your files, sort, rename, total, summarize, in English, Japanese and French. Speed matters: you wait for every reply.",
      "assistant tests and family jobs averaged (one model alone, its best harness setup), minus a little for each second per job.", d_cards)}
 {sec(("coding", "Coding tasks"), "An agent (pi) that fixes bugs, adds features and refactors in a real repository, graded by hidden tests.",
-     "tasks solved across the coding suites with pi and no extensions where we ran it (otherwise the model's best single-run setup); ties go to the faster model.", c_cards)}
+     "half tasks solved in coding suites v1-v3, half hidden tests passed in the hard suite v4, with pi and no extensions where we ran it; ties go to the faster model.", c_cards)}
 {sec(("smartest", "Smartest, any speed"), "The most capable model this Mac can run when you can wait: the closest to frontier quality you get locally.",
-     "the average of assistant, coding, image and hard-job scores; a model needs at least two of them. Speed is ignored.", s_cards)}
+     "the average of assistant, coding (with the hard suite), image and hard-job scores; a model needs coding and at least three areas. Speed is ignored.", s_cards)}
 <p class="note">Beyond 32 GB: <a href="models/glm-5.3.html">GLM-5.3 (744B)</a> runs on this Mac by streaming its experts from the SSD. It is rated well above anything here, and writes well under one token per second.</p>
 <section class="sec" aria-labelledby="spec"><div class="sec-h"><h2 id="spec">Specialists</h2></div>
 <ul class="specs">{spec_html}</ul></section>
@@ -563,7 +571,7 @@ def speed_page(S):
 
 def intelligence_page(S):
     cols = [("Assistant", lambda m: S.daily(m) and pct(S.daily(m)["q"])), ("Hard jobs", lambda m: S.hard(m) and pct(S.hard(m)["q"])),
-            ("Coding v1-v3", lambda m: S.coding(m) and pct(S.coding(m)["q"])), ("Hard coding", lambda m: S.hard(m, "coding-v4") and pct(S.hard(m, "coding-v4")["q"])),
+            ("Coding", lambda m: S.coding(m) and pct(S.coding(m)["q"])), ("Hard coding", lambda m: S.hard(m, "coding-v4") and pct(S.hard(m, "coding-v4")["q"])),
             ("Images", lambda m: S.vision(m) and pct(S.vision(m)["q"])), ("Translation chrF", lambda m: S.translation(m) and fmt(S.translation(m)["mean"])),
             ("Speech errors", lambda m: S.speech(m) and f"{fmt(S.speech(m)['mean'])}%"), ("October quiz", lambda m: S.quiz(m) and f"{S.quiz(m)['correct']}/24")]
     rows = []
@@ -578,7 +586,7 @@ def intelligence_page(S):
 <div class="ptitle"><h1>Intelligence</h1>
 <p class="dek">What each model can actually do, with the harness it would run in. Intelligence mode: <code>lab.py intelligence MODEL</code>, hours per model.</p></div>
 <section class="sec">{table(["Model", "Overall"] + [c for c, _ in cols], [r for _, r in rows], tuple(range(1, len(cols) + 2)))}
-<p class="note">Overall: the average of assistant, coding, hard jobs, hard coding and images, where run (at least two). The hard suites are made so that no model gets everything, so they spread the strong models apart; each model's page says what it managed and where it fell short. Percentages are of the maximum score.</p></section>
+<p class="note">Overall: the average of assistant, coding (suites v1-v3 and the hard suite, half each), hard jobs and images, where run (at least two). The hard suites are made so that no model gets everything, so they spread the strong models apart; each model's page says what it managed and where it fell short. Percentages are of the maximum score.</p></section>
 """
     return shell("Intelligence: local models on a 32 GB Mac mini M6", body, "intelligence.html", desc="What each local model can do on a Mac mini M6 32 GB: assistant, hard jobs, coding, images, translation, speech.")
 
@@ -627,6 +635,19 @@ LEARNINGS = [
         ("Bigger is not better on easy questions.", "Gemma 4 31B scored no higher than the 26B mixture-of-experts Gemma, which writes about three times faster. Gemma 4 E4B got everything right fastest when asked to be terse.", [("Gemma 4 31B", "models/gemma4-31b.html"), ("Gemma 4 E4B", "models/gemma4-e4b.html")]),
         ("Not every model serves two requests at once.", "Asked twice at the same moment, gpt-oss on Ollama wrote both replies together; Gemma 4 26B and Qwen 3.8 answered one after the other.", [("Parallel tests", "concurrency.html")]),
         ("An easy quiz cannot rank strong models.", "Most models got 24/24 with the right setting, so we moved on to the harder benches above: family jobs, coding with hidden tests, images, translation and speech.", []),
+    ]),
+    ("New engines and models (November 2026)", [
+        ("A small mixture-of-experts coder can beat the dense 27B at coding.", "Flint 40B-A2.5B, which uses only about 2.5B weights per token, topped the hard coding suite and nearly aced suites v1-v3, ahead of Qwen 3.8 27B. It reasons at length on every reply, so it is a coder, not a butler.", [("Flint", "models/flint-40b.html")]),
+        ("A compressed model can keep assistant skills and lose coding.", "Ternary Bonsai 2 (Qwen 3.8 27B in about a third of the memory) stayed close on assistant and family jobs but fell far behind on hard coding. Check the jobs you need before trusting a compression claim.", [("Bonsai 2", "models/bonsai-2-27b.html")]),
+        ("A faster engine is not a better coding agent by itself.", "The same Qwen 3.8 27B solved far fewer hard coding tests on MTPLX and on oMLX than on Ollama: one long reasoning turn hit the output limit on MTPLX, and oMLX throttled prompt reading under memory pressure. Bench the agent, not the decode speed.", [("MTPLX", "models/qwen3.8-27b-mtplx.html"), ("oMLX", "models/qwen3.8-27b-omlx.html")]),
+        ("Models four to twelve times larger than memory run, with the right settings.", "ds4 ran GLM-5.3-Flash (97 GB), Qwen3.8-Flash-Next (147 GB) and DeepSeek V4.1 Flash (366 GB) on the 32 GB Mac by streaming experts from the SSD, after three fixes: start it from its own folder, lower GLM's built-in 32 GiB memory reserve, and give DeepSeek a smaller context and an expert cache sized by count.", [("DeepSeek V4.1", "models/deepseek-v4.1-flash.html")]),
+        ("Leave memory for macOS.", "Engine memory budgets set close to 32 GB (SlotStream at 26 GB, MTPLX Optimized at 26 GB) made the engines refuse prompts mid-run. Their automatic plans, or about 23 GB, kept them working.", []),
+        ("Name the engine in every run.", "The same model on two engines must not share a result folder: our Bonsai runs on MTPLX overwrote the Ollama ones until the engine became part of the name.", []),
+    ]),
+    ("Harness v3.2 (November 2026)", [
+        ("Make risky requests read-only.", "With vague clean-ups running read-only, no model deleted or moved anything on \"clean up my old folder\" in 31 runs; 30 listed the files and asked, as the house rule says (one changed nothing but did not ask).", []),
+        ("Most models now ace the assistant tests.", "On harness v3.2 almost every model scored full marks on the assistant tests in English and in Japanese and French; the language check and retrying empty turns removed most earlier failures.", []),
+        ("Make hard tests harder than you think.", "The hard family jobs were meant to be beyond every model, yet the strong ones scored 54-55.5 of 56. The hard coding suite spread models far more (from about a third to over 90%). The next hard family suite needs longer, messier jobs.", []),
     ]),
     ("Testing", [
         ("Read the failures, not just the score.", "Reading failures one by one found three grader bugs that marked right answers wrong. Small benches need their failures read.", [15]),

@@ -109,8 +109,12 @@ def coding_runs():
     rows = []
     v4 = None
     for d in sorted(RES.glob("agentic-v*")):
-        m = re.match(rf"agentic-(v\d)-{MODEL_RE}-(.+)$", d.name)
         meta = load(d / "meta.json")
+        m = re.match(rf"agentic-(v\d)-{MODEL_RE}-(.+)$", d.name)
+        if meta and not m:   # any other model: its run name starts with the model as the queue tags it (mtplx-bonsai-2-27b, flint-40b)
+            mod = meta.get("model") or ""
+            mt = (mod.removeprefix("ollama/") if mod.startswith("ollama/") else mod).replace("/", "-").replace(":", "-").replace(".", "-")
+            m = re.match(rf"agentic-(v\d)-({re.escape(mt)})-(.+)$", d.name)
         if not m or not meta:
             continue
         suite, mkey, rest = m.groups()

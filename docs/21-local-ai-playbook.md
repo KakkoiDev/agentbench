@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **248 bench runs** (15 more set aside, with the reason) across 11 benches and 22 models, 2026-11-14 to 2026-11-18. The coding-agent runs alone took 34 hours.
+> **362 bench runs** (17 more set aside, with the reason) across 13 benches and 29 models, 2026-11-14 to 2026-11-21. The coding-agent runs alone took 53 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
@@ -159,7 +159,7 @@ recognition was far behind Whisper and even behind the smaller e4b.
 | Coding, no extensions | 3/15 (v1, v2, v3, latest run each) | 14/15 (v1, v2, v3, latest run each) |
 | Speech to text | 34.1% errors | cannot hear |
 | Images (vision-v1, thinking off) | 21/25 | 24/25 |
-| Memory once loaded | 8.4 GB | not yet measured |
+| Memory once loaded | 8.4 GB | 18.8 GB |
 <!-- /generated:f_12b -->
 
 ### F6. The harness lifts weak models, and one rule backfired on a strong one
@@ -305,14 +305,21 @@ likely still in macOS's file cache; a load from a cold disk would take longer.
 <!-- generated:f_memory -->
 | Model | Download (GB) | Loaded (GB) | Context (tokens) | Seconds to load and answer one word |
 |---|---|---|---|---|
+| bonsai-2:27b | 8.3 | 8.2 | 8192 | — |
+| flint:40b | 22.0 | 22.8 | 8192 | — |
 | gemma4:12b-mlx | 7.7 | 8.4 | 8192 | 2.3 |
-| gemma4:e4b-mlx | 9.5 | — | — | 3.3 |
-| gpt-oss:20b | 13.0 | 13.0 | 8192 | 5.8 |
+| gemma4:26b-mlx | 18.0 | 18.8 | 8192 | — |
+| gemma4:31b-mlx | 19.0 | 21.4 | 8192 | — |
+| gemma4:e2b-mlx | 7.5 | 7.4 | 8192 | — |
+| gemma4:e4b-mlx | 9.5 | 9.5 | 8192 | 3.3 |
+| gpt-oss:20b | 13.0 | 12.9 | 8192 | 5.8 |
 | muse-glimmer:30b-nvfp4-dflash | 19.0 | 19.4 | 8192 | — |
+| nemotron-3.5-lightning:30b-a3b-mlx | 19.0 | 19.2 | 8192 | — |
+| qwen3-vl:8b-instruct | 6.2 | 6.3 | 8192 | — |
 | qwen3.6:35b-mlx | 23.0 | 23.3 | 8192 | — |
 | qwen3.8:27b-dflash2-nvfp4 | 19.0 | 20.1 | 8192 | — |
-| qwen3.8:27b-mlx | 18.0 | — | — | 6.0 |
-| qwen3.8:27b-mtp-q4_K_M | 17.0 | 18.9 | 8192 | — |
+| qwen3.8:27b-mlx | 18.0 | 18.8 | 8192 | 6.0 |
+| qwen3.8:27b-mtp-q4_K_M | 17.0 | 16.3 | 8192 | — |
 <!-- /generated:f_memory -->
 
 ### F14. Where a reply's time goes, and whether parallel requests help
@@ -334,28 +341,104 @@ this run and is being measured again.
 <!-- generated:f_speed -->
 | Model | Request | Prompt tokens read | Seconds reading | Tokens written | Seconds writing | Total seconds |
 |---|---|---|---|---|---|---|
-| gemma4:12b-mlx | first request | 4828 | 7.46 | 425 | 13.9 | 21.36 |
-| gemma4:12b-mlx | same system prompt again | 4830 | 0.12 | 424 | 13.08 | 13.21 |
-| gemma4:12b-mlx | asked for a terse answer | 4838 | 7.58 | 52 | 1.79 | 9.37 |
-| gpt-oss:20b | first request | 4444 | 0.2 | 388 | 10.27 | 10.49 |
-| gpt-oss:20b | same system prompt again | 4446 | 0.06 | 567 | 15.04 | 15.13 |
-| gpt-oss:20b | asked for a terse answer | 4452 | 0.15 | 103 | 2.71 | 2.88 |
-| qwen3.8:27b-dflash2-nvfp4 | first request | 4715 | 15.82 | 653 | 37.4 | 53.23 |
-| qwen3.8:27b-dflash2-nvfp4 | same system prompt again | 4717 | 0.26 | 345 | 19.92 | 20.19 |
-| qwen3.8:27b-dflash2-nvfp4 | asked for a terse answer | 4724 | 16.57 | 64 | 3.57 | 20.15 |
-| qwen3.8:27b-mtp-q4_K_M | first request | 4715 | 3.01 | 502 | 40.36 | 43.37 |
-| qwen3.8:27b-mtp-q4_K_M | same system prompt again | 4717 | 2.81 | 548 | 42.72 | 45.54 |
-| qwen3.8:27b-mtp-q4_K_M | asked for a terse answer | 4724 | 2.85 | 57 | 5.59 | 8.44 |
-| qwen3.6:35b-mlx | first request | 4715 | 2.67 | 353 | 5.41 | 8.08 |
-| qwen3.6:35b-mlx | same system prompt again | 4717 | 0.17 | 503 | 7.56 | 7.74 |
-| qwen3.6:35b-mlx | asked for a terse answer | 4724 | 2.71 | 50 | 0.87 | 3.59 |
-| muse-glimmer:30b-nvfp4-dflash | first request | 4396 | 15.6 | 327 | 22.12 | 37.72 |
-| muse-glimmer:30b-nvfp4-dflash | same system prompt again | 4398 | 0.12 | 336 | 22.98 | 23.1 |
-| muse-glimmer:30b-nvfp4-dflash | asked for a terse answer | 4404 | 0.3 | 195 | 11.45 | 11.76 |
+| gemma4:12b-mlx | first request | 4828 | 7.27 | 644 | 19.6 | 26.87 |
+| gemma4:12b-mlx | same system prompt again | 4830 | 0.12 | 361 | 11.68 | 11.82 |
+| gemma4:12b-mlx | asked for a terse answer | 4838 | 7.25 | 58 | 2.09 | 9.35 |
+| gpt-oss:20b | first request | 4444 | 0.19 | 39 | 1.01 | 1.23 |
+| gpt-oss:20b | same system prompt again | 4446 | 0.06 | 72 | 1.9 | 1.99 |
+| gpt-oss:20b | asked for a terse answer | 4452 | 0.15 | 51 | 1.34 | 1.51 |
+| qwen3.8:27b-dflash2-nvfp4 | first request | 4715 | 15.56 | 323 | 16.48 | 32.05 |
+| qwen3.8:27b-dflash2-nvfp4 | same system prompt again | 4717 | 0.25 | 583 | 27.36 | 27.62 |
+| qwen3.8:27b-dflash2-nvfp4 | asked for a terse answer | 4724 | 15.61 | 48 | 2.76 | 18.38 |
+| qwen3.8:27b-mtp-q4_K_M | first request | 4715 | 3.0 | 507 | 41.0 | 44.01 |
+| qwen3.8:27b-mtp-q4_K_M | same system prompt again | 4717 | 2.72 | 403 | 31.98 | 34.71 |
+| qwen3.8:27b-mtp-q4_K_M | asked for a terse answer | 4724 | 2.84 | 37 | 3.55 | 6.4 |
+| qwen3.6:35b-mlx | first request | 4715 | 2.68 | 615 | 9.23 | 11.92 |
+| qwen3.6:35b-mlx | same system prompt again | 4717 | 0.13 | 550 | 8.39 | 8.53 |
+| qwen3.6:35b-mlx | asked for a terse answer | 4724 | 2.73 | 47 | 0.81 | 3.55 |
+| muse-glimmer:30b-nvfp4-dflash | first request | 4396 | 14.73 | 129 | 10.47 | 25.21 |
+| muse-glimmer:30b-nvfp4-dflash | same system prompt again | 4398 | 0.12 | 197 | 12.13 | 12.25 |
+| muse-glimmer:30b-nvfp4-dflash | asked for a terse answer | 4404 | 0.3 | 249 | 14.98 | 15.29 |
+| qwen3-vl:8b-instruct | first request | 4603 | 0.16 | 348 | 14.54 | 14.71 |
+| qwen3-vl:8b-instruct | same system prompt again | 4605 | 0.07 | 222 | 9.26 | 9.34 |
+| qwen3-vl:8b-instruct | asked for a terse answer | 4611 | 0.17 | 65 | 2.69 | 2.86 |
+| gemma4:e2b-mlx | first request | 4824 | 0.44 | 110 | 1.25 | 1.7 |
+| gemma4:e2b-mlx | same system prompt again | 4826 | 0.02 | 284 | 2.33 | 2.35 |
+| gemma4:e2b-mlx | asked for a terse answer | 4834 | 0.45 | 33 | 0.56 | 1.01 |
+| bonsai-2:27b | first request | 4715 | 5.91 | 364 | 23.2 | 29.11 |
+| bonsai-2:27b | same system prompt again | 4717 | 5.57 | 322 | 20.56 | 26.14 |
+| bonsai-2:27b | asked for a terse answer | 4724 | 5.71 | 66 | 4.19 | 9.91 |
+| gemma4:e4b-mlx | first request | 4824 | 1.58 | 609 | 7.92 | 9.51 |
+| gemma4:e4b-mlx | same system prompt again | 4826 | 0.04 | 606 | 8.08 | 8.12 |
+| gemma4:e4b-mlx | asked for a terse answer | 4834 | 1.79 | 51 | 0.93 | 2.73 |
+| gemma4:26b-mlx | first request | 4828 | 2.83 | 640 | 16.03 | 18.87 |
+| gemma4:26b-mlx | same system prompt again | 4830 | 0.23 | 587 | 14.85 | 15.09 |
+| gemma4:26b-mlx | asked for a terse answer | 4838 | 2.83 | 40 | 1.06 | 3.9 |
+| qwen3.8:27b-mlx | first request | 4715 | 16.42 | 332 | 17.39 | 33.81 |
+| qwen3.8:27b-mlx | same system prompt again | 4717 | 0.24 | 329 | 18.03 | 18.29 |
+| qwen3.8:27b-mlx | asked for a terse answer | 4724 | 16.48 | 50 | 2.62 | 19.11 |
+| gemma4:31b-mlx | first request | 4828 | 19.71 | 372 | 27.14 | 46.87 |
+| gemma4:31b-mlx | same system prompt again | 4830 | 0.35 | 397 | 28.36 | 28.72 |
+| gemma4:31b-mlx | asked for a terse answer | 4838 | 20.82 | 43 | 4.02 | 24.86 |
+| nemotron-3.5-lightning:30b-a3b-mlx | first request | 4607 | 2.8 | 151 | 2.84 | 5.65 |
+| nemotron-3.5-lightning:30b-a3b-mlx | same system prompt again | 4609 | 0.29 | 258 | 4.83 | 5.13 |
+| nemotron-3.5-lightning:30b-a3b-mlx | asked for a terse answer | 4616 | 0.35 | 56 | 1.12 | 1.47 |
+| flint:40b | first request | 4374 | 2.13 | 226 | 3.0 | 5.15 |
+| flint:40b | same system prompt again | 4376 | 0.05 | 45 | 0.61 | 0.68 |
+| flint:40b | asked for a terse answer | 4382 | 0.22 | 43 | 0.6 | 0.85 |
+| omlx/qwen3.8-27b-oq3h-mtp | first request | 4751 | 16.3 | 600 | 37.97 | 54.27 |
+| omlx/qwen3.8-27b-oq3h-mtp | same system prompt again | 4753 | 3.02 | 600 | 39.45 | 42.48 |
+| omlx/qwen3.8-27b-oq3h-mtp | asked for a terse answer | 4760 | 2.76 | 485 | 31.73 | 34.49 |
 
 Several requests at once, each writing exactly 256 tokens:
 
-_Measurement queued. A first try let each reply run to its own length, so totals could not be compared; it is set aside._
+| Model | Requests at once | Seconds until all done | Tokens written in all | Tokens per second in all |
+|---|---|---|---|---|
+| bonsai-2:27b | 1 | 22.18 | 256 | 11.5 |
+| bonsai-2:27b | 2 | 26.87 | 334 | 12.4 |
+| bonsai-2:27b | 4 | 87.37 | 1017 | 11.6 |
+| flint:40b | 1 | 1.29 | 85 | 65.9 |
+| flint:40b | 2 | 4.35 | 305 | 70.1 |
+| flint:40b | 4 | 8.29 | 613 | 73.9 |
+| gemma4:12b-mlx | 1 | 8.5 | 256 | 30.1 |
+| gemma4:12b-mlx | 2 | 16.86 | 512 | 30.4 |
+| gemma4:12b-mlx | 4 | 33.45 | 1024 | 30.6 |
+| gemma4:26b-mlx | 1 | 6.74 | 256 | 38.0 |
+| gemma4:26b-mlx | 2 | 13.33 | 512 | 38.4 |
+| gemma4:26b-mlx | 4 | 26.31 | 1024 | 38.9 |
+| gemma4:31b-mlx | 1 | 20.26 | 256 | 12.6 |
+| gemma4:31b-mlx | 2 | 41.98 | 512 | 12.2 |
+| gemma4:31b-mlx | 4 | 74.08 | 1024 | 13.8 |
+| gemma4:e2b-mlx | 1 | 1.83 | 256 | 139.9 |
+| gemma4:e2b-mlx | 2 | 4.03 | 512 | 127.0 |
+| gemma4:e2b-mlx | 4 | 7.57 | 1024 | 135.3 |
+| gemma4:e4b-mlx | 1 | 3.31 | 256 | 77.3 |
+| gemma4:e4b-mlx | 2 | 6.12 | 485 | 79.2 |
+| gemma4:e4b-mlx | 4 | 7.53 | 600 | 79.7 |
+| gpt-oss:20b | 1 | 2.36 | 81 | 34.3 |
+| gpt-oss:20b | 2 | 7.94 | 293 | 36.9 |
+| gpt-oss:20b | 4 | 10.78 | 396 | 36.7 |
+| muse-glimmer:30b-nvfp4-dflash | 1 | 15.09 | 256 | 17.0 |
+| muse-glimmer:30b-nvfp4-dflash | 2 | 25.48 | 457 | 17.9 |
+| muse-glimmer:30b-nvfp4-dflash | 4 | 56.18 | 958 | 17.1 |
+| nemotron-3.5-lightning:30b-a3b-mlx | 1 | 5.03 | 256 | 50.9 |
+| nemotron-3.5-lightning:30b-a3b-mlx | 2 | 6.44 | 328 | 50.9 |
+| nemotron-3.5-lightning:30b-a3b-mlx | 4 | 7.9 | 407 | 51.5 |
+| qwen3-vl:8b-instruct | 1 | 9.62 | 256 | 26.6 |
+| qwen3-vl:8b-instruct | 2 | 19.04 | 512 | 26.9 |
+| qwen3-vl:8b-instruct | 4 | 38.1 | 1024 | 26.9 |
+| qwen3.6:35b-mlx | 1 | 3.83 | 256 | 66.8 |
+| qwen3.6:35b-mlx | 2 | 7.63 | 512 | 67.1 |
+| qwen3.6:35b-mlx | 4 | 15.62 | 1024 | 65.6 |
+| qwen3.8:27b-dflash2-nvfp4 | 1 | 13.28 | 256 | 19.3 |
+| qwen3.8:27b-dflash2-nvfp4 | 2 | 29.15 | 512 | 17.6 |
+| qwen3.8:27b-dflash2-nvfp4 | 4 | 59.33 | 1024 | 17.3 |
+| qwen3.8:27b-mlx | 1 | 13.26 | 256 | 19.3 |
+| qwen3.8:27b-mlx | 2 | 26.96 | 512 | 19.0 |
+| qwen3.8:27b-mlx | 4 | 53.36 | 1024 | 19.2 |
+| qwen3.8:27b-mtp-q4_K_M | 1 | 21.5 | 256 | 11.9 |
+| qwen3.8:27b-mtp-q4_K_M | 2 | 41.13 | 512 | 12.4 |
+| qwen3.8:27b-mtp-q4_K_M | 4 | 82.32 | 1024 | 12.4 |
 <!-- /generated:f_speed -->
 
 ### F15. The graders needed fixing too
@@ -485,45 +568,80 @@ the extensions were tuned.
 <!-- generated:assistant -->
 | Test | Model | Setup | Passed (each run) | Seconds per request |
 |---|---|---|---|---|
+| assistant-en | flint:40b | one model, harness v3.2 | 14/14 | 60.0 |
 | assistant-en | gemma4:12b-mlx | one model | 14/14/14/14 of 14 | 7.0 |
 | assistant-en | gemma4:12b-mlx | one model, 3 at once | 14/14 | 18.8 |
 | assistant-en | gemma4:12b-mlx | one model, harness v3 | 14/14 | 12.1 |
 | assistant-en | gemma4:12b-mlx | one model, harness v3.1 | 14/14/14 of 14 | 14.57 |
+| assistant-en | gemma4:12b-mlx | one model, harness v3.2 | 14/14 | 14.4 |
 | assistant-en | gemma4:26b-mlx | one model | 13/14 | 11.4 |
+| assistant-en | gemma4:26b-mlx | one model, harness v3.2 | 14/14 | 17.7 |
 | assistant-en | gemma4:e4b-mlx | one model | 12/14 | 2.5 |
 | assistant-en | gemma4:e4b-mlx | one model, 3 at once | 14/14 | 6.8 |
+| assistant-en | gemma4:e4b-mlx | one model, harness v3.2 | 14/14 | 2.9 |
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b | 14/13 of 14 | 4.75 |
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b, 3 at once | 14/14 | 10.4 |
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 13/14 | 4.6 |
 | assistant-en | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 14/14 | 8.9 |
 | assistant-en | gpt-oss:20b | one model | 14/14 | 6.5 |
 | assistant-en | gpt-oss:20b | one model, 3 at once | 14/14 | 13.8 |
+| assistant-en | gpt-oss:20b | one model, harness v3.2 | 14/14 | 10.2 |
+| assistant-en | mtplx/bonsai-2-27b | one model, harness v3.2 | 13/14 | 24.5 |
+| assistant-en | mtplx/qwen3.8-27b-bare | one model, harness v3.2 | 14/14 | 14.4 |
+| assistant-en | mtplx/qwen3.8-27b-optimized | one model, harness v3.2 | 14/14 | 14.7 |
+| assistant-en | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.1 | 13/14 | 113.4 |
+| assistant-en | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.2 | 14/14 | 64.5 |
+| assistant-en | nemotron-3.5-lightning:30b-a3b-mlx | one model, harness v3.2 | 14/14 | 9.8 |
+| assistant-en | omlx/qwen3.8-27b-oq3h-mtp | one model, harness v3.2 | 14/14 | 18.1 |
 | assistant-en | qwen3.6:35b-mlx | one model, harness v3.1 | 14/14 | 58.5 |
+| assistant-en | qwen3.6:35b-mlx | one model, harness v3.2 | 14/14 | 153.3 |
 | assistant-en | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 14/14 | 16.0 |
+| assistant-en | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.2 | 14/14 | 13.0 |
 | assistant-en | qwen3.8:27b-mlx | one model | 14/14 | 10.2 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v2 | 14/14 | 10.8 |
 | assistant-en | qwen3.8:27b-mlx | one model, harness v3 | 14/14 | 15.1 |
+| assistant-en | qwen3.8:27b-mlx | one model, harness v3.2 | 14/14 | 10.4 |
 | assistant-en | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 14/14 | 80.2 |
+| assistant-en | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.2 | 13/14 | 11.6 |
+| assistant-lang | flint:40b | one model, harness v3.2 | 8/8 | 8.2 |
 | assistant-lang | gemma4:12b-mlx | one model | 8/7/8/8 of 8 | 8.62 |
 | assistant-lang | gemma4:12b-mlx | one model, harness v3 | 8/8 | 20.1 |
 | assistant-lang | gemma4:12b-mlx | one model, harness v3.1 | 7/8/8 of 8 | 18.73 |
+| assistant-lang | gemma4:12b-mlx | one model, harness v3.2 | 8/8 | 84.2 |
 | assistant-lang | gemma4:26b-mlx | one model | 7/8 | 13.6 |
+| assistant-lang | gemma4:26b-mlx | one model, harness v3.2 | 8/8 | 11.8 |
 | assistant-lang | gemma4:e4b-mlx | one model | 7/8 | 3.0 |
+| assistant-lang | gemma4:e4b-mlx | one model, harness v3.2 | 7/8 | 3.9 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b | 6/6/5 of 8 | 5.87 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, 3 at once | 7/8 | 13.4 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 5/8 | 5.6 |
 | assistant-lang | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v3 | 6/8 | 10.8 |
 | assistant-lang | gpt-oss:20b | one model | 7/8 | 8.7 |
+| assistant-lang | gpt-oss:20b | one model, harness v3.2 | 7/8 | 11.6 |
+| assistant-lang | mtplx/bonsai-2-27b | one model, harness v3.2 | 8/8 | 28.1 |
+| assistant-lang | mtplx/qwen3.8-27b-bare | one model, harness v3.2 | 8/8 | 15.2 |
+| assistant-lang | mtplx/qwen3.8-27b-optimized | one model, harness v3.2 | 8/8 | 11.0 |
+| assistant-lang | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.2 | 8/8 | 34.7 |
+| assistant-lang | nemotron-3.5-lightning:30b-a3b-mlx | one model, harness v3.2 | 8/8 | 9.2 |
+| assistant-lang | omlx/qwen3.8-27b-oq3h-mtp | one model, harness v3.2 | 8/8 | 28.2 |
 | assistant-lang | qwen3.6:35b-mlx | one model, harness v3.1 | 6/8 | 16.3 |
+| assistant-lang | qwen3.6:35b-mlx | one model, harness v3.2 | 8/8 | 102.4 |
 | assistant-lang | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 7/8 | 10.7 |
+| assistant-lang | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.2 | 8/8 | 14.2 |
 | assistant-lang | qwen3.8:27b-mlx | one model | 8/8 of 8 | 13.0 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v2 | 8/8 | 12.6 |
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v3 | 8/8 | 12.1 |
+| assistant-lang | qwen3.8:27b-mlx | one model, harness v3.2 | 8/8 | 15.9 |
 | assistant-lang | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 8/8 | 61.8 |
+| assistant-lang | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.2 | 8/8 | 34.7 |
+| family-jobs | flint:40b | one model, harness v3.2 | 10/10 of 12 | 56.2 |
 | family-jobs | gemma4:12b-mlx | one model | 12/12/12/12/11 of 12 | 21.02 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3 | 11/11 of 12 | 17.5 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3.1 | 11/12/12/12/12 of 12 | 16.0 |
+| family-jobs | gemma4:12b-mlx | one model, harness v3.2 | 12/12 of 12 | 23.15 |
+| family-jobs | gemma4:26b-mlx | one model, harness v3.2 | 12/11 of 12 | 15.9 |
 | family-jobs | gemma4:e4b-mlx | one model | 6/12 | 8.8 |
+| family-jobs | gemma4:e4b-mlx | one model, harness v3.2 | 10/9 of 12 | 6.1 |
 | family-jobs | gemma4:e4b-mlx | routed to gpt-oss:20b | 8/7 of 12 | 19.1 |
 | family-jobs | gemma4:e4b-mlx | routed to gpt-oss:20b, 3 at once | 8/12 | 24.9 |
 | family-jobs | gemma4:e4b-mlx | routed to gpt-oss:20b, harness v2 | 7/9 of 12 | 24.1 |
@@ -531,14 +649,25 @@ the extensions were tuned.
 | family-jobs | gpt-oss:20b | one model | 6/12 | 26.5 |
 | family-jobs | gpt-oss:20b | one model, harness v2 | 7/6 of 12 | 22.8 |
 | family-jobs | gpt-oss:20b | one model, harness v3 | 8/8 of 12 | 29.1 |
+| family-jobs | gpt-oss:20b | one model, harness v3.2 | 9/7 of 12 | 32.35 |
+| family-jobs | mtplx/bonsai-2-27b | one model, harness v3.2 | 11/12 of 12 | 44.3 |
+| family-jobs | mtplx/qwen3.8-27b-bare | one model, harness v3.2 | 11/12 of 12 | 25.2 |
+| family-jobs | mtplx/qwen3.8-27b-optimized | one model, harness v3.2 | 12/12 of 12 | 26.8 |
 | family-jobs | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.1 | 12/12 of 12 | 76.5 |
+| family-jobs | muse-glimmer:30b-nvfp4-dflash | one model, harness v3.2 | 12/12 of 12 | 95.5 |
+| family-jobs | nemotron-3.5-lightning:30b-a3b-mlx | one model, harness v3.2 | 12/12 of 12 | 20.4 |
+| family-jobs | omlx/qwen3.8-27b-oq3h-mtp | one model, harness v3.2 | 12/12 of 12 | 35.65 |
 | family-jobs | qwen3.6:35b-mlx | one model, harness v3.1 | 10/8 of 12 | 158.4 |
+| family-jobs | qwen3.6:35b-mlx | one model, harness v3.2 | 9/7 of 12 | 158.8 |
 | family-jobs | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.1 | 12/12 of 12 | 19.75 |
+| family-jobs | qwen3.8:27b-dflash2-nvfp4 | one model, harness v3.2 | 12/12 of 12 | 20.6 |
 | family-jobs | qwen3.8:27b-mlx | one model | 10/12 of 12 | 29.8 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v2 | 12/12 of 12 | 29.1 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3 | 12/12 of 12 | 27.45 |
 | family-jobs | qwen3.8:27b-mlx | one model, harness v3.1 | 12/12 | 25.5 |
+| family-jobs | qwen3.8:27b-mlx | one model, harness v3.2 | 12/12 of 12 | 25.2 |
 | family-jobs | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 12/12 of 12 | 167.5 |
+| family-jobs | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.2 | 12/12 of 12 | 35.0 |
 <!-- /generated:assistant -->
 
 ### Routing

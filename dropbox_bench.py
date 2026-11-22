@@ -39,7 +39,10 @@ def slug(s):
 
 
 def out_dir(job, model):
-    d = ROOT / 'results' / f'dropbox-{job}-{slug(model.split("/", 1)[-1] if job != "captions" else model.rsplit("/", 1)[-1])}'
+    # ollama/<tag> -> <tag>; a model on another engine keeps its engine (mtplx/bonsai-2-27b -> mtplx-bonsai-2-27b), so the same
+    # model on two engines never shares a folder (2026-11-22: MTPLX's Bonsai runs had overwritten Ollama's)
+    name = model.rsplit("/", 1)[-1] if job == "captions" else model.split("/", 1)[-1] if model.startswith("ollama/") or "/" not in model else model
+    d = ROOT / 'results' / f'dropbox-{job}-{slug(name)}'
     d.mkdir(parents=True, exist_ok=True)
     return d
 

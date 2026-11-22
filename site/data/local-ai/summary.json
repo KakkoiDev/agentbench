@@ -8,6 +8,9 @@
    "ollama": "0.40.16"
   },
   "model_download_gb": {
+   "flint:40b": 22.0,
+   "bonsai-2:27b": 8.3,
+   "gemma4:e2b-mlx": 7.5,
    "nemotron-3.5-lightning:30b-a3b-mlx": 19.0,
    "muse-glimmer:30b-nvfp4-dflash": 19.0,
    "qwen3.6:35b-mlx": 23.0,
@@ -16,7 +19,6 @@
    "glm-ocr:latest": 2.7,
    "qwen3-vl:8b-instruct": 6.2,
    "huihui_ai/Qwen3.8-abliterated:27b": 17.0,
-   "gemma4:e2b-mlx": 7.5,
    "gemma4:e4b-mlx": 9.5,
    "gemma4:12b-mlx": 7.7,
    "qwen3.8:27b-mlx": 18.0,
@@ -27,6 +29,20 @@
   }
  },
  "groups": [
+  {
+   "bench": "assistant-en",
+   "model": "flint:40b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 60.0
+  },
   {
    "bench": "assistant-en",
    "model": "gemma4:12b-mlx",
@@ -90,6 +106,20 @@
   },
   {
    "bench": "assistant-en",
+   "model": "gemma4:12b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 14.4
+  },
+  {
+   "bench": "assistant-en",
    "model": "gemma4:26b-mlx",
    "setup": "one model",
    "runs": 1,
@@ -101,6 +131,20 @@
    "min": 13,
    "max": 13,
    "seconds_each": 11.4
+  },
+  {
+   "bench": "assistant-en",
+   "model": "gemma4:26b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 17.7
   },
   {
    "bench": "assistant-en",
@@ -129,6 +173,20 @@
    "min": 14,
    "max": 14,
    "seconds_each": 6.8
+  },
+  {
+   "bench": "assistant-en",
+   "model": "gemma4:e4b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 2.9
   },
   {
    "bench": "assistant-en",
@@ -217,6 +275,118 @@
   },
   {
    "bench": "assistant-en",
+   "model": "gpt-oss:20b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 10.2
+  },
+  {
+   "bench": "assistant-en",
+   "model": "mtplx/bonsai-2-27b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    13
+   ],
+   "mean": 13,
+   "min": 13,
+   "max": 13,
+   "seconds_each": 24.5
+  },
+  {
+   "bench": "assistant-en",
+   "model": "mtplx/qwen3.8-27b-bare",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 14.4
+  },
+  {
+   "bench": "assistant-en",
+   "model": "mtplx/qwen3.8-27b-optimized",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 14.7
+  },
+  {
+   "bench": "assistant-en",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "one model, harness v3.1",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    13
+   ],
+   "mean": 13,
+   "min": 13,
+   "max": 13,
+   "seconds_each": 113.4
+  },
+  {
+   "bench": "assistant-en",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 64.5
+  },
+  {
+   "bench": "assistant-en",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 9.8
+  },
+  {
+   "bench": "assistant-en",
+   "model": "omlx/qwen3.8-27b-oq3h-mtp",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 18.1
+  },
+  {
+   "bench": "assistant-en",
    "model": "qwen3.6:35b-mlx",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -231,6 +401,20 @@
   },
   {
    "bench": "assistant-en",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 153.3
+  },
+  {
+   "bench": "assistant-en",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -242,6 +426,20 @@
    "min": 14,
    "max": 14,
    "seconds_each": 16.0
+  },
+  {
+   "bench": "assistant-en",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 13.0
   },
   {
    "bench": "assistant-en",
@@ -287,6 +485,20 @@
   },
   {
    "bench": "assistant-en",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    14
+   ],
+   "mean": 14,
+   "min": 14,
+   "max": 14,
+   "seconds_each": 10.4
+  },
+  {
+   "bench": "assistant-en",
    "model": "qwen3.8:27b-mtp-q4_K_M",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -298,6 +510,34 @@
    "min": 14,
    "max": 14,
    "seconds_each": 80.2
+  },
+  {
+   "bench": "assistant-en",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 14,
+   "scores": [
+    13
+   ],
+   "mean": 13,
+   "min": 13,
+   "max": 13,
+   "seconds_each": 11.6
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "flint:40b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 8.2
   },
   {
    "bench": "assistant-lang",
@@ -348,6 +588,20 @@
   },
   {
    "bench": "assistant-lang",
+   "model": "gemma4:12b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 84.2
+  },
+  {
+   "bench": "assistant-lang",
    "model": "gemma4:26b-mlx",
    "setup": "one model",
    "runs": 1,
@@ -362,6 +616,20 @@
   },
   {
    "bench": "assistant-lang",
+   "model": "gemma4:26b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 11.8
+  },
+  {
+   "bench": "assistant-lang",
    "model": "gemma4:e4b-mlx",
    "setup": "one model",
    "runs": 1,
@@ -373,6 +641,20 @@
    "min": 7,
    "max": 7,
    "seconds_each": 3.0
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "gemma4:e4b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    7
+   ],
+   "mean": 7,
+   "min": 7,
+   "max": 7,
+   "seconds_each": 3.9
   },
   {
    "bench": "assistant-lang",
@@ -448,6 +730,104 @@
   },
   {
    "bench": "assistant-lang",
+   "model": "gpt-oss:20b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    7
+   ],
+   "mean": 7,
+   "min": 7,
+   "max": 7,
+   "seconds_each": 11.6
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "mtplx/bonsai-2-27b",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 28.1
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "mtplx/qwen3.8-27b-bare",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 15.2
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "mtplx/qwen3.8-27b-optimized",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 11.0
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 34.7
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 9.2
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "omlx/qwen3.8-27b-oq3h-mtp",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 28.2
+  },
+  {
+   "bench": "assistant-lang",
    "model": "qwen3.6:35b-mlx",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -462,6 +842,20 @@
   },
   {
    "bench": "assistant-lang",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 102.4
+  },
+  {
+   "bench": "assistant-lang",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -473,6 +867,20 @@
    "min": 7,
    "max": 7,
    "seconds_each": 10.7
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 14.2
   },
   {
    "bench": "assistant-lang",
@@ -519,6 +927,20 @@
   },
   {
    "bench": "assistant-lang",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 15.9
+  },
+  {
+   "bench": "assistant-lang",
    "model": "qwen3.8:27b-mtp-q4_K_M",
    "setup": "one model, harness v3.1",
    "runs": 1,
@@ -530,6 +952,50 @@
    "min": 8,
    "max": 8,
    "seconds_each": 61.8
+  },
+  {
+   "bench": "assistant-lang",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "one model, harness v3.2",
+   "runs": 1,
+   "out_of": 8,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "seconds_each": 34.7
+  },
+  {
+   "bench": "coding-v1",
+   "model": "bonsai-2:27b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    4
+   ],
+   "mean": 4,
+   "min": 4,
+   "max": 4,
+   "minutes": 42.1
+  },
+  {
+   "bench": "coding-v1",
+   "model": "flint:40b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    4
+   ],
+   "mean": 4,
+   "min": 4,
+   "max": 4,
+   "minutes": 4.9
   },
   {
    "bench": "coding-v1",
@@ -1039,6 +1505,36 @@
   },
   {
    "bench": "coding-v2",
+   "model": "bonsai-2:27b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    3
+   ],
+   "mean": 3,
+   "min": 3,
+   "max": 3,
+   "minutes": 58.1
+  },
+  {
+   "bench": "coding-v2",
+   "model": "flint:40b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 12.2
+  },
+  {
+   "bench": "coding-v2",
    "model": "gemma4:12b-mlx",
    "setup": "flat",
    "setup_meaning": "final extensions: as auto, plus a flat edit tool for gpt-oss",
@@ -1376,6 +1872,36 @@
   },
   {
    "bench": "coding-v2",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 46.5
+  },
+  {
+   "bench": "coding-v2",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 28.9
+  },
+  {
+   "bench": "coding-v2",
    "model": "qwen3.6:35b-mlx",
    "setup": "off",
    "setup_meaning": "pi with no extensions",
@@ -1494,6 +2020,36 @@
    "min": 4,
    "max": 4,
    "minutes": 51.9
+  },
+  {
+   "bench": "coding-v3",
+   "model": "bonsai-2:27b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    4
+   ],
+   "mean": 4,
+   "min": 4,
+   "max": 4,
+   "minutes": 75.0
+  },
+  {
+   "bench": "coding-v3",
+   "model": "flint:40b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 21.1
   },
   {
    "bench": "coding-v3",
@@ -1619,6 +2175,36 @@
   },
   {
    "bench": "coding-v3",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    5
+   ],
+   "mean": 5,
+   "min": 5,
+   "max": 5,
+   "minutes": 63.5
+  },
+  {
+   "bench": "coding-v3",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 5,
+   "scores": [
+    3
+   ],
+   "mean": 3,
+   "min": 3,
+   "max": 3,
+   "minutes": 45.6
+  },
+  {
+   "bench": "coding-v3",
    "model": "qwen3.6:35b-mlx",
    "setup": "off",
    "setup_meaning": "pi with no extensions",
@@ -1724,6 +2310,441 @@
    "minutes": 66.9
   },
   {
+   "bench": "coding-v4",
+   "model": "bonsai-2:27b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    10
+   ],
+   "mean": 10,
+   "min": 10,
+   "max": 10,
+   "minutes": 75.0
+  },
+  {
+   "bench": "coding-v4",
+   "model": "flint:40b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    50
+   ],
+   "mean": 50,
+   "min": 50,
+   "max": 50,
+   "minutes": 38.9
+  },
+  {
+   "bench": "coding-v4",
+   "model": "gemma4:12b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    17
+   ],
+   "mean": 17,
+   "min": 17,
+   "max": 17,
+   "minutes": 44.6
+  },
+  {
+   "bench": "coding-v4",
+   "model": "gemma4:26b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    20
+   ],
+   "mean": 20,
+   "min": 20,
+   "max": 20,
+   "minutes": 52.1
+  },
+  {
+   "bench": "coding-v4",
+   "model": "gpt-oss:20b",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    18
+   ],
+   "mean": 18,
+   "min": 18,
+   "max": 18,
+   "minutes": 41.4
+  },
+  {
+   "bench": "coding-v4",
+   "model": "mtplx/qwen3.8-27b-bare",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    26
+   ],
+   "mean": 26,
+   "min": 26,
+   "max": 26,
+   "minutes": 65.9
+  },
+  {
+   "bench": "coding-v4",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    39
+   ],
+   "mean": 39,
+   "min": 39,
+   "max": 39,
+   "minutes": 70.1
+  },
+  {
+   "bench": "coding-v4",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    31
+   ],
+   "mean": 31,
+   "min": 31,
+   "max": 31,
+   "minutes": 65.8
+  },
+  {
+   "bench": "coding-v4",
+   "model": "omlx/qwen3.8-27b-oq3h-mtp",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    8
+   ],
+   "mean": 8,
+   "min": 8,
+   "max": 8,
+   "minutes": 73.0
+  },
+  {
+   "bench": "coding-v4",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    36
+   ],
+   "mean": 36,
+   "min": 36,
+   "max": 36,
+   "minutes": 61.0
+  },
+  {
+   "bench": "coding-v4",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    47
+   ],
+   "mean": 47,
+   "min": 47,
+   "max": 47,
+   "minutes": 42.6
+  },
+  {
+   "bench": "coding-v4",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    47
+   ],
+   "mean": 47,
+   "min": 47,
+   "max": 47,
+   "minutes": 55.9
+  },
+  {
+   "bench": "coding-v4",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "off",
+   "setup_meaning": "pi with no extensions",
+   "runs": 1,
+   "out_of": 52,
+   "scores": [
+    46
+   ],
+   "mean": 46,
+   "min": 46,
+   "max": 46,
+   "minutes": 46.9
+  },
+  {
+   "bench": "family-hard",
+   "model": "flint:40b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    55,
+    55
+   ],
+   "mean": 55,
+   "min": 55,
+   "max": 55,
+   "seconds_each": 76.75
+  },
+  {
+   "bench": "family-hard",
+   "model": "gemma4:12b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    50,
+    51
+   ],
+   "mean": 50.5,
+   "min": 50,
+   "max": 51,
+   "seconds_each": 64.15
+  },
+  {
+   "bench": "family-hard",
+   "model": "gemma4:26b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    54,
+    54
+   ],
+   "mean": 54,
+   "min": 54,
+   "max": 54,
+   "seconds_each": 56.2
+  },
+  {
+   "bench": "family-hard",
+   "model": "gemma4:e4b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    40,
+    28
+   ],
+   "mean": 34,
+   "min": 28,
+   "max": 40,
+   "seconds_each": 17.6
+  },
+  {
+   "bench": "family-hard",
+   "model": "gpt-oss:20b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    49,
+    44
+   ],
+   "mean": 46.5,
+   "min": 44,
+   "max": 49,
+   "seconds_each": 60.95
+  },
+  {
+   "bench": "family-hard",
+   "model": "mtplx/bonsai-2-27b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    48,
+    54
+   ],
+   "mean": 51,
+   "min": 48,
+   "max": 54,
+   "seconds_each": 74.05
+  },
+  {
+   "bench": "family-hard",
+   "model": "mtplx/qwen3.8-27b-bare",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    50,
+    55
+   ],
+   "mean": 52.5,
+   "min": 50,
+   "max": 55,
+   "seconds_each": 69.6
+  },
+  {
+   "bench": "family-hard",
+   "model": "mtplx/qwen3.8-27b-optimized",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    52,
+    55
+   ],
+   "mean": 53.5,
+   "min": 52,
+   "max": 55,
+   "seconds_each": 59.4
+  },
+  {
+   "bench": "family-hard",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    55,
+    56
+   ],
+   "mean": 55.5,
+   "min": 55,
+   "max": 56,
+   "seconds_each": 108.9
+  },
+  {
+   "bench": "family-hard",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    49,
+    48
+   ],
+   "mean": 48.5,
+   "min": 48,
+   "max": 49,
+   "seconds_each": 37.35
+  },
+  {
+   "bench": "family-hard",
+   "model": "omlx/qwen3.8-27b-oq3h-mtp",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    55,
+    50
+   ],
+   "mean": 52.5,
+   "min": 50,
+   "max": 55,
+   "seconds_each": 111.4
+  },
+  {
+   "bench": "family-hard",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    37,
+    50
+   ],
+   "mean": 43.5,
+   "min": 37,
+   "max": 50,
+   "seconds_each": 127.2
+  },
+  {
+   "bench": "family-hard",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    56,
+    55
+   ],
+   "mean": 55.5,
+   "min": 55,
+   "max": 56,
+   "seconds_each": 44.8
+  },
+  {
+   "bench": "family-hard",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    55,
+    56
+   ],
+   "mean": 55.5,
+   "min": 55,
+   "max": 56,
+   "seconds_each": 47.65
+  },
+  {
+   "bench": "family-hard",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 56,
+   "scores": [
+    54,
+    54
+   ],
+   "mean": 54,
+   "min": 54,
+   "max": 54,
+   "seconds_each": 58.7
+  },
+  {
+   "bench": "family-jobs",
+   "model": "flint:40b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    10,
+    10
+   ],
+   "mean": 10,
+   "min": 10,
+   "max": 10,
+   "seconds_each": 56.2
+  },
+  {
    "bench": "family-jobs",
    "model": "gemma4:12b-mlx",
    "setup": "one model",
@@ -1776,6 +2797,36 @@
   },
   {
    "bench": "family-jobs",
+   "model": "gemma4:12b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 23.15
+  },
+  {
+   "bench": "family-jobs",
+   "model": "gemma4:26b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    11
+   ],
+   "mean": 11.5,
+   "min": 11,
+   "max": 12,
+   "seconds_each": 15.9
+  },
+  {
+   "bench": "family-jobs",
    "model": "gemma4:e4b-mlx",
    "setup": "one model",
    "runs": 1,
@@ -1787,6 +2838,21 @@
    "min": 6,
    "max": 6,
    "seconds_each": 8.8
+  },
+  {
+   "bench": "family-jobs",
+   "model": "gemma4:e4b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    10,
+    9
+   ],
+   "mean": 9.5,
+   "min": 9,
+   "max": 10,
+   "seconds_each": 6.1
   },
   {
    "bench": "family-jobs",
@@ -1893,6 +2959,66 @@
   },
   {
    "bench": "family-jobs",
+   "model": "gpt-oss:20b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    9,
+    7
+   ],
+   "mean": 8,
+   "min": 7,
+   "max": 9,
+   "seconds_each": 32.35
+  },
+  {
+   "bench": "family-jobs",
+   "model": "mtplx/bonsai-2-27b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    11,
+    12
+   ],
+   "mean": 11.5,
+   "min": 11,
+   "max": 12,
+   "seconds_each": 44.3
+  },
+  {
+   "bench": "family-jobs",
+   "model": "mtplx/qwen3.8-27b-bare",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    11,
+    12
+   ],
+   "mean": 11.5,
+   "min": 11,
+   "max": 12,
+   "seconds_each": 25.2
+  },
+  {
+   "bench": "family-jobs",
+   "model": "mtplx/qwen3.8-27b-optimized",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 26.8
+  },
+  {
+   "bench": "family-jobs",
    "model": "muse-glimmer:30b-nvfp4-dflash",
    "setup": "one model, harness v3.1",
    "runs": 2,
@@ -1905,6 +3031,51 @@
    "min": 12,
    "max": 12,
    "seconds_each": 76.5
+  },
+  {
+   "bench": "family-jobs",
+   "model": "muse-glimmer:30b-nvfp4-dflash",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 95.5
+  },
+  {
+   "bench": "family-jobs",
+   "model": "nemotron-3.5-lightning:30b-a3b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 20.4
+  },
+  {
+   "bench": "family-jobs",
+   "model": "omlx/qwen3.8-27b-oq3h-mtp",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 35.65
   },
   {
    "bench": "family-jobs",
@@ -1923,6 +3094,21 @@
   },
   {
    "bench": "family-jobs",
+   "model": "qwen3.6:35b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    9,
+    7
+   ],
+   "mean": 8,
+   "min": 7,
+   "max": 9,
+   "seconds_each": 158.8
+  },
+  {
+   "bench": "family-jobs",
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "setup": "one model, harness v3.1",
    "runs": 2,
@@ -1935,6 +3121,21 @@
    "min": 12,
    "max": 12,
    "seconds_each": 19.75
+  },
+  {
+   "bench": "family-jobs",
+   "model": "qwen3.8:27b-dflash2-nvfp4",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 20.6
   },
   {
    "bench": "family-jobs",
@@ -1997,6 +3198,21 @@
   },
   {
    "bench": "family-jobs",
+   "model": "qwen3.8:27b-mlx",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 25.2
+  },
+  {
+   "bench": "family-jobs",
    "model": "qwen3.8:27b-mtp-q4_K_M",
    "setup": "one model, harness v3.1",
    "runs": 2,
@@ -2009,6 +3225,21 @@
    "min": 12,
    "max": 12,
    "seconds_each": 167.5
+  },
+  {
+   "bench": "family-jobs",
+   "model": "qwen3.8:27b-mtp-q4_K_M",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 35.0
   },
   {
    "bench": "routing",

@@ -16,12 +16,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from speed_test import SYSTEM, TERSE, ASK  # noqa: E402  (the same prompts)
 
 
+KEY = 'local'
+
+
 def call(port, model, system, ask, max_tokens=600):
     body = {'model': model, 'stream': True, 'max_tokens': max_tokens, 'temperature': 0,
             'stream_options': {'include_usage': True},
             'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': ask}]}
     req = urllib.request.Request(f'http://127.0.0.1:{port}/v1/chat/completions', json.dumps(body).encode(),
-                                 {'Content-Type': 'application/json'})
+                                 {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY})
     t0, first, n, usage = time.time(), None, 0, {}
     with urllib.request.urlopen(req, timeout=1800) as r:
         for line in r:
@@ -44,6 +47,8 @@ def main():
     model = sys.argv[1]
     engine, mid = model.split('/', 1)
     port = local_engines.ENGINES[engine]['port']
+    global KEY
+    KEY = local_engines.api_key(engine)
     rows = []
     call(port, mid, 'You are terse.', 'hi', 8)   # warm up
     for name, system, ask in [('first', SYSTEM + ' ', ASK), ('cached', SYSTEM + ' ', ASK + ' Thanks.'), ('terse', SYSTEM + ' ' + TERSE, ASK)]:

@@ -16,8 +16,9 @@ E = ROOT / 'engines'
 OFFLINE = {'HF_HUB_OFFLINE': '1', 'TRANSFORMERS_OFFLINE': '1'}
 
 ENGINES = {   # engine -> port, the command that serves one model, and its environment and working folder
-    'mlxlm': dict(port=8091, cmd=lambda m: [str(ROOT / '.venv/bin/python'), '-m', 'mlx_lm', 'server', '--model', m['path'],
-                                            '--host', '127.0.0.1', '--port', '8091'], env=OFFLINE),
+    # mlx-lm resolves a request's "model" as a path or a Hub repo: run it from models/mlx and name the model by its folder
+    'mlxlm': dict(port=8091, cwd=ROOT / 'models/mlx', cmd=lambda m: [str(ROOT / '.venv/bin/python'), '-m', 'mlx_lm', 'server', '--model',
+                                                                     Path(m['path']).name, '--host', '127.0.0.1', '--port', '8091'], env=OFFLINE),
     # MTPLX (engines/mtplx, reviewed 2026-11-20): logs off, session cache and HOME kept in engines/mtplx/state, API key even on loopback;
     # never `mtplx max`, `--fan-mode max` or `start pi`. Issue #691 strips trailing newlines from tool-call arguments (affects coding).
     'mtplx': dict(port=8092, key_file=E / 'mtplx/state/api-key',
@@ -37,10 +38,13 @@ ENGINES = {   # engine -> port, the command that serves one model, and its envir
     # SlotStream 0.2.30 (engines/slotstream-release, checksum and attestation verified): binds 127.0.0.1 only; --model means no
     # download and no hash check; writes logs under ~/.slotstream. Never install.sh or `launch pi`.
     'slotstream': dict(port=8094, cmd=lambda m: [str(E / 'slotstream-release/bin/slotstream'), 'serve', '--model', m['path'],
-                                                 '--memory-gb', '26', '--port', '8094']),
+                                                 '--port', '8094']),   # auto plan: --memory-gb 26 hit insufficient_memory
     # ds4 (engines/ds4, built from source, reviewed): SSD streaming for models far larger than RAM; binds 127.0.0.1.
-    'ds4': dict(port=8095, cmd=lambda m: [str(E / 'ds4/ds4-server'), '-m', m['path'], '--ssd-streaming', '--ctx', '16384',
-                                          '--ssd-streaming-cache-experts', m.get('cache', '14GB'), '--host', '127.0.0.1', '--port', '8095']),
+    'ds4': dict(port=8095, cwd=E / 'ds4', cmd=lambda m: [str(E / 'ds4/ds4-server'), '-m', m['path'], '--ssd-streaming', '--ctx', str(m.get('ctx', 16384)),
+                                          '--ssd-streaming-cache-experts', m.get('cache', '14GB'), '--host', '127.0.0.1', '--port', '8095'],
+                # GLM's default memory reserve is a flat 32 GiB (sized for 128 GB+ hosts), so on 32 GB its guard budget is 0:
+                # reserve 8 GiB for macOS and the benches instead (GLM-5.3-Flash with SSD streaming needs about 5.3 GiB)
+                env={'DS4_GLM_MEMORY_GUARD_RESERVE_GB': '8'}),
 }
 
 M = ROOT / 'models'
@@ -48,13 +52,13 @@ M = ROOT / 'models'
 MODELS = {
     'mlxlm/nanbeige4.3-33b-4bit': dict(path=str(M / 'mlx/nanbeige4.3-33b-4bit'), reasoning=True),
     'mtplx/qwen3.8-27b-bare': dict(path=str(M / 'mtplx/qwen3.8-27b-bare-speed'), reasoning=True, depth=3),
-    'mtplx/qwen3.8-27b-optimized': dict(path=str(M / 'mtplx/qwen3.8-27b-optimized-speed'), reasoning=True, depth=3, memory='26G'),
+    'mtplx/qwen3.8-27b-optimized': dict(path=str(M / 'mtplx/qwen3.8-27b-optimized-speed'), reasoning=True, depth=3, memory='23G'),
     'mtplx/bonsai-2-27b': dict(path=str(M / 'mtplx/bonsai-2-27b-optimized-speed'), reasoning=True, depth=1),
     'omlx/qwen3.8-27b-oq3h-mtp': dict(path=str(M / 'omlx/qwen3.8-27b-oq3h-mtp'), reasoning=True),
     'slotstream/qwen3.8-flash-next:4bit': dict(path=str(M / 'qwen3.8-flash-next-mlx-4bit'), reasoning=True),
     'ds4/glm-5.3-flash-q2': dict(path=str(M / 'ds4/GLM-5.3-Flash-Q2.gguf'), reasoning=True),
     'ds4/qwen3.8-flash-next-q2': dict(path=str(M / 'ds4/Qwen3.8-Flash-Next-Q2.gguf'), reasoning=True),
-    'ds4/deepseek-v4.1-flash-q2': dict(path=str(M / 'ds4/DeepSeek-V4.1-Flash-1017-IQ2_XXS-Q2_K-imatrix.gguf'), reasoning=True, cache='12GB'),
+    'ds4/deepseek-v4.1-flash-q2': dict(path=str(M / 'ds4/DeepSeek-V4.1-Flash-1017-IQ2_XXS-Q2_K-imatrix.gguf'), reasoning=True, ctx=8192, cache='300'),   # at ctx 16384 / 12GB it needed 25.17 GiB vs a 24.96 GiB budget
 }
 for _k, _m in MODELS.items():
     _m['id'] = _k.split('/', 1)[1]
