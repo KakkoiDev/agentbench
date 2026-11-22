@@ -11,3 +11,17 @@ __pycache__/
 qwen-download-cancelled.json
 site/data/bench-summary.json
 benches/agentic-v5/sources/
+# Victris Arena: Victris's docs/skills/starter carry no license, so they are rebuilt locally by
+# `python -m arena.setup` from engines/victris-arena; ladder replays are other people's matches; the rest is run state
+arena/harness/docs/
+arena/harness/skills/arena-combat/
+arena/harness/skills/arena-match-review/
+arena/harness/skills/arena-simulator/
+arena/template/
+arena/champions/
+arena/lab/
+arena/replays/
+arena/export/
+arena/league.json
+arena/league-history.jsonl
+benches/arena-analysis-v1/replays/

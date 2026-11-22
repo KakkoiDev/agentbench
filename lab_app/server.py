@@ -993,6 +993,11 @@ def act(path, body):
         if not m:
             raise actions.ActionError('unknown model')
         return actions.remove_model(m, busy_model_paths())
+    if path in ('/api/arena/start', '/api/arena/step', '/api/arena/stop', '/api/arena/export'):
+        try:
+            return getattr(arena_play, path.rsplit('/', 1)[1])(body)
+        except arena_play.PlayError as ex:
+            raise actions.ActionError(str(ex))
     if path in ('/api/bench-queue/start', '/api/bench-queue/stop'):
         try:
             return benchq.start() if path.endswith('start') else benchq.stop()
@@ -1095,6 +1100,8 @@ API = {
     '/api/storage': lambda q: storage(),
     '/api/heavy-downloads': lambda q: heavy.status(),
     '/api/bench-queue': lambda q: benchq.status(),
+    '/api/arena/opponents': lambda q: arena_play.opponents(),
+    '/api/arena/league': lambda q: arena_play.league(),
 }
 TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
          '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png',
@@ -1104,6 +1111,7 @@ TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=u
 import remote_access
 import heavy
 import benchq
+import arena_play
 
 
 class Handler(BaseHTTPRequestHandler):

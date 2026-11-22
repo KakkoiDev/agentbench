@@ -12,7 +12,7 @@ PY = ROOT / '.venv' / 'bin' / 'python'
 OUT = ROOT / 'results' / 'bench-queue.out'
 
 # items each kind of job works through, and how its log shows one finished
-TOTAL = {'family': 12, 'hard': 10, 'expert': 10, 'mini-en': 14, 'mini-lang': 8, 'coding': 5, 'speed': 10, 'concurrency': 1}
+TOTAL = {'family': 12, 'hard': 10, 'expert': 10, 'mini-en': 14, 'mini-lang': 8, 'coding': 5, 'speed': 10, 'concurrency': 1, 'arena-league': 1, 'arena-lab': 1, 'arena-import': 1}
 CASE = re.compile(r'^\S+\s+(PASS|FAIL)\s', re.M)
 TASK = re.compile(r'^\[(\d+)/(\d+)\]', re.M)
 

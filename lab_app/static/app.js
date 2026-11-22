@@ -14,11 +14,11 @@
     experiments: 'M9 3h6M10 3v6L4 19a1 1 0 0 0 1 1.5h14A1 1 0 0 0 20 19l-6-10V3',
     benches: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', runs: 'M4 17l6-5-6-5M12 19h8',
     research: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',
-    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16', 'benches-live': 'M4 19h16M7 16V9M12 16V5M17 16v-4', downloads: 'M12 3v12M7 10l5 5 5-5M4 21h16',
+    queue: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01', install: 'M12 3v12M7 10l5 5 5-5M4 21h16', 'benches-live': 'M4 19h16M7 16V9M12 16V5M17 16v-4', downloads: 'M12 3v12M7 10l5 5 5-5M4 21h16', arena: 'M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
     settings: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M14 4v4M8 10v4M16 16v4',
     compare: 'M4 20V10M10 20V4M16 20v-7M22 20H2', run: 'M7 4l12 8-12 8z', guide: 'M12 5v14M5 12h14'
   };
-  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['benches-live', 'Benches'], ['downloads', 'Downloads'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
+  var SCREENS = [['compare', 'Compare models'], ['run', 'Run a benchmark'], ['results', 'Results'], ['models', 'Models'], ['benches-live', 'Benches'], ['downloads', 'Downloads'], ['arena', 'Arena'], ['guide', 'Add a test'], ['phone', 'Open on phone']];
   var ADVANCED = [['dashboard', 'Status and bench grid'], ['queue', 'Queue and logs'], ['now', 'Machine status'], ['runs', 'Engine runs'],
                   ['leaderboard', 'Leaderboard'], ['experiments', 'Experiments'], ['research', 'Research'], ['settings', 'Settings']];
   var CFG = { exact: 'exact', d030: 'skip 0.3', d050: 'skip 0.5', d030t12: 'skip 0.3 · 12 threads', d040t12: 'skip 0.4 · 12 threads',
@@ -1919,7 +1919,8 @@
   var ROUTES = { dashboard: screenDashboard, results: screenResults, models: screenModels, install: screenModels, benches: function (m) { return screenResults(m, 'coverage'); },
                  phone: screenPhone, now: screenNow, queue: screenQueue, settings: screenSettings, runs: screenRuns, experiments: screenExperiments,
                  leaderboard: screenLeaderboard, research: screenResearch, start: screenDashboard,
-                 compare: screenCompare, run: screenRun, guide: screenGuide, downloads: screenDownloads, 'benches-live': screenBenchQueue };
+                 compare: screenCompare, run: screenRun, guide: screenGuide, downloads: screenDownloads, 'benches-live': screenBenchQueue,
+                 arena: function (m) { return window.LabArena(m, post, header, toast); } };
   var NAV_OF = { bench: 'results', benches: 'results', install: 'models', start: 'run', task: 'results', agentic: 'results' };
   function route() {
     clearInterval(timer);
@@ -1932,7 +1933,7 @@
       : name === 'agentic' ? function (m) { return screenAgenticRun(m, dec(parts[1])); } : ROUTES[name] || screenCompare;
     renderNav(NAV_OF[name] || (ROUTES[name] ? name : 'compare'));
     var title = { dashboard: 'Status and bench grid', results: 'Results', bench: 'Answers', models: 'Models', install: 'Models', phone: 'Open on phone',
-                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run', downloads: 'Downloads', 'benches-live': 'Benches' }[name] ||
+                  compare: 'Compare models', run: 'Run a benchmark', guide: 'Add a test', task: 'Task', agentic: 'Agentic run', downloads: 'Downloads', 'benches-live': 'Benches', arena: 'Arena' }[name] ||
       (ADVANCED.filter(function (s) { return s[0] === name; })[0] || [0, 'Run benchmarks'])[1];
     document.title = title + ' · GLM lab';
     function load(keepScroll, focus) {
