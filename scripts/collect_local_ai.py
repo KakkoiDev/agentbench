@@ -107,7 +107,7 @@ def hidden_steps(task_dir, hidden_src):
 
 def coding_runs():
     rows = []
-    v4 = None
+    partial = {}  # suites graded in hidden tests passed (v4, v5): their task modules
     for d in sorted(RES.glob("agentic-v*")):
         meta = load(d / "meta.json")
         m = re.match(rf"agentic-(v\d)-{MODEL_RE}-(.+)$", d.name)
@@ -133,14 +133,15 @@ def coding_runs():
         if not tasks:
             continue
         extra = {}
-        if suite == "v4":  # graded in hidden tests passed: partial credit, with each test's name
-            if v4 is None:
-                spec = importlib.util.spec_from_file_location("agentic_v4_tasks", ROOT / "benches" / "agentic-v4" / "tasks.py")
-                v4 = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(v4)
+        if suite in ("v4", "v5"):  # graded in hidden tests passed: partial credit, with each test's name
+            if suite not in partial:
+                spec = importlib.util.spec_from_file_location(f"agentic_{suite}_tasks", ROOT / "benches" / f"agentic-{suite}" / "tasks.py")
+                partial[suite] = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(partial[suite])
+            tm = partial[suite]
             jobs = []
             for t in tasks:
-                st = hidden_steps(d / t["task"], v4.TASKS[t["task"]]["hidden"]) if t["task"] in v4.TASKS else []
+                st = hidden_steps(d / t["task"], tm.TASKS[t["task"]]["hidden"]) if t["task"] in tm.TASKS else []
                 jobs.append({"id": t["task"], "points": sum(ok for _, ok in st), "out_of": len(st), "steps": st,
                              "error": "timed out" if t.get("timed_out") else None})
             extra = {"jobs": jobs, "score": sum(j["points"] for j in jobs), "out_of": sum(j["out_of"] for j in jobs),
@@ -159,7 +160,7 @@ def coding_runs():
             "versions": {"pi": meta.get("pi_version"), "ollama": (meta.get("ollama_version") or "").split()[-1]},
             "extensions": [Path(e).parent.parent.name + "/" + Path(e).parent.name for e in (meta.get("extension") or "").split(",") if e],
             "per_task": {t["task"]: {"solved": t.get("solved"), "seconds": t.get("wall_s")} for t in tasks},
-            "set_aside": set_aside(d.name) or (None if len(tasks) == 5 else "incomplete run"),
+            "set_aside": set_aside(d.name) or (None if len(tasks) == (len(partial["v5"].TASKS) if suite == "v5" else 5) else "incomplete run"),
         } | extra))
     return rows
 
@@ -198,9 +199,9 @@ def dropbox_runs():
             row |= {"bench": "family-jobs", "setup": ("routed to " + model_name(s["tools_model"]) if s.get("tools_model") else "one model")
                     + (f", {s.get('concurrency')} at once" if (s.get("concurrency") or 1) > 1 else "") + checks,
                     "score": s["passed"], "out_of": s["total"], "seconds_each": s.get("seconds_per_job"), "slowest_seconds": s.get("slowest_job")}
-        elif job == "family-hard":
+        elif job in ("family-hard", "family-expert"):
             r = load(d / "results.json") or {}
-            row |= {"bench": "family-hard", "setup": "one model" + checks, "score": s["passed"], "out_of": s["total"],
+            row |= {"bench": job, "setup": "one model" + checks, "score": s["passed"], "out_of": s["total"],
                     "jobs_complete": s.get("jobs_complete"), "seconds_each": s.get("seconds_per_job"), "slowest_seconds": s.get("slowest_job"),
                     "jobs": [{"id": x["id"], "points": x.get("points"), "out_of": x.get("out_of"), "steps": x.get("steps"),
                               "error": next((w for w in x.get("why") or [] if str(w).startswith("error")), None)} for x in r.get("rows", [])]}

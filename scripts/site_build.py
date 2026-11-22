@@ -11,10 +11,12 @@ from pathlib import Path
 import sys
 
 import md_page
+import site_chart
 from model_facts import MODELS, CODE, REPO
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benches" / "dropbox"))
 import family_hard  # noqa: E402  (task titles for the hard jobs)
+import family_expert  # noqa: E402  (task titles for the expert jobs)
 
 E = lambda s: html.escape(str(s), quote=True)
 inline = md_page.inline
@@ -24,6 +26,11 @@ PLAIN = ("off", "bare")  # pi with no extensions
 SINGLE = PLAIN + ("flat", "tuned", "guard", "guard1", "guard2", "guard2-terse", "medium", "cut", "auto", "gb0", "gb1", "gb2",
                   "gb1med", "gb2-terse", "low-ext", "medium-ext")
 BENCH = {
+    "family-expert": ("Expert family jobs", "10 long jobs over 20-60 messy files in English, Japanese and French (a year of expenses across three banks "
+                      "with refunds and duplicates, a holiday childcare rota, recipe scaling across units and allergies, contract amendments that override "
+                      "each other, a prorated utility split, an ID-number audit...), with superseded values, look-alike distractors, exact output formats "
+                      f"and parts that must be refused or asked about, graded in {family_expert.total_steps()} named steps. "
+                      "Made after the strong models scored 54-55.5 of 56 on the hard jobs."),
     "family-hard": ("Hard family jobs", "10 harder multi-step jobs (reconcile receipts with a bank statement, car clashes across agendas in three languages, "
                     "fix links after renaming, latest decisions from meetings that changed their minds...), graded in 56 steps. Made so that no model gets everything."),
     "family-jobs": ("Family jobs", "12 multi-step jobs in a made-up family's files (sort, rename, total, summarize, ask before deleting), in English, Japanese and French. Graded on the files left behind."),
@@ -35,6 +42,10 @@ BENCH = {
     "coding-v4": ("Hard coding, suite v4", "5 hard tasks (expression evaluator with exact error positions, iCalendar recurrence across DST, "
                   "multi-currency across a 4-file package, JSON Patch, overlap counting for 200,000 intervals) graded in 52 hidden tests. "
                   "Made so that no model solves everything; the score is tests passed."),
+    "coding-v5": ("Hard coding, suite v5", "15 of the hardest Python exercises from Aider's polyglot benchmark (Exercism, MIT): a Forth interpreter, "
+                  "poker hands, bowling, an SGF parser, grep, word problems, book-store discounts, a reactive spreadsheet, tree re-rooting, a zipper, "
+                  "dominoes, Go territories, two buckets, an IOU REST API and text transposing. The agent sees 2-3 official tests; "
+                  "the full official test files grade it in 312 hidden tests. The score is tests passed."),
     "vision-v1": ("Images, suite v1", "25 screenshots, documents, photos and charts with expected answers."),
     "vision-v2": ("Images, suite v2", "10 harder images."),
     "translation": ("Translation", "Short chat messages between English, Japanese and French; chrF against references (higher is better)."),
@@ -109,14 +120,18 @@ class Site:
                 continue
             got += pick["mean"]; total += pick["out_of"]; mins += pick.get("minutes") or 0
             parts.append((suite, pick)); early |= pick["runs"] < 2 and not plain
-        hard = max(self.groups(m, "coding-v4"), key=lambda g: g["mean"], default=None)   # the hard suite, in tests passed
-        if hard:
-            parts.append(("coding-v4", hard))
-            mins += hard.get("minutes") or 0
+        fracs = []
+        for suite in ("coding-v4", "coding-v5"):   # the hard suites, in tests passed
+            g = max(self.groups(m, suite), key=lambda g: g["mean"], default=None)
+            if g:
+                parts.append((suite, g))
+                mins += g.get("minutes") or 0
+                fracs.append(g["mean"] / g["out_of"])
         if len(parts) < 2:
             return None
-        # v1-v3 (tasks solved) and the hard suite (tests passed) count half each, so the suite that separates strong models weighs in
-        q = (got / total + hard["mean"] / hard["out_of"]) / 2 if hard and total else hard["mean"] / hard["out_of"] if hard else got / total
+        hard = statistics.mean(fracs) if fracs else None   # v4 and v5 test fractions averaged, where run
+        # v1-v3 (tasks solved) and the hard suites (tests passed) count half each, so the suites that separate strong models weigh in
+        q = (got / total + hard) / 2 if fracs and total else hard if fracs else got / total
         return dict(q=q, got=got, total=total, minutes=mins, parts=parts, hard=hard, early=early or len(parts) < 3)
 
     def vision(self, m):
@@ -142,7 +157,7 @@ class Site:
     def smartest(self, m):
         # coding is required (it includes the hard suite): without it, the areas nearly every model aces would decide
         c = self.coding(m) or (self.hard(m, "coding-v4") and dict(q=self.hard(m, "coding-v4")["q"]))
-        parts = [x["q"] for x in (self.daily(m), c, self.vision(m), self.hard(m)) if x]
+        parts = [x["q"] for x in (self.daily(m), c, self.vision(m), self.hard(m), self.hard(m, "family-expert")) if x]
         return dict(q=statistics.mean(parts), n=len(parts)) if c and len(parts) >= 3 else None
 
     def mem(self, m):
@@ -257,7 +272,7 @@ def home(S):
 
     d_cards = [card(i, m, [f"Family jobs {runs(d['fam'])}", f"Assistant {runs(d['en'])} · {runs(d['la'])}",
                            f"{fmt(d['secs'])} s per family job · {E(d['setup'])}"], d["early"]) for i, (m, d) in enumerate(daily)]
-    c_cards = [card(i, m, [f"Coding score {pct(c['q'])}" + (f" · {fmt(c['got'])} of {c['total']} tasks" if c['total'] else ""), " · ".join(f"{s.split('-')[1]}: {fmt(p['mean'])}/{p['out_of']}" + (" tests" if s == "coding-v4" else "") for s, p in c["parts"]),
+    c_cards = [card(i, m, [f"Coding score {pct(c['q'])}" + (f" · {fmt(c['got'])} of {c['total']} tasks" if c['total'] else ""), " · ".join(f"{s.split('-')[1]}: {fmt(p['mean'])}/{p['out_of']}" + (" tests" if s in ("coding-v4", "coding-v5") else "") for s, p in c["parts"]),
                            f"{c['minutes']:.0f} min for the suites"], c["early"]) for i, (m, c) in enumerate(coding)]
     s_cards = []
     for i, (m, s) in enumerate(smart):
@@ -292,10 +307,11 @@ home assistant and a coding agent really do. These are the models to pick, and t
 {sec(("daily", "Daily use: the house assistant"), "Chat, answer from your files, sort, rename, total, summarize, in English, Japanese and French. Speed matters: you wait for every reply.",
      "assistant tests and family jobs averaged (one model alone, its best harness setup), minus a little for each second per job.", d_cards)}
 {sec(("coding", "Coding tasks"), "An agent (pi) that fixes bugs, adds features and refactors in a real repository, graded by hidden tests.",
-     "half tasks solved in coding suites v1-v3, half hidden tests passed in the hard suite v4, with pi and no extensions where we ran it; ties go to the faster model.", c_cards)}
+     "half tasks solved in coding suites v1-v3, half hidden tests passed in the hard suites v4 and v5 (averaged), with pi and no extensions where we ran it; ties go to the faster model.", c_cards)}
 {sec(("smartest", "Smartest, any speed"), "The most capable model this Mac can run when you can wait: the closest to frontier quality you get locally.",
-     "the average of assistant, coding (with the hard suite), image and hard-job scores; a model needs coding and at least three areas. Speed is ignored.", s_cards)}
+     "the average of assistant, coding (with the hard suites), image, hard-job and expert-job scores; a model needs coding and at least three areas. Speed is ignored.", s_cards)}
 <p class="note">Beyond 32 GB: <a href="models/glm-5.3.html">GLM-5.3 (744B)</a> runs on this Mac by streaming its experts from the SSD. It is rated well above anything here, and writes well under one token per second.</p>
+{site_chart.section(S, MODELS, S.root)}
 <section class="sec" aria-labelledby="spec"><div class="sec-h"><h2 id="spec">Specialists</h2></div>
 <ul class="specs">{spec_html}</ul></section>
 <section class="sec" aria-labelledby="start"><div class="sec-h"><h2 id="start">Set it up in five minutes</h2></div>
@@ -362,6 +378,11 @@ document.getElementById('sort').onchange=apply;apply()}})();
 CODING_V4_TITLES = {"calc-evaluator": "Expression evaluator with exact error positions", "ics-recurrence": "iCalendar recurrence, time zones and DST",
                     "money-multicurrency": "Multi-currency money across a four-file package", "json-patch": "JSON Patch (RFC 6902), atomic",
                     "busy-intervals": "Overlap counting, correct and fast for 200,000 intervals"}
+CODING_V5_TITLES = {"forth": "Forth interpreter with user-defined words", "poker": "Poker hand ranking", "bowling": "Bowling score with every invalid roll",
+                    "sgf-parsing": "SGF game-record parser", "grep": "grep with combined flags", "wordy": "Word problems, left to right",
+                    "book-store": "Cheapest book-store discounts", "react": "Reactive cells with callbacks", "pov": "Tree re-rooting and paths",
+                    "zipper": "Binary-tree zipper", "dominoes": "Domino chains", "go-counting": "Go territories",
+                    "two-bucket": "Two-bucket puzzle", "rest-api": "IOU REST API", "transpose": "Transposing ragged text"}
 
 
 def managed_section(S, m, bench, titles, sid, heading, unit, how):
@@ -401,6 +422,8 @@ def model_page(S, m):
              ("Coding", f"{fmt(c['got'])}/{c['total']}" if c else "—", c and "tasks solved"),
              ("Images", pct(v["q"]) if v else "—", v and f"{runs(v['v1'])}, {runs(v['v2'])}"),
              ("Hard jobs", pct(S.hard(m)["q"]) if S.hard(m) else "—", S.hard(m) and f"{runs(S.hard(m)['g'])} steps"),
+             ("Expert jobs", pct(S.hard(m, "family-expert")["q"]) if S.hard(m, "family-expert") else "—",
+              S.hard(m, "family-expert") and f"{runs(S.hard(m, 'family-expert')['g'])} steps"),
              ("Hard coding", pct(S.hard(m, "coding-v4")["q"]) if S.hard(m, "coding-v4") else "—",
               S.hard(m, "coding-v4") and f"{runs(S.hard(m, 'coding-v4')['g'])} tests"),
              ("Translation", f"chrF {fmt(t['mean'])}" if t else "—", t and t["setup"]),
@@ -441,9 +464,15 @@ def model_page(S, m):
     hard_html = managed_section(S, m, "family-hard", {t["id"]: t["title"] for t in family_hard.TASKS}, "hard",
                                 "Hard jobs: what it managed and where it fell short", "points",
                                 '"Kept"/"did not" steps only count when the job itself got somewhere.')
+    hard_html += managed_section(S, m, "family-expert", {t["id"]: t["title"] for t in family_expert.TASKS}, "expert",
+                                 "Expert jobs: what it managed and where it fell short", "points",
+                                 '"Kept"/"did not" steps only count when the job itself got somewhere.')
     hard_html += managed_section(S, m, "coding-v4", CODING_V4_TITLES, "hardcode",
                                  "Hard coding: what it managed and where it fell short", "hidden tests",
                                  "Each line is one hidden test, named after what it checks.")
+    hard_html += managed_section(S, m, "coding-v5", CODING_V5_TITLES, "hardcode5",
+                                 "Hard coding v5: what it managed and where it fell short", "hidden tests",
+                                 "Each line is one official Exercism test, named after what it checks.")
 
     # last month's quiz
     oct_html = ""
@@ -571,6 +600,7 @@ def speed_page(S):
 
 def intelligence_page(S):
     cols = [("Assistant", lambda m: S.daily(m) and pct(S.daily(m)["q"])), ("Hard jobs", lambda m: S.hard(m) and pct(S.hard(m)["q"])),
+            ("Expert jobs", lambda m: S.hard(m, "family-expert") and pct(S.hard(m, "family-expert")["q"])),
             ("Coding", lambda m: S.coding(m) and pct(S.coding(m)["q"])), ("Hard coding", lambda m: S.hard(m, "coding-v4") and pct(S.hard(m, "coding-v4")["q"])),
             ("Images", lambda m: S.vision(m) and pct(S.vision(m)["q"])), ("Translation chrF", lambda m: S.translation(m) and fmt(S.translation(m)["mean"])),
             ("Speech errors", lambda m: S.speech(m) and f"{fmt(S.speech(m)['mean'])}%"), ("October quiz", lambda m: S.quiz(m) and f"{S.quiz(m)['correct']}/24")]
@@ -585,8 +615,10 @@ def intelligence_page(S):
     body = f"""
 <div class="ptitle"><h1>Intelligence</h1>
 <p class="dek">What each model can actually do, with the harness it would run in. Intelligence mode: <code>lab.py intelligence MODEL</code>, hours per model.</p></div>
+{site_chart.usecase_section(S, MODELS, S.root)}
+{site_chart.section(S, MODELS, S.root)}
 <section class="sec">{table(["Model", "Overall"] + [c for c, _ in cols], [r for _, r in rows], tuple(range(1, len(cols) + 2)))}
-<p class="note">Overall: the average of assistant, coding (suites v1-v3 and the hard suite, half each), hard jobs and images, where run (at least two). The hard suites are made so that no model gets everything, so they spread the strong models apart; each model's page says what it managed and where it fell short. Percentages are of the maximum score.</p></section>
+<p class="note">Overall: the average of assistant, coding (suites v1-v3 and the hard suites v4 and v5, half each), hard jobs, expert jobs and images, where run (at least two). The hard suites are made so that no model gets everything, so they spread the strong models apart; each model's page says what it managed and where it fell short. Percentages are of the maximum score.</p></section>
 """
     return shell("Intelligence: local models on a 32 GB Mac mini M6", body, "intelligence.html", desc="What each local model can do on a Mac mini M6 32 GB: assistant, hard jobs, coding, images, translation, speech.")
 
@@ -763,7 +795,8 @@ def build(root, summary, rows, data, sizes, load_times, machine, doc_text, today
         S.par = json.loads((dd / "parallel-capability.json").read_text())
     if (dd / "glm-performance.json").exists():
         S.glm = json.loads((dd / "glm-performance.json").read_text())
-    (site / "v2.css").write_text(CSS.lstrip())
+    S.root = Path(root)
+    (site / "v2.css").write_text(CSS.lstrip() + site_chart.CSS)
     (site / "index.html").write_text(home(S))
     (site / "models.html").write_text(models_page(S))
     (site / "learnings.html").write_text(learnings_page(S))

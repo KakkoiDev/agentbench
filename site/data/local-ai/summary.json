@@ -2511,12 +2511,12 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    55,
+    56,
     55
    ],
-   "mean": 55,
+   "mean": 55.5,
    "min": 55,
-   "max": 55,
+   "max": 56,
    "seconds_each": 76.75
   },
   {
@@ -2557,10 +2557,10 @@
    "out_of": 56,
    "scores": [
     40,
-    28
+    29
    ],
-   "mean": 34,
-   "min": 28,
+   "mean": 34.5,
+   "min": 29,
    "max": 40,
    "seconds_each": 17.6
   },
@@ -2586,12 +2586,12 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    48,
-    54
+    49,
+    56
    ],
-   "mean": 51,
-   "min": 48,
-   "max": 54,
+   "mean": 52.5,
+   "min": 49,
+   "max": 56,
    "seconds_each": 74.05
   },
   {
@@ -2601,12 +2601,12 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    50,
-    55
+    51,
+    56
    ],
-   "mean": 52.5,
-   "min": 50,
-   "max": 55,
+   "mean": 53.5,
+   "min": 51,
+   "max": 56,
    "seconds_each": 69.6
   },
   {
@@ -2616,12 +2616,12 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    52,
-    55
+    53,
+    56
    ],
-   "mean": 53.5,
-   "min": 52,
-   "max": 55,
+   "mean": 54.5,
+   "min": 53,
+   "max": 56,
    "seconds_each": 59.4
   },
   {
@@ -2631,11 +2631,11 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    55,
+    56,
     56
    ],
-   "mean": 55.5,
-   "min": 55,
+   "mean": 56,
+   "min": 56,
    "max": 56,
    "seconds_each": 108.9
   },
@@ -2661,12 +2661,12 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    55,
-    50
+    56,
+    52
    ],
-   "mean": 52.5,
-   "min": 50,
-   "max": 55,
+   "mean": 54,
+   "min": 52,
+   "max": 56,
    "seconds_each": 111.4
   },
   {
@@ -2706,11 +2706,11 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    55,
+    56,
     56
    ],
-   "mean": 55.5,
-   "min": 55,
+   "mean": 56,
+   "min": 56,
    "max": 56,
    "seconds_each": 47.65
   },
@@ -2721,13 +2721,28 @@
    "runs": 2,
    "out_of": 56,
    "scores": [
-    54,
+    56,
     54
    ],
-   "mean": 54,
+   "mean": 55,
    "min": 54,
-   "max": 54,
+   "max": 56,
    "seconds_each": 58.7
+  },
+  {
+   "bench": "family-jobs",
+   "model": "bonsai-2:27b",
+   "setup": "one model, harness v3.2",
+   "runs": 2,
+   "out_of": 12,
+   "scores": [
+    12,
+    12
+   ],
+   "mean": 12,
+   "min": 12,
+   "max": 12,
+   "seconds_each": 52.95
   },
   {
    "bench": "family-jobs",
@@ -2766,16 +2781,17 @@
    "bench": "family-jobs",
    "model": "gemma4:12b-mlx",
    "setup": "one model, harness v3",
-   "runs": 2,
+   "runs": 3,
    "out_of": 12,
    "scores": [
     11,
-    11
+    11,
+    12
    ],
-   "mean": 11,
+   "mean": 11.33,
    "min": 11,
-   "max": 11,
-   "seconds_each": 17.5
+   "max": 12,
+   "seconds_each": 18.03
   },
   {
    "bench": "family-jobs",

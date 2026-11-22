@@ -274,8 +274,24 @@ def check_car(folder, reply):
     return [('wrote agendas/car-clashes.md', s is not None),
             ('Tuesday 24: Aiko (dentist) and Ken (client visit)', clash(r'\b24\b|tue', r'aiko|dentist', r'ken|client|取引先')),
             ('Saturday 28: Ken (golf) and Marc (recycling centre)', clash(r'\b28\b|sat', r'ken|golf|ゴルフ', r'marc|déchetterie|recycl|dump')),
-            ('did not call Thursday 26 a clash (15:00 end, 15:00 start)', s is not None and not re.search(r'\b26\b|thu', t, re.I)
-             or bool(re.search(r'(?i)(26|thu)[^\n]{0,200}(no clash|not a clash|back[- ]to[- ]back|just|touch|no overlap|ok)', t)))]
+            ('did not call Thursday 26 a clash (15:00 end, 15:00 start)', s is not None and not _thursday_flagged(t))]
+
+
+NOT_CLASH = re.compile(r"no clash|not a clash|no overlap|not overlap|n.t overlap|does not overlap|don't overlap|back[- ]to[- ]back|near[- ]miss|"
+                       r"near[- ]clash|tight|ends? exactly|just as|touch|no conflict|not a conflict|fine|\bok\b|pas de conflit|重ならない", re.I)
+
+
+def _thursday_flagged(t):
+    """Thursday 26 is named as a clash: a mention with nothing near it, or in its heading, saying it does not overlap
+    (fixed 2026-11-22: "tight but not overlapping" and a "Near misses (no overlap)" heading are right)."""
+    for mm in re.finditer(r'(?i)\b26\b(?!\d)|thu', t):
+        if re.match(r'(?i)\d', t[mm.end():mm.end() + 1] or 'x'):
+            continue
+        heading = next((l for l in reversed(t[:mm.start()].splitlines()) if l.lstrip().startswith('#')), '')
+        near = t[max(0, mm.start() - 250):mm.end() + 250]
+        if not (NOT_CLASH.search(near) or NOT_CLASH.search(heading)):
+            return True
+    return False
 
 
 def check_duplicates(folder, reply):
@@ -324,7 +340,9 @@ def check_overdue(folder, reply):
     total = round(sum(b[3] for b in OVERDUE), 2)
     return [('wrote bills/overdue.md', bool(s)),
             ('listed Phone, Internet and School trip', all(p >= 0 for p in pos)),
-            ('left out bills not yet due or already paid', not re.search(r'water|insurance|electricity|gym', s, re.I)),
+            ('left out bills not yet due or already paid', not any(re.search(r'water|insurance|electricity|gym', l, re.I)
+                                                                   and not re.search(r'not (yet )?(due|overdue)|paid|exclud|upcoming|later|future|ok\b', l, re.I)
+                                                                   for l in s.splitlines())),   # naming them as excluded is right (fixed 2026-11-22)
             ('sorted by due date', all(p >= 0 for p in pos) and pos == sorted(pos)),
             (f'total owed on them ({total:.2f})', _num(s + '\n' + (reply or ''), total))]
 

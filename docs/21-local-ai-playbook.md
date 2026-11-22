@@ -5,7 +5,7 @@ translator, a transcriber and an image reader, all on one Mac mini (Apple M6, 32
 It reports what we measured, how, and how far each result can be trusted.
 
 <!-- generated:stats -->
-> **362 bench runs** (17 more set aside, with the reason) across 13 benches and 29 models, 2026-11-14 to 2026-11-21. The coding-agent runs alone took 53 hours.
+> **365 bench runs** (17 more set aside, with the reason) across 13 benches and 29 models, 2026-11-14 to 2026-11-22. The coding-agent runs alone took 53 hours.
 <!-- /generated:stats -->
 
 **Reading the numbers.** Every number in this document is generated from the bench results by
@@ -175,7 +175,7 @@ the model the family's folder as its home; **v3.1** adds one rule after the 12B 
 | gpt-oss 20B | 6/12 | 7/6 of 12 | 8/8 of 12 | — |
 | e4b + gpt-oss | 8/7 of 12 | 7/9 of 12 | 9/10 of 12 | — |
 | qwen3.8 27B | 10/12 of 12 | 12/12 of 12 | 12/12 of 12 | 12/12 |
-| gemma4 12B | 12/12/12/12/11 of 12 | — | 11/11 of 12 | 11/12/12/12/12 of 12 |
+| gemma4 12B | 12/12/12/12/11 of 12 | — | 11/11/12 of 12 | 11/12/12/12/12 of 12 |
 <!-- /generated:f_harness -->
 
 gpt-oss and the pair gained from each version. Qwen was already near the top. The 12B, at or near full marks
@@ -634,9 +634,10 @@ the extensions were tuned.
 | assistant-lang | qwen3.8:27b-mlx | one model, harness v3.2 | 8/8 | 15.9 |
 | assistant-lang | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.1 | 8/8 | 61.8 |
 | assistant-lang | qwen3.8:27b-mtp-q4_K_M | one model, harness v3.2 | 8/8 | 34.7 |
+| family-jobs | bonsai-2:27b | one model, harness v3.2 | 12/12 of 12 | 52.95 |
 | family-jobs | flint:40b | one model, harness v3.2 | 10/10 of 12 | 56.2 |
 | family-jobs | gemma4:12b-mlx | one model | 12/12/12/12/11 of 12 | 21.02 |
-| family-jobs | gemma4:12b-mlx | one model, harness v3 | 11/11 of 12 | 17.5 |
+| family-jobs | gemma4:12b-mlx | one model, harness v3 | 11/11/12 of 12 | 18.03 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3.1 | 11/12/12/12/12 of 12 | 16.0 |
 | family-jobs | gemma4:12b-mlx | one model, harness v3.2 | 12/12 of 12 | 23.15 |
 | family-jobs | gemma4:26b-mlx | one model, harness v3.2 | 12/11 of 12 | 15.9 |

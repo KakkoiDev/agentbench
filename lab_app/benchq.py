@@ -12,7 +12,7 @@ PY = ROOT / '.venv' / 'bin' / 'python'
 OUT = ROOT / 'results' / 'bench-queue.out'
 
 # items each kind of job works through, and how its log shows one finished
-TOTAL = {'family': 12, 'hard': 10, 'mini-en': 14, 'mini-lang': 8, 'coding': 5, 'speed': 10}
+TOTAL = {'family': 12, 'hard': 10, 'expert': 10, 'mini-en': 14, 'mini-lang': 8, 'coding': 5, 'speed': 10, 'concurrency': 1}
 CASE = re.compile(r'^\S+\s+(PASS|FAIL)\s', re.M)
 TASK = re.compile(r'^\[(\d+)/(\d+)\]', re.M)
 
@@ -35,6 +35,8 @@ def live(job):
     if kind == 'coding':
         m = TASK.findall(text)
         return dict(done=int(m[-1][0]), total=int(m[-1][1])) if m else dict(done=0, total=5)
+    if kind == 'concurrency':
+        return dict(done=sum(1 for l in text.splitlines() if '"verdict"' in l), total=1)
     if kind == 'speed':
         return dict(done=sum(1 for l in text.splitlines() if l.startswith('{') and '"case"' in l), total=total)
     if job['desc'].startswith('Smoke') and kind == 'family':

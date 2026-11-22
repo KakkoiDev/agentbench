@@ -10,3 +10,4 @@ __pycache__/
 .bench.lock
 qwen-download-cancelled.json
 site/data/bench-summary.json
+benches/agentic-v5/sources/

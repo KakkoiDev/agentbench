@@ -9682,6 +9682,32 @@
    "failed_answers": 0
   },
   {
+   "run": "dropbox-family-bonsai-2-27b-checks32-r1-bonsai-2-27b",
+   "model": "bonsai-2:27b",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-22",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.2",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 55.5,
+   "slowest_seconds": 96.1
+  },
+  {
+   "run": "dropbox-family-bonsai-2-27b-checks32-r2-bonsai-2-27b",
+   "model": "bonsai-2:27b",
+   "repeat": 2,
+   "set_aside": null,
+   "date": "2026-11-22",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3.2",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 50.4,
+   "slowest_seconds": 99.4
+  },
+  {
    "run": "dropbox-family-e4b-gemma4-e4b-mlx",
    "model": "gemma4:e4b-mlx",
    "repeat": 1,
@@ -9903,6 +9929,19 @@
    "slowest_seconds": 37.2
   },
   {
+   "run": "dropbox-family-gemma4-12b-mlx-checks33-r1-gemma4-12b-mlx",
+   "model": "gemma4:12b-mlx",
+   "repeat": 1,
+   "set_aside": null,
+   "date": "2026-11-22",
+   "bench": "family-jobs",
+   "setup": "one model, harness v3",
+   "score": 12,
+   "out_of": 12,
+   "seconds_each": 19.1,
+   "slowest_seconds": 34.4
+  },
+  {
    "run": "dropbox-family-gemma4-26b-mlx-checks32-r1-gemma4-26b-mlx",
    "model": "gemma4:26b-mlx",
    "repeat": 1,
@@ -10063,12 +10102,12 @@
    "model": "flint:40b",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 76.9,
    "slowest_seconds": 152.2,
    "jobs": [
@@ -10294,7 +10333,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -10307,7 +10346,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -10383,7 +10422,7 @@
    "model": "flint:40b",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 55,
@@ -10703,7 +10742,7 @@
    "model": "gemma4:12b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 50,
@@ -11023,7 +11062,7 @@
    "model": "gemma4:12b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 51,
@@ -11343,7 +11382,7 @@
    "model": "gemma4:26b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 54,
@@ -11663,7 +11702,7 @@
    "model": "gemma4:26b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 54,
@@ -11983,7 +12022,7 @@
    "model": "gemma4:e4b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 40,
@@ -12303,12 +12342,12 @@
    "model": "gemma4:e4b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 28,
+   "score": 29,
    "out_of": 56,
-   "jobs_complete": 2,
+   "jobs_complete": 3,
    "seconds_each": 18.7,
    "slowest_seconds": 37.7,
    "jobs": [
@@ -12422,7 +12461,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -12439,7 +12478,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -12623,7 +12662,7 @@
    "model": "gpt-oss:20b",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 49,
@@ -12943,7 +12982,7 @@
    "model": "gpt-oss:20b",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 44,
@@ -13263,12 +13302,12 @@
    "model": "mtplx/bonsai-2-27b",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 48,
+   "score": 49,
    "out_of": 56,
-   "jobs_complete": 7,
+   "jobs_complete": 8,
    "seconds_each": 72.9,
    "slowest_seconds": 146.6,
    "jobs": [
@@ -13494,7 +13533,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -13507,7 +13546,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -13583,12 +13622,12 @@
    "model": "mtplx/bonsai-2-27b",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 54,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 8,
+   "jobs_complete": 10,
    "seconds_each": 75.2,
    "slowest_seconds": 157.0,
    "jobs": [
@@ -13702,7 +13741,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -13719,7 +13758,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -13814,7 +13853,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -13827,7 +13866,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -13903,12 +13942,12 @@
    "model": "mtplx/qwen3.8-27b-bare",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 50,
+   "score": 51,
    "out_of": 56,
-   "jobs_complete": 8,
+   "jobs_complete": 9,
    "seconds_each": 72.1,
    "slowest_seconds": 245.3,
    "jobs": [
@@ -14134,7 +14173,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -14147,7 +14186,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -14223,12 +14262,12 @@
    "model": "mtplx/qwen3.8-27b-bare",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 67.1,
    "slowest_seconds": 149.9,
    "jobs": [
@@ -14454,7 +14493,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -14467,7 +14506,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -14543,12 +14582,12 @@
    "model": "mtplx/qwen3.8-27b-optimized",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 52,
+   "score": 53,
    "out_of": 56,
-   "jobs_complete": 7,
+   "jobs_complete": 8,
    "seconds_each": 46.5,
    "slowest_seconds": 75.4,
    "jobs": [
@@ -14662,7 +14701,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -14679,7 +14718,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -14863,12 +14902,12 @@
    "model": "mtplx/qwen3.8-27b-optimized",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 72.3,
    "slowest_seconds": 160.9,
    "jobs": [
@@ -15094,7 +15133,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -15107,7 +15146,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -15183,12 +15222,12 @@
    "model": "muse-glimmer:30b-nvfp4-dflash",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 93.2,
    "slowest_seconds": 182.9,
    "jobs": [
@@ -15302,7 +15341,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -15319,7 +15358,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -15503,7 +15542,7 @@
    "model": "muse-glimmer:30b-nvfp4-dflash",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 56,
@@ -15823,7 +15862,7 @@
    "model": "nemotron-3.5-lightning:30b-a3b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 49,
@@ -16143,7 +16182,7 @@
    "model": "nemotron-3.5-lightning:30b-a3b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 48,
@@ -16463,12 +16502,12 @@
    "model": "omlx/qwen3.8-27b-oq3h-mtp",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 80.4,
    "slowest_seconds": 164.4,
    "jobs": [
@@ -16582,7 +16621,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -16599,7 +16638,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -16783,12 +16822,12 @@
    "model": "omlx/qwen3.8-27b-oq3h-mtp",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 50,
+   "score": 52,
    "out_of": 56,
-   "jobs_complete": 7,
+   "jobs_complete": 9,
    "seconds_each": 142.4,
    "slowest_seconds": 392.0,
    "jobs": [
@@ -16902,7 +16941,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -16919,7 +16958,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -17014,7 +17053,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -17027,7 +17066,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -17103,7 +17142,7 @@
    "model": "qwen3.6:35b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 37,
@@ -17423,7 +17462,7 @@
    "model": "qwen3.6:35b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 50,
@@ -17743,7 +17782,7 @@
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 56,
@@ -18063,7 +18102,7 @@
    "model": "qwen3.8:27b-dflash2-nvfp4",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-21",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 55,
@@ -18383,12 +18422,12 @@
    "model": "qwen3.8:27b-mlx",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 55,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 9,
+   "jobs_complete": 10,
    "seconds_each": 49.1,
    "slowest_seconds": 73.7,
    "jobs": [
@@ -18614,7 +18653,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -18627,7 +18666,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -18703,7 +18742,7 @@
    "model": "qwen3.8:27b-mlx",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 56,
@@ -19023,12 +19062,12 @@
    "model": "qwen3.8:27b-mtp-q4_K_M",
    "repeat": 1,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
-   "score": 54,
+   "score": 56,
    "out_of": 56,
-   "jobs_complete": 8,
+   "jobs_complete": 10,
    "seconds_each": 59.9,
    "slowest_seconds": 90.6,
    "jobs": [
@@ -19142,7 +19181,7 @@
     },
     {
      "id": "h-car",
-     "points": 4,
+     "points": 5,
      "out_of": 5,
      "steps": [
       [
@@ -19159,7 +19198,7 @@
       ],
       [
        "did not call Thursday 26 a clash (15:00 end, 15:00 start)",
-       false
+       true
       ],
       [
        "left every other file as it was",
@@ -19254,7 +19293,7 @@
     },
     {
      "id": "h-overdue",
-     "points": 5,
+     "points": 6,
      "out_of": 6,
      "steps": [
       [
@@ -19267,7 +19306,7 @@
       ],
       [
        "left out bills not yet due or already paid",
-       false
+       true
       ],
       [
        "sorted by due date",
@@ -19343,7 +19382,7 @@
    "model": "qwen3.8:27b-mtp-q4_K_M",
    "repeat": 2,
    "set_aside": null,
-   "date": "2026-11-20",
+   "date": "2026-11-22",
    "bench": "family-hard",
    "setup": "one model, harness v3.2",
    "score": 54,
