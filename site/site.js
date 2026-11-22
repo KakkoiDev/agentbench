@@ -77,4 +77,19 @@
   function put(e) { for (var i = 1; i < arguments.length; i++) add(e, arguments[i]); return e; }
 
   window.Site = { h: h, fill: fill, put: put, copyButton: copyButton, getJSON: getJSON, announce: announce };
+
+  // Narrow screens: the site menu scrolls sideways. Fade the edge that hides more tabs, and bring the current tab into view.
+  document.addEventListener('DOMContentLoaded', function () {
+    var nav = document.querySelector('.sh-nav');
+    if (!nav) return;
+    function edges() {
+      nav.classList.toggle('more-left', nav.scrollLeft > 2);
+      nav.classList.toggle('more-right', nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+    }
+    var cur = nav.querySelector('[aria-current="page"]');
+    if (cur && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = Math.max(0, cur.offsetLeft - nav.offsetLeft - 24);
+    nav.addEventListener('scroll', edges, { passive: true });
+    window.addEventListener('resize', edges);
+    edges();
+  });
 })();

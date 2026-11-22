@@ -67,7 +67,13 @@
 @media (max-width:900px){
   .sh-in{gap:6px 12px; padding-top:12px; padding-bottom:0}
   .sh-name{flex:1 1 auto}
-  .sh-nav{order:3; flex:1 0 100%; flex-wrap:nowrap; overflow-x:auto; gap:20px; padding-bottom:2px; scrollbar-width:none}
+  .sh-nav{order:3; flex:1 0 100%; min-width:0; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
+          gap:20px; padding-bottom:4px; scrollbar-width:thin; scrollbar-color:var(--hair) transparent}
+  .sh-nav.more-right{-webkit-mask-image:linear-gradient(to right,#000 85%,transparent); mask-image:linear-gradient(to right,#000 85%,transparent)}
+  .sh-nav.more-left.more-right{-webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 85%,transparent); mask-image:linear-gradient(to right,transparent,#000 12%,#000 85%,transparent)}
+  .sh-nav.more-left:not(.more-right){-webkit-mask-image:linear-gradient(to right,transparent,#000 12%); mask-image:linear-gradient(to right,transparent,#000 12%)}
+  .sh-nav::-webkit-scrollbar{height:3px}
+  .sh-nav::-webkit-scrollbar-thumb{background:var(--hair)}
   .pp .sh-nav a{padding:10px 0 9px}
   .theme button{min-height:32px}
 }
