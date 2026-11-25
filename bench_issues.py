@@ -1,7 +1,8 @@
 """Bench failures as GitHub issues on agentbench (asked for on 2026-11-25), so agentbox's progress and regressions are
 tracked task by task, next to the real-life reports `agentbox report` files.
 
-Reads every run made through agentbox (`agent_bench.py run --harness agentbox`: meta.json has a "harness"). For each
+Reads every run made through agentbox (`agent_bench.py run --harness agentbox`: meta.json has a "harness"), except
+runs of an agentbox whose config says "issues": false. For each
 task, model and thinking level, its latest run decides:
 - failed, no open issue   -> open one (or reopen the closed one: a regression);
 - failed, issue open      -> comment once per new run;
@@ -31,7 +32,8 @@ def runs():
         except ValueError:
             continue
         h = meta.get('harness')
-        if not h or 'smoke' in meta_f.parent.name or meta_f.parent.name.startswith('_'):
+        # "issues": false in agentbox's config (2026-11-25): that agentbox's runs never become issues
+        if not h or h.get('issues') is False or 'smoke' in meta_f.parent.name or meta_f.parent.name.startswith('_'):
             continue
         for rf in meta_f.parent.glob('*/result.json'):
             r = json.loads(rf.read_text())
