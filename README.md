@@ -1,5 +1,12 @@
 # agentbench
 
+**The benches and all their results live here; the harness they measure lives in
+[agentbox](https://github.com/KakkoiDev/agentbox).** agentbox is the pi coding agent in a macOS sandbox, set up per
+model to get the most out of it (local models first, DeepSeek's hosted model as the alternative). Benches run a model
+through it with `agent_bench.py run --harness agentbox`, each run records agentbox's version and setup, and each
+finding goes back into agentbox. The knowledge both share (what each model gets and why, DeepSeek's API rules, the
+sandbox profile) is in [ai-core](https://github.com/KakkoiDev/ai-core).
+
 Which local AI to run on a **Mac mini M6 with 32 GB**, and how to set it up, measured on one machine:
 house assistant, coding agent, translation, speech to text and image reading.
 
@@ -7,8 +14,8 @@ house assistant, coding agent, translation, speech to text and image reading.
   best quality; a page per model (scores, speed, memory, setup, download); and the learnings.
 - **Evidence:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md), every finding with
   its result table ([data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
-- **Harness code:** [harness/dropbox-mini](harness/dropbox-mini/) (the assistant the benches drive) and
-  [pi-core](https://github.com/KakkoiDev/pi-core) (coding-agent extensions).
+- **Harness code:** [agentbox](https://github.com/KakkoiDev/agentbox) (the coding agent the benches measure) and
+  [harness/dropbox-mini](harness/dropbox-mini/) (the assistant the assistant benches drive).
 
 The repository started as a lab to run **GLM-5.x (744B MoE) on the same 32 GB Mac at 5 tokens per
 second or more**; that work continues below.
