@@ -55,6 +55,14 @@ HEAVY = [
          why='The same compressed 27B as an Ollama model, so every bench can run it as is.'),
     dict(id='flint-ollama', name='Flint 40B-A2.5B (Ollama)', engine='Ollama', kind='ollama', tag='flint:40b',
          why='Coding-agent MoE, about 70 tokens/s expected on the M6 (3-4x the 27B). Always reasons at length; tool-call bugs reported.'),
+    # deleted on 2026-11-23 to free disk (results/deleted-models/), reinstalled for their Arena benches, which had
+    # not really run (the sandbox bug); their other benches are done
+    dict(id='muse-glimmer-ollama', name='Muse Glimmer 30B, NVFP4 + DFlash (Ollama)', engine='Ollama', kind='ollama',
+         tag='muse-glimmer:30b-nvfp4-dflash', why='Reinstall for its Arena benches (bot building and analysis).'),
+    dict(id='qwen27-mtp-ollama', name='Qwen 3.8 27B, MTP Q4_K_M (Ollama)', engine='Ollama', kind='ollama',
+         tag='qwen3.8:27b-mtp-q4_K_M', why='Reinstall for its Arena benches (bot building and analysis).'),
+    dict(id='qwen27-dflash2-ollama', name='Qwen 3.8 27B, DFlash2 NVFP4 (Ollama)', engine='Ollama', kind='ollama',
+         tag='qwen3.8:27b-dflash2-nvfp4', why='Reinstall for its Arena benches (bot building and analysis).'),
     dict(id='flint-mlx', name='Flint 40B-A2.5B, MLX 3/4-bit', engine='mlx-lm', repo='mlx-community/flint-mixed-3-4bit', revision='main',
          files=None, dir=MODELS / 'mlx' / 'flint-mixed-3-4bit',
          why='Flint for MLX (smaller, 17.8 GB); mlx-lm support is merged but not yet released.'),
