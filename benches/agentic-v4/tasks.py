@@ -332,9 +332,9 @@ class Hidden(unittest.TestCase):
         self.err('1..2', 0)
 
     def test_no_eval(self):
+        # 2026-11-25: was a plain substring test, which failed DeepSeek's hand-written parser for NUMBER = re.compile(...)
         src = pathlib.Path('calc.py').read_text()
-        for word in ('eval(', 'exec(', 'import ast', 'compile('):
-            self.assertNotIn(word, src.replace('def evaluate(', '').replace('evaluate(', ''))
+        self.assertNotRegex(src, r'(?<![\w.])(?:eval|exec|compile|__import__)\s*\(|\bimport\s+ast\b|\bfrom\s+ast\b')
 ''',
     fix={'calc.py': lambda _: CALC_REF},
 )

@@ -25,3 +25,5 @@ arena/export/
 arena/league.json
 arena/league-history.jsonl
 benches/arena-analysis-v1/replays/
+# arena-v3 opponents: frozen copies of league bots and Victris's Python starter (no license), kept local like arena/champions/
+benches/arena-v3/opponents/

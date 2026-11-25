@@ -120,17 +120,23 @@ def challenge(bot, label, model='', run='', notes='', keep=True):
 
 
 def challenge_run(run_dir, label, model=''):
-    """After an arena-v1 bench run: the best round's bot (most hidden tests passed, later round on ties) challenges."""
+    """After an arena-v1/v2 bench run: the best round's bot challenges (most hidden tests passed, then the higher
+    mean hidden win rate, then the later round)."""
     run_dir = Path(run_dir)
     best = None
-    for r in sorted(run_dir.glob('round-*/result.json')):
+    for r in sorted(run_dir.glob('round-*/result.json'), key=lambda p: int(p.parent.name.split('-')[1])):   # round-10 after round-9
         rec = json.loads(r.read_text())
         bot = r.parent / 'workspace' / 'strategy.py'
-        if bot.exists() and (best is None or rec.get('hidden_passed', 0) >= best[0]):
-            best = (rec.get('hidden_passed', 0), bot, r.parent.name)
+        hid = r.parent / 'hidden.txt'
+        line = next((l for l in hid.read_text().splitlines() if l.startswith('ARENA_JSON ')), None) if hid.exists() else None
+        rates = json.loads(line[len('ARENA_JSON '):])['win_rates'] if line else {}
+        key = (rec.get('hidden_passed', 0), sum(rates.values()) / max(1, len(rates)))
+        if bot.exists() and (best is None or key >= best[0]):
+            best = (key, bot, r.parent.name)
     if not best:
         return dict(error=f'no graded round with a strategy.py in {run_dir}')
-    entry = challenge(best[1], label, model, run=f'{run_dir.name}/{best[2]}', notes=f'best round of the arena-v1 bench ({best[0]}/10 hidden tests)')
+    entry = challenge(best[1], label, model, run=f'{run_dir.name}/{best[2]}',
+                      notes=f'best round of the {run_dir.name.split("-")[0]}-{run_dir.name.split("-")[1]} bench ({best[0][0]}/10 hidden tests)')
     if entry.get('kept_as'):
         table()
     return entry

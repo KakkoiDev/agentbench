@@ -98,13 +98,19 @@ def session(model, minutes=30, thinking='off'):
            '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--mode', 'json',
            INSTRUCTION.format(champ=champ, worst=_worst(st)) + agent_bench.SUFFIX]
     env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), ARENA_BUDGET_MS='1000')
-    t0 = time.time()
-    with open(sdir / 'pi.jsonl', 'w') as so, open(sdir / 'pi.stderr', 'w') as se:
-        try:
-            subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=minutes * 60)
-            timed_out = False
-        except subprocess.TimeoutExpired:
-            timed_out = True
+    for start in range(4):   # retry pi's node dying at start-up under memory pressure (see agent_bench.attempt)
+        t0 = time.time()
+        with open(sdir / 'pi.jsonl', 'w') as so, open(sdir / 'pi.stderr', 'w') as se:
+            try:
+                rc = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=minutes * 60).returncode
+                timed_out = False
+            except subprocess.TimeoutExpired:
+                rc, timed_out = None, True
+        if not (rc not in (0, None) and time.time() - t0 < 10 and (sdir / 'pi.jsonl').stat().st_size == 0
+                and 'Native stack trace' in (sdir / 'pi.stderr').read_text(errors='replace')):
+            break
+        print(f'pi crashed at start-up (start {start + 1}); retrying in 30 s', flush=True)
+        time.sleep(30)
     stats = agent_bench.summarize(sdir / 'pi.jsonl')
     rec = dict(when=time.strftime('%F %T'), model=model, minutes=round((time.time() - t0) / 60, 1), timed_out=timed_out,
                tool_calls=stats['tool_calls'], output_tokens=stats['output_tokens'], before=st.get('best'), session=sdir.name)

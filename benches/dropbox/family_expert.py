@@ -1427,11 +1427,14 @@ def _week_day(cell):
 def _meds_in(cell):
     out = []
     c = re.sub(r'\d+(?:[.,]\d+)?\s*mg', ' ', _nfkc(cell), flags=re.I)
-    for piece in re.split(r'<br\s*/?>|;|,|\+|/|\n|・|、|\bet\b|\band\b', c):
+    # 2026-11-24: '·' and '•' separate medicines too (DeepSeek wrote 'Amlodipine 1 · Metformine 2' and was read as 1 metformin),
+    # and a count is taken right after the medicine's name before any number elsewhere in the piece
+    for piece in re.split(r'<br\s*/?>|;|,|\+|/|\n|・|、|·|•|\bet\b|\band\b', c):
         f = fold(piece)
         for med, rx in MED_RX.items():
-            if re.search(rx, f):
-                m = re.search(r'(\d+)', f)
+            hit = re.search(rx, f)
+            if hit:
+                m = re.match(r'\w*\s*[:x×]?\s*(\d+)', f[hit.end():]) or re.search(r'(\d+)', f)
                 out.append((med, int(m.group(1)) if m else 1))
     return out
 

@@ -1,0 +1,49 @@
+(version 1)
+; Sandbox for agentic-v6 runs: the agentic-v1 profile (writes only in the workspace, no network but
+; localhost, no secrets) plus no reads of what would give the answers away: this bench's folder (hidden
+; tests and reference solutions), earlier agentic-v6 runs (other models' finished workspaces, hidden test
+; output), the repo's git objects and Claude Code's transcripts (where the bench was written).
+; WORKSPACE, SESSIONS, HOME and REPO are passed in with sandbox-exec -D. The last matching rule wins.
+(allow default)
+
+(deny file-write*)
+(allow file-write*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath "/private/tmp")
+  (subpath "/private/var/folders")
+  (literal "/dev/null")
+  (regex #"^/dev/tty")
+  (regex #"^/dev/fd/"))
+
+; 2026-11-25: the whole home folder is off limits but for what a run needs (DeepSeek's agentic-v5 rerun searched
+; ~/models, ~/Library, ~/.cache and ~/pi-local-harness-data for the exercises' answers). Stat (metadata) stays allowed,
+; so node and Python can resolve paths; listing and reading do not. The rules below re-open what is needed.
+(deny file-read* (subpath (param "HOME")))
+(deny file-read*
+  (subpath (string-append (param "REPO") "/benches/agentic-v6"))
+  (prefix (string-append (param "REPO") "/results/agentic-v6-"))
+  (subpath (string-append (param "REPO") "/.git"))
+  (subpath (string-append (param "HOME") "/.claude")))
+; Metadata only (stat, no contents, no listing) of the run folders above the workspace: node resolves its
+; working directory through its parent folders at start-up (see arena/sandbox.sb).
+(allow file-read-metadata
+  (subpath (param "HOME")))
+(allow file-read*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath (string-append (param "HOME") "/.local/share/uv/python")))   ; the venv's Python
+
+(deny file-read*
+  (subpath (string-append (param "HOME") "/.ssh"))
+  (subpath (string-append (param "HOME") "/.gnupg"))
+  (subpath (string-append (param "HOME") "/.aws"))
+  (subpath (string-append (param "HOME") "/.config/gh"))
+  (subpath (string-append (param "HOME") "/.local/state/dropbox-agent"))
+  (subpath (string-append (param "HOME") "/Library/Keychains"))
+  (literal (string-append (param "HOME") "/.pi/agent/auth.json")))
+
+(deny network-outbound)
+(allow network-outbound
+  (remote ip "localhost:*")   ; agent_bench narrows this to the model's own port (2026-11-25)
+  (remote unix-socket))

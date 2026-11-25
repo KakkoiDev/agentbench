@@ -1,0 +1,3688 @@
+{
+ "ocr-receipt-1": {
+  "kind": "receipt_taxable",
+  "lines": [
+   {
+    "name": "Toothpaste",
+    "qty": 1,
+    "unit": 11.5,
+    "amount": 11.5,
+    "taxable": false
+   },
+   {
+    "name": "Dark chocolate",
+    "qty": 1,
+    "unit": 2.1,
+    "amount": 2.1,
+    "taxable": true
+   },
+   {
+    "name": "Green tea 40",
+    "qty": 2,
+    "unit": 1.66,
+    "amount": 3.32,
+    "taxable": true
+   },
+   {
+    "name": "Cheddar 400g",
+    "qty": 1,
+    "unit": 6.3,
+    "amount": 6.3,
+    "taxable": false
+   },
+   {
+    "name": "Penne 500g",
+    "qty": 3,
+    "unit": 8.72,
+    "amount": 26.16,
+    "taxable": false
+   },
+   {
+    "name": "Butter 250g",
+    "qty": 2,
+    "unit": 8.87,
+    "amount": 17.74,
+    "taxable": false
+   },
+   {
+    "name": "Oranges",
+    "qty": 2,
+    "unit": 9.89,
+    "amount": 19.78,
+    "taxable": false
+   },
+   {
+    "name": "Apples Gala",
+    "qty": 1,
+    "unit": 8.27,
+    "amount": 8.27,
+    "taxable": true
+   },
+   {
+    "name": "Honey 350g",
+    "qty": 1,
+    "unit": 10.92,
+    "amount": 10.92,
+    "taxable": true
+   },
+   {
+    "name": "Free-range eggs 12",
+    "qty": 3,
+    "unit": 9.72,
+    "amount": 29.16,
+    "taxable": false
+   },
+   {
+    "name": "Salmon fillet",
+    "qty": 4,
+    "unit": 6.95,
+    "amount": 27.8,
+    "taxable": false
+   },
+   {
+    "name": "Oat milk 1L",
+    "qty": 4,
+    "unit": 8.69,
+    "amount": 34.76,
+    "taxable": false
+   },
+   {
+    "name": "Chicken thighs",
+    "qty": 2,
+    "unit": 12.77,
+    "amount": 25.54,
+    "taxable": false
+   },
+   {
+    "name": "Spinach 200g",
+    "qty": 1,
+    "unit": 7.68,
+    "amount": 7.68,
+    "taxable": false
+   },
+   {
+    "name": "Peanut butter",
+    "qty": 1,
+    "unit": 6.51,
+    "amount": 6.51,
+    "taxable": false
+   },
+   {
+    "name": "Cherry tomatoes",
+    "qty": 3,
+    "unit": 4.13,
+    "amount": 12.39,
+    "taxable": false
+   },
+   {
+    "name": "Tomatoes vine",
+    "qty": 1,
+    "unit": 11.88,
+    "amount": 11.88,
+    "taxable": false
+   },
+   {
+    "name": "Laundry pods",
+    "qty": 2,
+    "unit": 2.92,
+    "amount": 5.84,
+    "taxable": false
+   },
+   {
+    "name": "Coffee beans",
+    "qty": 1,
+    "unit": 12.53,
+    "amount": 12.53,
+    "taxable": true
+   },
+   {
+    "name": "Red onions",
+    "qty": 1,
+    "unit": 2.08,
+    "amount": 2.08,
+    "taxable": false
+   },
+   {
+    "name": "Tinned chickpeas",
+    "qty": 3,
+    "unit": 10.69,
+    "amount": 32.07,
+    "taxable": true
+   },
+   {
+    "name": "Dish soap",
+    "qty": 4,
+    "unit": 2.15,
+    "amount": 8.6,
+    "taxable": false
+   },
+   {
+    "name": "Lemons",
+    "qty": 1,
+    "unit": 1.2,
+    "amount": 1.2,
+    "taxable": true
+   },
+   {
+    "name": "Garlic",
+    "qty": 4,
+    "unit": 9.29,
+    "amount": 37.16,
+    "taxable": false
+   },
+   {
+    "name": "Greek yogurt",
+    "qty": 1,
+    "unit": 1.71,
+    "amount": 1.71,
+    "taxable": true
+   },
+   {
+    "name": "Bananas",
+    "qty": 2,
+    "unit": 7.56,
+    "amount": 15.12,
+    "taxable": false
+   }
+  ]
+ },
+ "ocr-1": {
+  "kind": "label_code",
+  "labels": [
+   {
+    "city": "Steyr",
+    "code": "CQ 1272 3764 0AT",
+    "rot": -90,
+    "zip": 8969
+   },
+   {
+    "city": "Krems",
+    "code": "RK 8659 9538 9AT",
+    "rot": 90,
+    "zip": 7089
+   },
+   {
+    "city": "Linz",
+    "code": "VX 5812 3997 1AT",
+    "rot": -3,
+    "zip": 9973
+   },
+   {
+    "city": "Villach",
+    "code": "RK 6765 8276 7AT",
+    "rot": 4,
+    "zip": 5197
+   },
+   {
+    "city": "Leoben",
+    "code": "EQ 9680 3544 9AT",
+    "rot": 8,
+    "zip": 3298
+   },
+   {
+    "city": "Bregenz",
+    "code": "VB 7748 8955 3AT",
+    "rot": 180,
+    "zip": 5489
+   },
+   {
+    "city": "Dornbirn",
+    "code": "RQ 2901 8988 2AT",
+    "rot": 4,
+    "zip": 5395
+   },
+   {
+    "city": "Lienz",
+    "code": "RK 2242 7083 0AT",
+    "rot": 180,
+    "zip": 8347
+   },
+   {
+    "city": "Innsbruck",
+    "code": "CQ 6665 3967 6AT",
+    "rot": 90,
+    "zip": 6190
+   },
+   {
+    "city": "Lindau",
+    "code": "RQ 4509 1620 5AT",
+    "rot": 180,
+    "zip": 6210
+   },
+   {
+    "city": "Wels",
+    "code": "VK 5619 1582 2AT",
+    "rot": 90,
+    "zip": 5109
+   },
+   {
+    "city": "Graz",
+    "code": "EB 9113 4764 3AT",
+    "rot": -7,
+    "zip": 9632
+   }
+  ],
+  "target": "Lindau"
+ },
+ "ocr-2": {
+  "kind": "plain",
+  "value": 5855365
+ },
+ "ocr-japanese-1": {
+  "kind": "sum_named",
+  "items": [
+   {
+    "name": "担々麺",
+    "note": "",
+    "price": 380
+   },
+   {
+    "name": "ミニチャーシュー丼",
+    "note": "",
+    "price": 1220
+   },
+   {
+    "name": "唐揚げ",
+    "note": "3個",
+    "price": 550
+   },
+   {
+    "name": "餃子（12個）",
+    "note": "",
+    "price": 730
+   },
+   {
+    "name": "メンマ",
+    "note": "トッピング",
+    "price": 640
+   },
+   {
+    "name": "餃子（6個）",
+    "note": "",
+    "price": 280
+   },
+   {
+    "name": "味玉",
+    "note": "トッピング",
+    "price": 460
+   },
+   {
+    "name": "焼き飯",
+    "note": "",
+    "price": 300
+   },
+   {
+    "name": "醤油ラーメン",
+    "note": "しょうゆ",
+    "price": 1240
+   },
+   {
+    "name": "瓶ビール",
+    "note": "",
+    "price": 190
+   },
+   {
+    "name": "醤油つけ麺",
+    "note": "",
+    "price": 420
+   },
+   {
+    "name": "生ビール",
+    "note": "中",
+    "price": 1110
+   },
+   {
+    "name": "味噌つけ麺",
+    "note": "",
+    "price": 780
+   },
+   {
+    "name": "塩ラーメン",
+    "note": "しお",
+    "price": 950
+   },
+   {
+    "name": "豚骨ラーメン",
+    "note": "とんこつ",
+    "price": 390
+   },
+   {
+    "name": "ウーロン茶",
+    "note": "",
+    "price": 560
+   },
+   {
+    "name": "半チャーハン",
+    "note": "",
+    "price": 790
+   },
+   {
+    "name": "チャーシュー丼",
+    "note": "",
+    "price": 650
+   },
+   {
+    "name": "冷やし中華",
+    "note": "夏季限定",
+    "price": 1200
+   },
+   {
+    "name": "味噌ラーメン",
+    "note": "みそ",
+    "price": 540
+   }
+  ],
+  "names": [
+   "味噌つけ麺",
+   "半チャーハン"
+  ],
+  "key": "price"
+ },
+ "ocr-japanese-2": {
+  "kind": "plain",
+  "value": "傘のお忘れにご注意"
+ },
+ "ocr-french-1": {
+  "kind": "sum_named",
+  "items": [
+   {
+    "name": "Chocolat chaud",
+    "price": 10.4
+   },
+   {
+    "name": "Crêpe beurre-sucre",
+    "price": 8.8
+   },
+   {
+    "name": "Tarte aux poires",
+    "price": 9.4
+   },
+   {
+    "name": "Crème brûlée",
+    "price": 13.5
+   },
+   {
+    "name": "Tarte au citron meringuée",
+    "price": 4.4
+   },
+   {
+    "name": "Chocolat viennois",
+    "price": 3.6
+   },
+   {
+    "name": "Café noisette",
+    "price": 5.0
+   },
+   {
+    "name": "Café crème",
+    "price": 10.6
+   },
+   {
+    "name": "Tarte aux pommes",
+    "price": 10.5
+   },
+   {
+    "name": "Mousse au chocolat",
+    "price": 14.3
+   },
+   {
+    "name": "Quiche lorraine",
+    "price": 6.9
+   },
+   {
+    "name": "Soupe à l’oignon",
+    "price": 13.0
+   },
+   {
+    "name": "Crêpe au sucre",
+    "price": 7.2
+   },
+   {
+    "name": "Île flottante",
+    "price": 8.2
+   },
+   {
+    "name": "Croque-monsieur",
+    "price": 3.0
+   },
+   {
+    "name": "Thé à la menthe",
+    "price": 11.4
+   },
+   {
+    "name": "Croque-madame",
+    "price": 9.9
+   },
+   {
+    "name": "Jus d’orange pressé",
+    "price": 12.2
+   }
+  ],
+  "names": [
+   "Tarte aux pommes",
+   "Chocolat chaud"
+  ],
+  "key": "price"
+ },
+ "ocr-french-2": {
+  "kind": "nth",
+  "items": [
+   "L'ascenseur côté cour est hors service.",
+   "Le parking sera fermé du lundi 3 au vendredi 7.",
+   "Une réunion aura lieu à 18 h dans le hall.",
+   "Les vélos doivent être rangés au sous-sol.",
+   "Les colis non réclamés seront renvoyés."
+  ],
+  "n": 4
+ },
+ "handwriting-1": {
+  "kind": "sum_where",
+  "rows": [
+   {
+    "item": "taxi",
+    "amount": 14,
+    "crossed": false
+   },
+   {
+    "item": "coffee",
+    "amount": 88,
+    "crossed": false
+   },
+   {
+    "item": "stamps",
+    "amount": 46,
+    "crossed": false
+   },
+   {
+    "item": "cables",
+    "amount": 7,
+    "crossed": true
+   },
+   {
+    "item": "lunch",
+    "amount": 30,
+    "crossed": false
+   },
+   {
+    "item": "tolls",
+    "amount": 10,
+    "crossed": true
+   },
+   {
+    "item": "flowers",
+    "amount": 95,
+    "crossed": false
+   },
+   {
+    "item": "hotel bar",
+    "amount": 60,
+    "crossed": true
+   },
+   {
+    "item": "snacks",
+    "amount": 8,
+    "crossed": false
+   },
+   {
+    "item": "train",
+    "amount": 19,
+    "crossed": false
+   },
+   {
+    "item": "parking",
+    "amount": 69,
+    "crossed": false
+   }
+  ],
+  "key": "amount",
+  "where": [
+   "crossed",
+   false
+  ]
+ },
+ "chart-1": {
+  "kind": "series_sum",
+  "vals": {
+   "2022": [
+    50,
+    92,
+    48,
+    21,
+    41,
+    33,
+    81,
+    54
+   ],
+   "2023": [
+    68,
+    61,
+    42,
+    78,
+    80,
+    52,
+    49,
+    55
+   ],
+   "2024": [
+    56,
+    33,
+    49,
+    59,
+    21,
+    35,
+    61,
+    50
+   ],
+   "2025": [
+    88,
+    70,
+    63,
+    77,
+    67,
+    39,
+    24,
+    92
+   ]
+  },
+  "series": "2024"
+ },
+ "chart-2": {
+  "kind": "diff",
+  "vals": {
+   "Harbor": [
+    60,
+    10,
+    100,
+    60,
+    80,
+    30,
+    80,
+    90,
+    100,
+    50,
+    100,
+    80
+   ],
+   "Delta": [
+    90,
+    90,
+    80,
+    40,
+    50,
+    20,
+    20,
+    80,
+    80,
+    70,
+    30,
+    40
+   ],
+   "Summit": [
+    50,
+    30,
+    90,
+    100,
+    50,
+    60,
+    30,
+    40,
+    40,
+    80,
+    100,
+    20
+   ],
+   "Prairie": [
+    50,
+    60,
+    40,
+    90,
+    20,
+    10,
+    60,
+    80,
+    50,
+    80,
+    100,
+    10
+   ],
+   "Canyon": [
+    60,
+    50,
+    30,
+    80,
+    100,
+    100,
+    80,
+    50,
+    90,
+    80,
+    60,
+    40
+   ],
+   "Mesa": [
+    20,
+    40,
+    90,
+    10,
+    60,
+    90,
+    20,
+    60,
+    10,
+    30,
+    10,
+    80
+   ]
+  },
+  "a": "Summit",
+  "b": "Harbor",
+  "i": 5,
+  "labels": [
+   "Jan",
+   "Feb",
+   "Mar",
+   "Apr",
+   "May",
+   "Jun",
+   "Jul",
+   "Aug",
+   "Sep",
+   "Oct",
+   "Nov",
+   "Dec"
+  ]
+ },
+ "chart-3": {
+  "kind": "pick",
+  "vals": {
+   "Online": [
+    20,
+    40,
+    5,
+    5,
+    20,
+    30,
+    15,
+    25,
+    20,
+    30,
+    30,
+    35
+   ],
+   "In-store": [
+    15,
+    40,
+    35,
+    35,
+    5,
+    40,
+    35,
+    5,
+    10,
+    25,
+    35,
+    25
+   ],
+   "Refunds": [
+    30,
+    10,
+    5,
+    15,
+    10,
+    35,
+    5,
+    35,
+    35,
+    20,
+    10,
+    35
+   ],
+   "Gift cards": [
+    5,
+    25,
+    30,
+    15,
+    35,
+    30,
+    35,
+    5,
+    20,
+    30,
+    20,
+    35
+   ]
+  },
+  "series": "Refunds",
+  "i": 8
+ },
+ "chart-4": {
+  "kind": "count_pts",
+  "pts": [
+   [
+    68.24,
+    30.06,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    17.95,
+    37.16,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    72.22,
+    26.01,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    17.77,
+    27.73,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    15.92,
+    85.03,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    95.1,
+    74.37,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    52.73,
+    80.34,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    44.6,
+    86.34,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    73.61,
+    41.04,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    27.05,
+    38.87,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    56.85,
+    11.67,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    38.5,
+    12.96,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    85.03,
+    65.23,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    37.03,
+    77.48,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    27.38,
+    82.02,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    68.71,
+    63.8,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    63.67,
+    75.72,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    10.09,
+    95.65,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    77.98,
+    71.36,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    21.16,
+    68.27,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    40.44,
+    80.09,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    64.26,
+    23.31,
+    "tri",
+    "#1f5fd6"
+   ],
+   [
+    24.94,
+    84.85,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    27.77,
+    26.18,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    87.79,
+    14.11,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    73.06,
+    51.26,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    92.95,
+    4.82,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    85.47,
+    41.83,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    82.72,
+    92.7,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    80.82,
+    54.39,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    91.19,
+    32.31,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    36.53,
+    72.86,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    15.41,
+    88.74,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    19.24,
+    96.19,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    75.3,
+    66.22,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    76.64,
+    48.14,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    21.22,
+    36.37,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    95.89,
+    66.19,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    84.89,
+    55.5,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    43.69,
+    13.9,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    39.8,
+    41.63,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    58.06,
+    83.43,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    46.64,
+    21.28,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    67.08,
+    44.15,
+    "circ",
+    "#1f5fd6"
+   ],
+   [
+    9.42,
+    25.07,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    53.76,
+    29.13,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    63.1,
+    26.29,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    66.85,
+    88.77,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    84.28,
+    7.61,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    10.08,
+    56.94,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    64.5,
+    12.98,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    36.35,
+    53.14,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    11.09,
+    40.11,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    50.31,
+    5.19,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    12.79,
+    33.44,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    38.91,
+    87.72,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    76.36,
+    13.24,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    11.3,
+    9.37,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    70.81,
+    66.3,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    82.7,
+    20.2,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    9.81,
+    48.69,
+    "tri",
+    "#ff7f0e"
+   ],
+   [
+    64.98,
+    16.33,
+    "tri",
+    "#ff7f0e"
+   ]
+  ],
+  "shape": "tri",
+  "color": "#1f5fd6",
+  "above": 60
+ },
+ "chart-5": {
+  "kind": "count_gt",
+  "vals": [
+   48,
+   82,
+   55,
+   27,
+   49,
+   58,
+   28,
+   42,
+   40,
+   23,
+   77,
+   34,
+   50,
+   33,
+   42,
+   37,
+   91,
+   60,
+   47,
+   91,
+   23,
+   57
+  ],
+  "gt": 70
+ },
+ "count-1": {
+  "kind": "count_eq",
+  "items": [
+   "#f28e2b",
+   "#f28e2b",
+   "#f28e2b",
+   "#f28e2b",
+   "#e377c2",
+   "#d62728",
+   "#e377c2",
+   "#e377c2",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#f28e2b",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#e377c2",
+   "#d62728",
+   "#f28e2b",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#f28e2b",
+   "#f28e2b",
+   "#f28e2b",
+   "#f28e2b",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#e377c2",
+   "#e377c2",
+   "#f28e2b",
+   "#d62728",
+   "#e377c2",
+   "#e377c2",
+   "#d62728",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#e377c2",
+   "#e377c2",
+   "#e377c2",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#e377c2",
+   "#e377c2",
+   "#e377c2",
+   "#f28e2b",
+   "#e377c2",
+   "#e377c2",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#f28e2b",
+   "#d62728",
+   "#d62728",
+   "#e377c2",
+   "#e377c2"
+  ],
+  "value": "#d62728"
+ },
+ "count-2": {
+  "kind": "count_eq",
+  "items": [
+   6,
+   7,
+   5,
+   5,
+   6,
+   6,
+   6,
+   5,
+   7,
+   5,
+   7,
+   5,
+   6,
+   5,
+   5,
+   5,
+   7,
+   5,
+   5,
+   6,
+   5,
+   6,
+   7,
+   6,
+   6,
+   6,
+   5,
+   6,
+   5,
+   6,
+   5,
+   6,
+   5,
+   5,
+   5,
+   6,
+   7,
+   5,
+   6,
+   5,
+   5,
+   5,
+   5,
+   6,
+   5,
+   7,
+   5,
+   5,
+   6,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   7,
+   5,
+   6,
+   6
+  ],
+  "value": 5
+ },
+ "count-3": {
+  "kind": "count_eq",
+  "items": [
+   "8",
+   "R",
+   "B",
+   "D",
+   "R",
+   "6",
+   "R",
+   "8",
+   "H",
+   "B",
+   "R",
+   "B",
+   "3",
+   "P",
+   "D",
+   "6",
+   "6",
+   "3",
+   "D",
+   "H",
+   "B",
+   "R",
+   "D",
+   "8",
+   "E",
+   "3",
+   "P",
+   "E",
+   "3",
+   "P",
+   "3",
+   "8",
+   "6",
+   "E",
+   "8",
+   "E",
+   "R",
+   "H",
+   "D",
+   "E",
+   "R",
+   "R",
+   "R",
+   "H",
+   "E",
+   "P",
+   "P",
+   "P",
+   "P",
+   "8",
+   "E",
+   "D",
+   "D",
+   "3",
+   "8",
+   "8",
+   "8",
+   "R",
+   "P",
+   "3",
+   "B",
+   "P",
+   "H",
+   "8",
+   "6",
+   "3",
+   "8",
+   "3",
+   "6",
+   "P",
+   "P",
+   "H",
+   "R",
+   "6",
+   "P",
+   "E",
+   "6",
+   "E",
+   "B",
+   "E",
+   "D",
+   "E",
+   "B",
+   "D",
+   "H",
+   "D",
+   "6",
+   "E",
+   "P",
+   "3",
+   "B",
+   "6",
+   "R",
+   "E",
+   "D",
+   "E",
+   "3",
+   "E",
+   "H",
+   "3",
+   "P",
+   "D",
+   "E",
+   "3",
+   "6",
+   "D",
+   "H",
+   "H",
+   "D",
+   "8",
+   "3",
+   "R",
+   "6",
+   "8",
+   "R",
+   "3",
+   "3",
+   "3",
+   "3",
+   "D",
+   "D",
+   "B",
+   "D",
+   "3",
+   "6",
+   "6",
+   "R",
+   "8",
+   "P",
+   "H",
+   "3",
+   "R",
+   "E",
+   "D",
+   "B",
+   "3",
+   "E",
+   "B",
+   "3",
+   "R",
+   "3",
+   "E",
+   "H",
+   "3",
+   "3",
+   "D",
+   "E",
+   "6",
+   "8",
+   "P",
+   "6",
+   "H",
+   "R",
+   "E",
+   "E",
+   "8",
+   "R",
+   "B",
+   "P",
+   "3",
+   "H",
+   "E",
+   "E",
+   "8",
+   "R",
+   "E",
+   "R",
+   "E",
+   "P",
+   "3",
+   "8",
+   "8",
+   "E",
+   "3",
+   "8",
+   "R",
+   "6",
+   "6",
+   "R",
+   "E",
+   "H",
+   "P",
+   "R",
+   "8",
+   "3",
+   "3",
+   "6",
+   "D",
+   "6",
+   "8",
+   "H",
+   "6",
+   "D",
+   "H",
+   "6",
+   "3",
+   "6",
+   "6",
+   "8",
+   "B",
+   "H",
+   "E",
+   "R",
+   "3",
+   "8",
+   "E",
+   "8",
+   "E",
+   "P",
+   "D",
+   "8",
+   "R",
+   "E",
+   "3",
+   "6",
+   "D",
+   "6",
+   "E",
+   "8",
+   "P",
+   "R",
+   "R",
+   "6",
+   "6",
+   "B",
+   "B",
+   "8",
+   "H",
+   "P",
+   "B",
+   "R",
+   "D",
+   "D",
+   "D",
+   "R",
+   "P",
+   "6",
+   "H",
+   "D",
+   "R",
+   "6",
+   "3",
+   "3",
+   "3",
+   "D",
+   "E",
+   "R",
+   "E",
+   "8",
+   "E",
+   "8",
+   "6",
+   "R",
+   "E",
+   "3",
+   "R",
+   "P",
+   "3",
+   "P",
+   "E",
+   "B",
+   "8",
+   "R",
+   "R",
+   "B",
+   "B",
+   "6",
+   "E",
+   "3",
+   "P",
+   "6",
+   "E",
+   "6",
+   "R",
+   "3",
+   "6",
+   "P",
+   "H",
+   "6",
+   "D",
+   "E",
+   "E",
+   "6",
+   "B",
+   "P",
+   "8",
+   "8",
+   "B",
+   "D",
+   "3",
+   "H",
+   "P",
+   "3",
+   "8",
+   "E",
+   "3",
+   "B",
+   "6",
+   "R",
+   "H",
+   "P",
+   "B",
+   "6",
+   "8",
+   "D",
+   "D",
+   "H",
+   "E",
+   "3",
+   "E",
+   "D",
+   "E",
+   "B",
+   "E",
+   "8",
+   "E",
+   "P",
+   "H",
+   "D",
+   "8",
+   "3",
+   "P",
+   "B",
+   "E",
+   "H",
+   "B",
+   "B",
+   "B",
+   "R",
+   "P",
+   "3",
+   "6",
+   "B",
+   "B",
+   "R",
+   "8",
+   "R",
+   "P",
+   "3",
+   "H",
+   "D",
+   "6",
+   "E",
+   "P",
+   "R",
+   "E",
+   "8",
+   "P",
+   "E",
+   "3",
+   "R",
+   "P",
+   "R",
+   "H",
+   "3",
+   "6",
+   "D",
+   "P",
+   "R",
+   "R",
+   "R",
+   "H",
+   "6",
+   "E",
+   "R",
+   "B",
+   "B",
+   "B",
+   "3",
+   "R",
+   "R",
+   "3",
+   "H",
+   "6",
+   "8",
+   "3",
+   "8",
+   "H",
+   "D",
+   "D",
+   "P",
+   "H",
+   "R",
+   "P",
+   "8",
+   "E",
+   "H",
+   "P",
+   "3",
+   "P",
+   "R",
+   "8",
+   "R",
+   "R",
+   "B",
+   "B",
+   "3",
+   "H",
+   "R",
+   "8",
+   "H",
+   "3",
+   "H",
+   "P",
+   "B",
+   "8",
+   "B",
+   "P",
+   "H",
+   "D",
+   "R",
+   "P",
+   "B",
+   "H",
+   "R",
+   "H",
+   "R",
+   "P",
+   "8",
+   "H",
+   "3",
+   "D",
+   "H",
+   "B",
+   "3",
+   "8",
+   "D",
+   "P",
+   "P",
+   "H",
+   "8",
+   "6",
+   "H",
+   "D",
+   "H",
+   "H",
+   "H",
+   "6",
+   "E",
+   "E",
+   "R",
+   "6",
+   "H",
+   "3",
+   "E",
+   "P",
+   "H",
+   "D",
+   "P",
+   "B",
+   "3",
+   "R",
+   "D",
+   "D",
+   "E",
+   "B",
+   "D",
+   "P",
+   "6",
+   "R",
+   "H",
+   "6",
+   "E",
+   "E",
+   "D",
+   "D",
+   "P",
+   "3"
+  ],
+  "value": "B"
+ },
+ "count-4": {
+  "kind": "count_eq",
+  "items": [
+   "hollow_circ",
+   "hollow_circ",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_circ",
+   "filled_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_hex",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_circ",
+   "hollow_hex",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_hex",
+   "hollow_circ",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_hex",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_circ",
+   "filled_sq",
+   "filled_sq",
+   "hollow_circ",
+   "filled_sq",
+   "hollow_circ",
+   "filled_sq",
+   "hollow_circ",
+   "hollow_circ",
+   "filled_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_circ",
+   "hollow_hex",
+   "hollow_sq",
+   "hollow_circ",
+   "filled_sq",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_hex",
+   "hollow_sq",
+   "hollow_circ",
+   "hollow_circ",
+   "hollow_sq",
+   "hollow_hex",
+   "hollow_hex",
+   "hollow_circ",
+   "hollow_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "filled_sq",
+   "filled_sq",
+   "filled_sq",
+   "hollow_circ",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_hex",
+   "hollow_sq",
+   "filled_sq",
+   "filled_sq",
+   "filled_sq",
+   "hollow_sq",
+   "hollow_sq",
+   "hollow_sq"
+  ],
+  "value": "hollow_sq"
+ },
+ "position-1": {
+  "kind": "nearest",
+  "star": [
+   982.0,
+   822.7
+  ],
+  "circles": [
+   [
+    746.9,
+    594.5,
+    60
+   ],
+   [
+    1238.1,
+    165.8,
+    85
+   ],
+   [
+    155.9,
+    481.4,
+    93
+   ],
+   [
+    922.5,
+    506.2,
+    55
+   ],
+   [
+    631.6,
+    416.2,
+    94
+   ],
+   [
+    601.5,
+    802.7,
+    72
+   ],
+   [
+    124.3,
+    610.6,
+    56
+   ],
+   [
+    152.7,
+    773.5,
+    50
+   ],
+   [
+    359.8,
+    735.1,
+    57
+   ],
+   [
+    429.8,
+    591.5,
+    91
+   ],
+   [
+    661.1,
+    871.7,
+    34
+   ],
+   [
+    616.4,
+    485.5,
+    38
+   ],
+   [
+    652.2,
+    257.8,
+    24
+   ],
+   [
+    1188.1,
+    337.9,
+    86
+   ],
+   [
+    224.1,
+    221.1,
+    31
+   ],
+   [
+    762.8,
+    871.9,
+    66
+   ],
+   [
+    313.5,
+    810.7,
+    21
+   ],
+   [
+    977.2,
+    226.1,
+    71
+   ],
+   [
+    152.6,
+    408.1,
+    92
+   ],
+   [
+    350.8,
+    329.1,
+    30
+   ],
+   [
+    236.8,
+    423.7,
+    46
+   ],
+   [
+    771.1,
+    277.0,
+    14
+   ],
+   [
+    206.3,
+    675.1,
+    47
+   ],
+   [
+    51.2,
+    774.8,
+    79
+   ],
+   [
+    67.1,
+    696.0,
+    44
+   ],
+   [
+    691.3,
+    640.6,
+    53
+   ],
+   [
+    285.0,
+    675.7,
+    12
+   ],
+   [
+    351.6,
+    553.4,
+    76
+   ],
+   [
+    1217.1,
+    558.7,
+    75
+   ],
+   [
+    537.7,
+    762.0,
+    81
+   ]
+  ]
+ },
+ "position-2": {
+  "kind": "grid_offset",
+  "nums": [
+   [
+    99,
+    36,
+    52,
+    19,
+    53,
+    72,
+    47,
+    64,
+    93
+   ],
+   [
+    55,
+    10,
+    25,
+    75,
+    61,
+    89,
+    14,
+    74,
+    79
+   ],
+   [
+    92,
+    78,
+    19,
+    30,
+    21,
+    42,
+    48,
+    38,
+    77
+   ],
+   [
+    63,
+    32,
+    74,
+    11,
+    41,
+    80,
+    39,
+    66,
+    51
+   ],
+   [
+    38,
+    36,
+    67,
+    43,
+    16,
+    48,
+    63,
+    24,
+    97
+   ],
+   [
+    49,
+    12,
+    89,
+    82,
+    21,
+    16,
+    52,
+    70,
+    78
+   ],
+   [
+    71,
+    73,
+    13,
+    99,
+    53,
+    19,
+    43,
+    24,
+    21
+   ],
+   [
+    43,
+    94,
+    24,
+    70,
+    17,
+    29,
+    55,
+    94,
+    11
+   ],
+   [
+    58,
+    14,
+    48,
+    65,
+    72,
+    54,
+    99,
+    65,
+    36
+   ]
+  ],
+  "start": [
+   2,
+   7
+  ],
+  "move": [
+   3,
+   -2
+  ]
+ },
+ "position-3": {
+  "kind": "inside",
+  "items": [
+   [
+    1249.4,
+    237.5,
+    "blue_sq",
+    false
+   ],
+   [
+    499.7,
+    521.7,
+    "blue_sq",
+    true
+   ],
+   [
+    705.7,
+    491.1,
+    "teal_sq",
+    true
+   ],
+   [
+    376.0,
+    113.2,
+    "blue_circ",
+    false
+   ],
+   [
+    1207.1,
+    509.1,
+    "blue_sq",
+    false
+   ],
+   [
+    160.9,
+    655.9,
+    "teal_sq",
+    false
+   ],
+   [
+    862.2,
+    618.2,
+    "blue_sq",
+    true
+   ],
+   [
+    996.7,
+    126.4,
+    "blue_circ",
+    false
+   ],
+   [
+    579.3,
+    93.3,
+    "blue_circ",
+    false
+   ],
+   [
+    264.6,
+    248.4,
+    "blue_sq",
+    false
+   ],
+   [
+    463.6,
+    694.2,
+    "blue_sq",
+    false
+   ],
+   [
+    447.5,
+    363.3,
+    "blue_sq",
+    true
+   ],
+   [
+    420.9,
+    598.7,
+    "teal_sq",
+    true
+   ],
+   [
+    182.7,
+    53.8,
+    "blue_sq",
+    false
+   ],
+   [
+    85.3,
+    821.0,
+    "blue_sq",
+    false
+   ],
+   [
+    703.0,
+    817.0,
+    "teal_sq",
+    false
+   ],
+   [
+    862.1,
+    66.1,
+    "blue_sq",
+    false
+   ],
+   [
+    653.3,
+    214.4,
+    "blue_sq",
+    false
+   ],
+   [
+    1028.7,
+    656.8,
+    "blue_circ",
+    false
+   ],
+   [
+    1229.3,
+    709.9,
+    "blue_sq",
+    false
+   ],
+   [
+    1124.5,
+    285.6,
+    "blue_circ",
+    false
+   ],
+   [
+    444.9,
+    286.0,
+    "teal_sq",
+    true
+   ],
+   [
+    111.7,
+    670.2,
+    "blue_sq",
+    false
+   ],
+   [
+    463.0,
+    777.1,
+    "blue_sq",
+    false
+   ],
+   [
+    1114.8,
+    432.2,
+    "teal_sq",
+    false
+   ],
+   [
+    344.4,
+    835.5,
+    "blue_circ",
+    false
+   ],
+   [
+    362.4,
+    749.9,
+    "teal_sq",
+    false
+   ],
+   [
+    177.3,
+    458.7,
+    "blue_sq",
+    false
+   ],
+   [
+    700.4,
+    591.0,
+    "blue_circ",
+    true
+   ],
+   [
+    888.4,
+    734.4,
+    "blue_sq",
+    false
+   ],
+   [
+    577.2,
+    853.9,
+    "teal_sq",
+    false
+   ],
+   [
+    566.6,
+    365.7,
+    "teal_sq",
+    true
+   ],
+   [
+    1190.9,
+    626.8,
+    "blue_circ",
+    false
+   ],
+   [
+    1225.0,
+    593.8,
+    "blue_circ",
+    false
+   ],
+   [
+    306.3,
+    659.6,
+    "blue_circ",
+    false
+   ],
+   [
+    169.1,
+    599.5,
+    "blue_sq",
+    false
+   ],
+   [
+    1228.3,
+    416.8,
+    "teal_sq",
+    false
+   ],
+   [
+    133.1,
+    139.2,
+    "blue_circ",
+    false
+   ],
+   [
+    233.9,
+    137.1,
+    "blue_sq",
+    false
+   ],
+   [
+    663.3,
+    455.7,
+    "blue_sq",
+    true
+   ],
+   [
+    311.7,
+    305.6,
+    "blue_circ",
+    false
+   ],
+   [
+    670.0,
+    126.4,
+    "blue_circ",
+    false
+   ],
+   [
+    1149.0,
+    708.2,
+    "blue_sq",
+    false
+   ],
+   [
+    707.5,
+    288.4,
+    "blue_sq",
+    true
+   ],
+   [
+    1085.0,
+    606.2,
+    "blue_circ",
+    false
+   ],
+   [
+    188.0,
+    174.6,
+    "teal_sq",
+    false
+   ],
+   [
+    838.7,
+    709.6,
+    "teal_sq",
+    false
+   ],
+   [
+    1227.1,
+    321.0,
+    "blue_sq",
+    false
+   ],
+   [
+    808.6,
+    837.5,
+    "blue_sq",
+    false
+   ],
+   [
+    1034.5,
+    891.5,
+    "blue_sq",
+    false
+   ],
+   [
+    83.9,
+    493.6,
+    "blue_sq",
+    false
+   ],
+   [
+    730.9,
+    871.1,
+    "blue_sq",
+    false
+   ],
+   [
+    1117.9,
+    196.4,
+    "blue_circ",
+    false
+   ],
+   [
+    269.4,
+    748.7,
+    "blue_sq",
+    false
+   ],
+   [
+    611.5,
+    483.8,
+    "blue_circ",
+    true
+   ],
+   [
+    625.0,
+    157.4,
+    "blue_sq",
+    false
+   ],
+   [
+    1022.6,
+    50.7,
+    "blue_sq",
+    false
+   ],
+   [
+    1121.1,
+    40.2,
+    "blue_sq",
+    false
+   ],
+   [
+    1209.6,
+    168.1,
+    "blue_sq",
+    false
+   ],
+   [
+    62.3,
+    568.1,
+    "teal_sq",
+    false
+   ],
+   [
+    349.7,
+    67.3,
+    "teal_sq",
+    false
+   ],
+   [
+    1163.9,
+    117.4,
+    "blue_sq",
+    false
+   ],
+   [
+    1069.2,
+    794.1,
+    "blue_sq",
+    false
+   ],
+   [
+    853.3,
+    300.9,
+    "blue_sq",
+    true
+   ],
+   [
+    559.6,
+    700.2,
+    "blue_sq",
+    false
+   ],
+   [
+    94.3,
+    185.2,
+    "blue_sq",
+    false
+   ],
+   [
+    760.9,
+    122.4,
+    "blue_circ",
+    false
+   ],
+   [
+    308.5,
+    544.5,
+    "blue_sq",
+    false
+   ],
+   [
+    1003.0,
+    713.7,
+    "blue_circ",
+    false
+   ],
+   [
+    945.1,
+    154.2,
+    "teal_sq",
+    false
+   ],
+   [
+    186.3,
+    709.4,
+    "blue_circ",
+    false
+   ],
+   [
+    920.6,
+    791.4,
+    "blue_sq",
+    false
+   ],
+   [
+    642.2,
+    334.8,
+    "blue_circ",
+    true
+   ],
+   [
+    30.5,
+    751.9,
+    "blue_sq",
+    false
+   ],
+   [
+    214.4,
+    256.0,
+    "teal_sq",
+    false
+   ],
+   [
+    203.2,
+    533.6,
+    "blue_sq",
+    false
+   ],
+   [
+    763.3,
+    513.2,
+    "blue_sq",
+    true
+   ],
+   [
+    728.9,
+    169.1,
+    "blue_sq",
+    false
+   ],
+   [
+    1010.3,
+    523.0,
+    "teal_sq",
+    false
+   ],
+   [
+    1253.6,
+    184.8,
+    "teal_sq",
+    false
+   ],
+   [
+    145.7,
+    326.3,
+    "blue_circ",
+    false
+   ],
+   [
+    879.4,
+    464.8,
+    "blue_sq",
+    true
+   ],
+   [
+    1060.7,
+    356.5,
+    "blue_sq",
+    false
+   ],
+   [
+    624.4,
+    825.4,
+    "teal_sq",
+    false
+   ],
+   [
+    1265.7,
+    544.7,
+    "teal_sq",
+    false
+   ],
+   [
+    1177.8,
+    396.0,
+    "blue_sq",
+    false
+   ],
+   [
+    527.6,
+    843.1,
+    "blue_circ",
+    false
+   ],
+   [
+    259.0,
+    869.3,
+    "blue_sq",
+    false
+   ]
+  ],
+  "rect": [
+   360,
+   240,
+   560,
+   430
+  ],
+  "shape": "blue_sq"
+ },
+ "position-4": {
+  "kind": "shelf",
+  "shelves": [
+   [
+    "yellow",
+    "yellow",
+    "yellow",
+    "blue",
+    "blue",
+    "green",
+    "orange",
+    "red",
+    "green"
+   ],
+   [
+    "orange",
+    "red",
+    "blue",
+    "red",
+    "green",
+    "gray",
+    "blue",
+    "yellow",
+    "orange"
+   ],
+   [
+    "gray",
+    "orange",
+    "green",
+    "green",
+    "yellow",
+    "yellow",
+    "green",
+    "red",
+    "orange"
+   ],
+   [
+    "blue",
+    "gray",
+    "yellow",
+    "blue",
+    "red",
+    "gray",
+    "blue",
+    "green",
+    "yellow"
+   ]
+  ],
+  "labels": [
+   169,
+   914,
+   628,
+   903,
+   192,
+   351,
+   575,
+   689,
+   400,
+   457,
+   802,
+   579,
+   647,
+   281,
+   564,
+   331,
+   695,
+   661,
+   146,
+   540,
+   158,
+   739,
+   587,
+   378,
+   531,
+   149,
+   324,
+   684,
+   960,
+   505,
+   688,
+   357,
+   890,
+   427,
+   126,
+   803
+  ],
+  "shelf": 1
+ },
+ "ui-1": {
+  "kind": "count_flag",
+  "rows": [
+   {
+    "label": "Share usage data",
+    "on": true,
+    "disabled": false
+   },
+   {
+    "label": "Personalised ads",
+    "on": true,
+    "disabled": false
+   },
+   {
+    "label": "Location history",
+    "on": true,
+    "disabled": false
+   },
+   {
+    "label": "Contact sync",
+    "on": false,
+    "disabled": false
+   },
+   {
+    "label": "Read receipts",
+    "on": true,
+    "disabled": false
+   },
+   {
+    "label": "Show online status",
+    "on": false,
+    "disabled": false
+   },
+   {
+    "label": "Search indexing",
+    "on": false,
+    "disabled": true
+   },
+   {
+    "label": "Crash reports",
+    "on": true,
+    "disabled": false
+   },
+   {
+    "label": "Face grouping",
+    "on": false,
+    "disabled": false
+   }
+  ],
+  "flag": "on"
+ },
+ "ui-2": {
+  "kind": "nth_where",
+  "items": [
+   "Restore",
+   "Publish",
+   "Rename",
+   "Tag",
+   "Export",
+   "Print",
+   "Reject",
+   "Archive",
+   "Approve",
+   "Compare",
+   "Duplicate",
+   "Share",
+   "Split",
+   "Import",
+   "Pin",
+   "Merge",
+   "Unlock",
+   "Preview",
+   "Review",
+   "Copy",
+   "Upload",
+   "Sync",
+   "Lock",
+   "Move"
+  ],
+  "flags": [
+   false,
+   false,
+   false,
+   false,
+   true,
+   false,
+   false,
+   false,
+   true,
+   false,
+   false,
+   true,
+   false,
+   true,
+   true,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "n": 3
+ },
+ "ui-3": {
+  "kind": "sum_where",
+  "rows": [
+   {
+    "order": "#43027",
+    "customer": "L. Chen",
+    "amount": 68.1,
+    "checked": true
+   },
+   {
+    "order": "#48961",
+    "customer": "K. Novak",
+    "amount": 274.32,
+    "checked": true
+   },
+   {
+    "order": "#45706",
+    "customer": "L. Chen",
+    "amount": 93.11,
+    "checked": false
+   },
+   {
+    "order": "#42977",
+    "customer": "R. Haddad",
+    "amount": 332.91,
+    "checked": false
+   },
+   {
+    "order": "#44599",
+    "customer": "A. Moreau",
+    "amount": 347.52,
+    "checked": false
+   },
+   {
+    "order": "#46921",
+    "customer": "R. Haddad",
+    "amount": 192.68,
+    "checked": false
+   },
+   {
+    "order": "#40031",
+    "customer": "R. Haddad",
+    "amount": 100.71,
+    "checked": false
+   },
+   {
+    "order": "#42553",
+    "customer": "P. Silva",
+    "amount": 202.54,
+    "checked": false
+   },
+   {
+    "order": "#46477",
+    "customer": "M. Berg",
+    "amount": 398.85,
+    "checked": false
+   },
+   {
+    "order": "#42582",
+    "customer": "A. Moreau",
+    "amount": 431.14,
+    "checked": false
+   },
+   {
+    "order": "#48968",
+    "customer": "L. Chen",
+    "amount": 429.06,
+    "checked": false
+   },
+   {
+    "order": "#46475",
+    "customer": "L. Chen",
+    "amount": 408.43,
+    "checked": false
+   },
+   {
+    "order": "#48232",
+    "customer": "P. Silva",
+    "amount": 320.94,
+    "checked": false
+   },
+   {
+    "order": "#47626",
+    "customer": "R. Haddad",
+    "amount": 47.86,
+    "checked": true
+   },
+   {
+    "order": "#41029",
+    "customer": "A. Moreau",
+    "amount": 144.84,
+    "checked": true
+   },
+   {
+    "order": "#43547",
+    "customer": "A. Moreau",
+    "amount": 342.39,
+    "checked": false
+   },
+   {
+    "order": "#44521",
+    "customer": "P. Silva",
+    "amount": 186.57,
+    "checked": false
+   },
+   {
+    "order": "#45659",
+    "customer": "M. Berg",
+    "amount": 287.71,
+    "checked": false
+   },
+   {
+    "order": "#46926",
+    "customer": "K. Novak",
+    "amount": 360.54,
+    "checked": true
+   },
+   {
+    "order": "#46833",
+    "customer": "R. Haddad",
+    "amount": 328.72,
+    "checked": true
+   }
+  ],
+  "key": "amount",
+  "where": [
+   "checked",
+   true
+  ]
+ },
+ "ui-4": {
+  "kind": "sum_where",
+  "rows": [
+   {
+    "app": "Mail",
+    "badge": "gray",
+    "n": 2
+   },
+   {
+    "app": "Chat",
+    "badge": "red",
+    "n": 25
+   },
+   {
+    "app": "Notes",
+    "badge": "none",
+    "n": 0
+   },
+   {
+    "app": "Photos",
+    "badge": "red",
+    "n": 5
+   },
+   {
+    "app": "Maps",
+    "badge": "red",
+    "n": 29
+   },
+   {
+    "app": "Music",
+    "badge": "red",
+    "n": 13
+   },
+   {
+    "app": "Files",
+    "badge": "gray",
+    "n": 16
+   },
+   {
+    "app": "Tasks",
+    "badge": "red",
+    "n": 17
+   },
+   {
+    "app": "News",
+    "badge": "none",
+    "n": 0
+   },
+   {
+    "app": "Bank",
+    "badge": "gray",
+    "n": 9
+   },
+   {
+    "app": "Shop",
+    "badge": "none",
+    "n": 0
+   },
+   {
+    "app": "Fit",
+    "badge": "red",
+    "n": 15
+   },
+   {
+    "app": "Clock",
+    "badge": "red",
+    "n": 18
+   },
+   {
+    "app": "Wallet",
+    "badge": "red",
+    "n": 21
+   },
+   {
+    "app": "Books",
+    "badge": "red",
+    "n": 13
+   },
+   {
+    "app": "Docs",
+    "badge": "none",
+    "n": 0
+   },
+   {
+    "app": "Drive",
+    "badge": "red",
+    "n": 8
+   },
+   {
+    "app": "Meet",
+    "badge": "red",
+    "n": 9
+   },
+   {
+    "app": "Radio",
+    "badge": "red",
+    "n": 16
+   },
+   {
+    "app": "Video",
+    "badge": "red",
+    "n": 12
+   },
+   {
+    "app": "Games",
+    "badge": "red",
+    "n": 5
+   },
+   {
+    "app": "Food",
+    "badge": "red",
+    "n": 23
+   },
+   {
+    "app": "Ride",
+    "badge": "none",
+    "n": 0
+   },
+   {
+    "app": "Home",
+    "badge": "red",
+    "n": 24
+   },
+   {
+    "app": "Camera",
+    "badge": "gray",
+    "n": 2
+   },
+   {
+    "app": "Notes+",
+    "badge": "red",
+    "n": 1
+   },
+   {
+    "app": "Pay",
+    "badge": "gray",
+    "n": 10
+   },
+   {
+    "app": "Weather",
+    "badge": "gray",
+    "n": 27
+   },
+   {
+    "app": "Stocks",
+    "badge": "red",
+    "n": 1
+   },
+   {
+    "app": "Podcasts",
+    "badge": "none",
+    "n": 0
+   }
+  ],
+  "key": "n",
+  "where": [
+   "badge",
+   "red"
+  ]
+ },
+ "table-1": {
+  "kind": "sum_where",
+  "rows": [
+   {
+    "name": "Ana C.",
+    "dept": "Support",
+    "hours": 22,
+    "rate": 37
+   },
+   {
+    "name": "Ben C.",
+    "dept": "Finance",
+    "hours": 43,
+    "rate": 37
+   },
+   {
+    "name": "Chloé F.",
+    "dept": "Finance",
+    "hours": 29,
+    "rate": 28
+   },
+   {
+    "name": "Dev L.",
+    "dept": "Support",
+    "hours": 36,
+    "rate": 21
+   },
+   {
+    "name": "Elif T.",
+    "dept": "Sales",
+    "hours": 35,
+    "rate": 40
+   },
+   {
+    "name": "Femi G.",
+    "dept": "Support",
+    "hours": 40,
+    "rate": 40
+   },
+   {
+    "name": "Gus N.",
+    "dept": "Sales",
+    "hours": 40,
+    "rate": 40
+   },
+   {
+    "name": "Hana N.",
+    "dept": "Support",
+    "hours": 21,
+    "rate": 43
+   },
+   {
+    "name": "Ivo L.",
+    "dept": "Finance",
+    "hours": 47,
+    "rate": 27
+   },
+   {
+    "name": "Jon W.",
+    "dept": "Ops",
+    "hours": 43,
+    "rate": 26
+   },
+   {
+    "name": "Kira K.",
+    "dept": "Sales Ops",
+    "hours": 41,
+    "rate": 24
+   },
+   {
+    "name": "Liam D.",
+    "dept": "Ops",
+    "hours": 26,
+    "rate": 28
+   },
+   {
+    "name": "Mina F.",
+    "dept": "Sales",
+    "hours": 42,
+    "rate": 38
+   },
+   {
+    "name": "Nils D.",
+    "dept": "Sales",
+    "hours": 25,
+    "rate": 37
+   },
+   {
+    "name": "Omar M.",
+    "dept": "Ops",
+    "hours": 38,
+    "rate": 21
+   },
+   {
+    "name": "Pia B.",
+    "dept": "Finance",
+    "hours": 42,
+    "rate": 32
+   },
+   {
+    "name": "Quinn R.",
+    "dept": "Support",
+    "hours": 32,
+    "rate": 28
+   },
+   {
+    "name": "Rosa P.",
+    "dept": "Finance",
+    "hours": 30,
+    "rate": 33
+   },
+   {
+    "name": "Sami F.",
+    "dept": "Ops",
+    "hours": 35,
+    "rate": 28
+   },
+   {
+    "name": "Tara H.",
+    "dept": "Sales Ops",
+    "hours": 21,
+    "rate": 41
+   },
+   {
+    "name": "Uma G.",
+    "dept": "Finance",
+    "hours": 23,
+    "rate": 39
+   },
+   {
+    "name": "Vic G.",
+    "dept": "Finance",
+    "hours": 39,
+    "rate": 45
+   },
+   {
+    "name": "Wen M.",
+    "dept": "Sales",
+    "hours": 28,
+    "rate": 29
+   },
+   {
+    "name": "Xavi S.",
+    "dept": "Finance",
+    "hours": 35,
+    "rate": 41
+   },
+   {
+    "name": "Yara F.",
+    "dept": "Support",
+    "hours": 32,
+    "rate": 19
+   },
+   {
+    "name": "Zoe T.",
+    "dept": "Ops",
+    "hours": 25,
+    "rate": 21
+   }
+  ],
+  "key": "hours",
+  "where": [
+   "dept",
+   "Sales"
+  ]
+ },
+ "table-2": {
+  "kind": "timetable",
+  "times": {
+   "1402": [
+    380,
+    392,
+    397,
+    404,
+    null,
+    null,
+    null,
+    null,
+    null,
+    440
+   ],
+   "1403": [
+    417,
+    427,
+    null,
+    null,
+    458,
+    null,
+    479,
+    492,
+    503,
+    511
+   ],
+   "1404": [
+    449,
+    457,
+    468,
+    474,
+    479,
+    491,
+    null,
+    512,
+    523,
+    531
+   ],
+   "1421": [
+    489,
+    null,
+    null,
+    511,
+    515,
+    null,
+    530,
+    null,
+    547,
+    556
+   ],
+   "1422": [
+    527,
+    null,
+    552,
+    null,
+    569,
+    574,
+    587,
+    599,
+    null,
+    621
+   ],
+   "1423": [
+    562,
+    567,
+    576,
+    580,
+    593,
+    601,
+    610,
+    null,
+    null,
+    642
+   ],
+   "1431": [
+    603,
+    611,
+    null,
+    626,
+    null,
+    646,
+    657,
+    665,
+    672,
+    684
+   ],
+   "1448": [
+    640,
+    650,
+    654,
+    667,
+    null,
+    null,
+    700,
+    712,
+    null,
+    737
+   ],
+   "1457": [
+    678,
+    683,
+    689,
+    695,
+    706,
+    712,
+    728,
+    737,
+    741,
+    754
+   ]
+  },
+  "stations": [
+   "Ashford",
+   "Birch Lane",
+   "Coldwater",
+   "Dunmore",
+   "Elm Park",
+   "Oakridge",
+   "Fairview",
+   "Glen Cross",
+   "Pine Hill",
+   "Westgate"
+  ],
+  "train": "1457",
+  "a": "Oakridge",
+  "b": "Pine Hill"
+ },
+ "table-3": {
+  "kind": "count_lt",
+  "rows": [
+   {
+    "sku": "HW-7713",
+    "product": "Hex bolts M6",
+    "stock": 144,
+    "reorder": 50
+   },
+   {
+    "sku": "HW-9245",
+    "product": "Hex bolts M8",
+    "stock": 24,
+    "reorder": 85
+   },
+   {
+    "sku": "HW-3908",
+    "product": "Wing nuts M6",
+    "stock": 16,
+    "reorder": 45
+   },
+   {
+    "sku": "HW-2360",
+    "product": "Washers 8mm",
+    "stock": 173,
+    "reorder": 85
+   },
+   {
+    "sku": "HW-1435",
+    "product": "Washers 10mm",
+    "stock": 84,
+    "reorder": 110
+   },
+   {
+    "sku": "HW-3168",
+    "product": "Wood screws 4x40",
+    "stock": 84,
+    "reorder": 90
+   },
+   {
+    "sku": "HW-9857",
+    "product": "Wood screws 4x50",
+    "stock": 87,
+    "reorder": 105
+   },
+   {
+    "sku": "HW-7106",
+    "product": "Wall plugs 6mm",
+    "stock": 14,
+    "reorder": 55
+   },
+   {
+    "sku": "HW-4712",
+    "product": "Wall plugs 8mm",
+    "stock": 52,
+    "reorder": 100
+   },
+   {
+    "sku": "HW-7114",
+    "product": "Cable ties 200",
+    "stock": 2,
+    "reorder": 85
+   },
+   {
+    "sku": "HW-8760",
+    "product": "Cable ties 300",
+    "stock": 65,
+    "reorder": 50
+   },
+   {
+    "sku": "HW-5399",
+    "product": "Hinges 75mm",
+    "stock": 101,
+    "reorder": 25
+   },
+   {
+    "sku": "HW-8068",
+    "product": "Hinges 100mm",
+    "stock": 99,
+    "reorder": 40
+   },
+   {
+    "sku": "HW-5836",
+    "product": "Brackets L50",
+    "stock": 51,
+    "reorder": 115
+   },
+   {
+    "sku": "HW-1218",
+    "product": "Brackets L75",
+    "stock": 134,
+    "reorder": 20
+   },
+   {
+    "sku": "HW-2127",
+    "product": "Sandpaper P120",
+    "stock": 183,
+    "reorder": 60
+   },
+   {
+    "sku": "HW-4963",
+    "product": "Sandpaper P240",
+    "stock": 158,
+    "reorder": 35
+   },
+   {
+    "sku": "HW-4105",
+    "product": "Wood glue 250ml",
+    "stock": 178,
+    "reorder": 80
+   },
+   {
+    "sku": "HW-3062",
+    "product": "Masking tape 25",
+    "stock": 189,
+    "reorder": 75
+   },
+   {
+    "sku": "HW-9512",
+    "product": "Duct tape 50",
+    "stock": 130,
+    "reorder": 20
+   },
+   {
+    "sku": "HW-1776",
+    "product": "Drill bit 6mm",
+    "stock": 172,
+    "reorder": 20
+   },
+   {
+    "sku": "HW-4187",
+    "product": "Drill bit 8mm",
+    "stock": 44,
+    "reorder": 25
+   },
+   {
+    "sku": "HW-6749",
+    "product": "Hook screws",
+    "stock": 122,
+    "reorder": 90
+   },
+   {
+    "sku": "HW-9025",
+    "product": "Chain 5mm",
+    "stock": 175,
+    "reorder": 20
+   }
+  ],
+  "a": "stock",
+  "b": "reorder"
+ },
+ "multi-step-1": {
+  "kind": "argmax_mul",
+  "names": [
+   "Kettle",
+   "Toaster",
+   "Blender",
+   "Juicer",
+   "Mixer",
+   "Grill",
+   "Fryer",
+   "Steamer"
+  ],
+  "units": [
+   80,
+   60,
+   50,
+   90,
+   70,
+   100,
+   140,
+   110
+  ],
+  "prices": [
+   50.61,
+   83.22,
+   106.19,
+   97.47,
+   126.45,
+   89.13,
+   57.86,
+   147.52
+  ]
+ },
+ "multi-step-2": {
+  "kind": "order_total",
+  "prices": {
+   "Espresso beans 1kg": 32.63,
+   "Filter papers": 14.09,
+   "Oat milk 1L": 8.72,
+   "Paper cups 12oz": 26.59,
+   "Paper cups 8oz": 21.87,
+   "Lids 12oz": 22.24,
+   "Lids 8oz": 3.99,
+   "Stirrers": 10.64,
+   "Sugar sticks": 7.2,
+   "Napkins": 22.21,
+   "Cocoa powder": 5.29,
+   "Chai syrup": 20.82,
+   "Vanilla syrup": 33.83,
+   "Caramel syrup": 23.87,
+   "Decaf beans 1kg": 19.69,
+   "Cleaning tabs": 16.73
+  },
+  "order": [
+   [
+    "Lids 12oz",
+    4
+   ],
+   [
+    "Napkins",
+    7
+   ],
+   [
+    "Oat milk 1L",
+    5
+   ],
+   [
+    "Vanilla syrup",
+    3
+   ]
+  ]
+ }
+}

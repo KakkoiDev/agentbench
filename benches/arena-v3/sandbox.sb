@@ -1,0 +1,67 @@
+(version 1)
+; Sandbox for Arena runs (arena-v1, arena-analysis-v1 and the Arena lab): the agentic bench sandbox
+; (writes only in the workspace, no network but localhost, no secrets), plus reads kept to the task.
+; On 2026-11-22 a lab session spent its 30 minutes reading the lab's own code, old results and a 53k-character
+; handoff unrelated to the game, then tried to edit the lab's persistent bot outside its folder.
+; The tools need only arena/ (the package, the bots, the ladder games) and the Python env; the analysis bench
+; also its frozen ladder games. Everything else in the repo, ~/Code and ~/Documents is off limits.
+; WORKSPACE, SESSIONS, HOME and REPO are passed in with sandbox-exec -D. The last matching rule wins.
+(allow default)
+
+(deny file-write*)
+(allow file-write*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath "/private/tmp")
+  (subpath "/private/var/folders")
+  (literal "/dev/null")
+  (regex #"^/dev/tty")
+  (regex #"^/dev/fd/"))
+
+; 2026-11-25: the whole home folder is off limits but for what a run needs (DeepSeek's agentic-v5 rerun searched
+; ~/models, ~/Library, ~/.cache and ~/pi-local-harness-data for the exercises' answers). Stat (metadata) stays allowed,
+; so node and Python can resolve paths; listing and reading do not. The rules below re-open what is needed.
+(deny file-read* (subpath (param "HOME")))
+(deny file-read*
+  (subpath (string-append (param "HOME") "/Code"))
+  (subpath (string-append (param "HOME") "/Documents"))
+  (subpath (string-append (param "HOME") "/Desktop"))
+  (subpath (string-append (param "HOME") "/Downloads")))
+(allow file-read*
+  (literal (param "REPO"))
+  (subpath (string-append (param "REPO") "/arena"))
+  (subpath (string-append (param "REPO") "/.venv"))
+  (subpath (string-append (param "REPO") "/benches/arena-analysis-v1/replays")))
+; the lab's own state and other sessions: not the agent's business
+(deny file-read*
+  (subpath (string-append (param "REPO") "/arena/lab"))
+  (subpath (string-append (param "REPO") "/arena/export")))
+(allow file-read*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath (string-append (param "HOME") "/.local/share/uv/python")))   ; the venv's Python
+; Metadata only (stat, no contents, no listing) under ~/Code: node resolves its working directory through the
+; workspace's parent folders at start-up, and without this pi died before its first step whenever the workspace
+; sat in REPO/results (every arena run from 2026-11-22 to 11-23, scored as 0-tool failures).
+(allow file-read-metadata
+  (subpath (param "HOME")))
+
+(deny file-read*
+  (subpath (string-append (param "HOME") "/.ssh"))
+  (subpath (string-append (param "HOME") "/.gnupg"))
+  (subpath (string-append (param "HOME") "/.aws"))
+  (subpath (string-append (param "HOME") "/.config/gh"))
+  (subpath (string-append (param "HOME") "/.local/state/dropbox-agent"))
+  (subpath (string-append (param "HOME") "/Library/Keychains"))
+  (literal (string-append (param "HOME") "/.pi/agent/auth.json")))
+
+(deny network-outbound)
+(allow network-outbound
+  (remote ip "localhost:*")   ; agent_bench narrows this to the model's own port (2026-11-25)
+  (remote unix-socket))
+
+; arena-v3 (2026-11-24): the league's bots are this bench's opponents, so their code stays out of reach
+(deny file-read*
+  (subpath (string-append (param "REPO") "/arena/champions"))
+  (literal (string-append (param "REPO") "/arena/league.json"))
+  (literal (string-append (param "REPO") "/arena/league-history.jsonl")))
