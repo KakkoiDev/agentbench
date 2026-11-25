@@ -218,7 +218,7 @@ def shell(title, body, current, depth=0, desc=""):
 <header class="sh">
 <div class="col-wide sh-in">
 <a class="sh-name" href="{up}index.html"><strong>Mac mini M6 lab</strong><span>Local AI on one 32 GB Mac: what to run, measured</span></a>
-<nav class="sh-nav" aria-label="Site">{nav}<a href="https://github.com/KakkoiDev/mac-mini-m6-local-ai">Code<span class="sh-ext" aria-hidden="true"> ↗</span></a></nav>
+<nav class="sh-nav" aria-label="Site">{nav}<a href="https://github.com/KakkoiDev/agentbench">Code<span class="sh-ext" aria-hidden="true"> ↗</span></a></nav>
 <div class="theme" role="group" aria-label="Colour theme"><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
 </div>
 </header>

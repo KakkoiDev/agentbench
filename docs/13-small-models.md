@@ -70,7 +70,7 @@ dominates. Results will be labelled "simulated" until run on such a machine.
 - **Speed:** generation tok/s and prompt reading time on the `sky` and `code` prompts.
 - **Quality:** the 24-question quality bench (`glm_bench.py`), terse and normal styles,
   graded automatically and reviewed by hand, so results sit next to GLM's in
-  [the bench](https://kakkoidev.github.io/mac-mini-m6-local-ai/bench.html).
+  [the bench](https://kakkoidev.github.io/agentbench/bench.html).
 - **The comparison that matters:** correct answers per minute of waiting, next to the
   published intelligence score, for each model and machine profile.
 

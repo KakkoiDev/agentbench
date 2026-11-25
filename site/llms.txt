@@ -1,4 +1,4 @@
-# mac-mini-m6-local-ai
+# agentbench
 
 > A one-Mac lab (Apple M6, 32 GB) measuring what local AI models can really do: coding agents, chat assistants, routing between two models, translation, speech to text and image reading, plus a long-running effort to run GLM-5.x (744B) on the same machine. Results come with repeats, set-aside runs and the exact commands.
 
@@ -6,32 +6,32 @@ Start with the site's Home page for the top picks (daily use, coding, smartest) 
 
 ## Which model to run
 
-- [Home: top picks](https://kakkoidev.github.io/mac-mini-m6-local-ai/): the best 3 models for daily use, coding and best quality on a 32 GB Mac mini, computed from the data, plus specialists and a quick setup
-- [Models](https://kakkoidev.github.io/mac-mini-m6-local-ai/models.html): every model tested; each links to its page (models/<name>.html) with scores, speed, memory, setup, observations and download command
-- [Learnings](https://kakkoidev.github.io/mac-mini-m6-local-ai/learnings.html): what works and what does not (thinking, memory, harness, coding agents, speech, translation), each tip linked to its evidence, plus how our setup works and links to the code
-- [Assistant harness (mini.py)](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/harness/dropbox-mini/mini.py): the code the assistant benches run
+- [Home: top picks](https://kakkoidev.github.io/agentbench/): the best 3 models for daily use, coding and best quality on a 32 GB Mac mini, computed from the data, plus specialists and a quick setup
+- [Models](https://kakkoidev.github.io/agentbench/models.html): every model tested; each links to its page (models/<name>.html) with scores, speed, memory, setup, observations and download command
+- [Learnings](https://kakkoidev.github.io/agentbench/learnings.html): what works and what does not (thinking, memory, harness, coding agents, speech, translation), each tip linked to its evidence, plus how our setup works and links to the code
+- [Assistant harness (mini.py)](https://github.com/KakkoiDev/agentbench/blob/main/harness/dropbox-mini/mini.py): the code the assistant benches run
 
 ## Local AI: practical lessons
 
-- [Local AI on a 32 GB Mac mini: findings](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/21-local-ai-playbook.md): 15 findings with their evidence, recommendations, all result tables, how to reproduce (web page: https://kakkoidev.github.io/mac-mini-m6-local-ai/local-ai.html)
-- [summary.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/summary.json): one entry per bench + model + setup, with every repeat's score, mean, min, max, minutes or seconds
-- [runs.csv](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/runs.csv): one row per run, including set-aside runs and why
-- [runs.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/runs.json): the same with per-task detail, versions and machine
-- [schema.json](https://kakkoidev.github.io/mac-mini-m6-local-ai/data/local-ai/schema.json): what each field means
+- [Local AI on a 32 GB Mac mini: findings](https://github.com/KakkoiDev/agentbench/blob/main/docs/21-local-ai-playbook.md): 15 findings with their evidence, recommendations, all result tables, how to reproduce (web page: https://kakkoidev.github.io/agentbench/local-ai.html)
+- [summary.json](https://kakkoidev.github.io/agentbench/data/local-ai/summary.json): one entry per bench + model + setup, with every repeat's score, mean, min, max, minutes or seconds
+- [runs.csv](https://kakkoidev.github.io/agentbench/data/local-ai/runs.csv): one row per run, including set-aside runs and why
+- [runs.json](https://kakkoidev.github.io/agentbench/data/local-ai/runs.json): the same with per-task detail, versions and machine
+- [schema.json](https://kakkoidev.github.io/agentbench/data/local-ai/schema.json): what each field means
 
 ## How the benches work
 
-- [AGENTS.md](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/AGENTS.md): rules for running benches here (one GPU job at a time, never retype numbers)
-- [agent_bench.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/agent_bench.py): coding-agent suites (pi + Ollama, hidden tests)
-- [dropbox_bench.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/dropbox_bench.py): assistant, family jobs, translation, speech to text
-- [scripts/collect_local_ai.py](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/scripts/collect_local_ai.py): builds the data files and the playbook tables
+- [AGENTS.md](https://github.com/KakkoiDev/agentbench/blob/main/AGENTS.md): rules for running benches here (one GPU job at a time, never retype numbers)
+- [agent_bench.py](https://github.com/KakkoiDev/agentbench/blob/main/agent_bench.py): coding-agent suites (pi + Ollama, hidden tests)
+- [dropbox_bench.py](https://github.com/KakkoiDev/agentbench/blob/main/dropbox_bench.py): assistant, family jobs, translation, speech to text
+- [scripts/collect_local_ai.py](https://github.com/KakkoiDev/agentbench/blob/main/scripts/collect_local_ai.py): builds the data files and the playbook tables
 
 ## GLM-5.x on 32 GB
 
-- [Lab guide](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/00-lab-guide.md): mission, bottleneck model, method
-- [Experiment log](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/12-experiment-log.md): every GLM experiment and its result
+- [Lab guide](https://github.com/KakkoiDev/agentbench/blob/main/docs/00-lab-guide.md): mission, bottleneck model, method
+- [Experiment log](https://github.com/KakkoiDev/agentbench/blob/main/docs/12-experiment-log.md): every GLM experiment and its result
 
 ## Optional
 
-- [GLM report](https://kakkoidev.github.io/mac-mini-m6-local-ai/glm.html): GLM speed story and earlier quality tables
-- [Completed GLM, Gemma and Qwen comparison](https://github.com/KakkoiDev/mac-mini-m6-local-ai/blob/main/docs/17-completed-bench-comparison.md): short-answer quality and speed, October 2026
+- [GLM report](https://kakkoidev.github.io/agentbench/glm.html): GLM speed story and earlier quality tables
+- [Completed GLM, Gemma and Qwen comparison](https://github.com/KakkoiDev/agentbench/blob/main/docs/17-completed-bench-comparison.md): short-answer quality and speed, October 2026

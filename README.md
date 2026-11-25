@@ -1,9 +1,9 @@
-# mac-mini-m6-local-ai
+# agentbench
 
 Which local AI to run on a **Mac mini M6 with 32 GB**, and how to set it up, measured on one machine:
 house assistant, coding agent, translation, speech to text and image reading.
 
-- **Website:** https://kakkoidev.github.io/mac-mini-m6-local-ai/ : top picks for daily use, coding and
+- **Website:** https://kakkoidev.github.io/agentbench/ : top picks for daily use, coding and
   best quality; a page per model (scores, speed, memory, setup, download); and the learnings.
 - **Evidence:** [Local AI on a 32 GB Mac mini: findings](docs/21-local-ai-playbook.md), every finding with
   its result table ([data](site/data/local-ai/summary.json); agents: see [llms.txt](llms.txt)).
@@ -16,7 +16,7 @@ second or more**; that work continues below.
 - **Read first:** [the lab guide](docs/00-lab-guide.md): mission, bottleneck model,
   how to try ideas, how to follow research.
 - **Current scoreboard and every experiment:** [experiment log](docs/12-experiment-log.md).
-- **GLM results page:** https://kakkoidev.github.io/mac-mini-m6-local-ai/glm.html
+- **GLM results page:** https://kakkoidev.github.io/agentbench/glm.html
 - **Research reviewed so far:** [research/watchlist.md](research/watchlist.md).
 - **Lab control app (local):** `make lab-app`, then open http://127.0.0.1:8766: what is running, a job queue, models (download, remove to Trash), benches, runs, experiments, research, and how GLM compares with frontier models. `make lab-app-install` keeps it running at login.
 
