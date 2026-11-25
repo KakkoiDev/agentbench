@@ -92,6 +92,11 @@ def sync_context_windows(models_json, ollama_url):
         if m.get('contextWindow') != ctx:
             m['contextWindow'] = ctx
             changed = True
+        # 2026-11-25: a model Ollama says can think is a reasoning model for pi, so --thinking reaches it (Flint and
+        # Muse Glimmer weren't: pi allowed them only "off", which Ollama answers by thinking at the model's default)
+        if 'thinking' in (info.get('capabilities') or []) and not m.get('reasoning'):
+            m['reasoning'] = True
+            changed = True
     if changed:
         Path(models_json).write_text(json.dumps(cfg, indent=2))
 
@@ -138,11 +143,11 @@ def diff(task, workspace):
     return ''.join(out)
 
 
-def run_sandbox(home, model, key):
+def run_sandbox(home, model, key, base=None):
     """The task's sandbox profile with network narrowed to the model's own server (2026-11-25: DeepSeek's agentic-v5 rerun,
     allowed every localhost port, asked the local Ollama to recall an exercise's tests; a local model could as well have
     called the paid DeepSeek proxy). The port comes from the provider's baseUrl in the pi home's models.json."""
-    text = Path(getattr(T, 'SANDBOX', SANDBOX)).read_text()
+    text = Path(base or getattr(T, 'SANDBOX', SANDBOX)).read_text()   # base: another tool's profile (the Arena lab)
     try:
         prov = json.loads((home / 'models.json').read_text())['providers'][model.split('/', 1)[0]]
         port = int(prov['baseUrl'].split('://', 1)[1].split('/', 1)[0].rsplit(':', 1)[1])
@@ -163,6 +168,20 @@ def run_sandbox(home, model, key):
     out = home / f'sandbox-{key}.sb'
     out.write_text(text)
     return out
+
+
+def task_limit(args, task):
+    """A task's time limit. timed (the old rule): the task's own limit (arena rounds) or --timeout. best (2026-11-25: each
+    model's best possible result, not its speed): --timeout as a safety cap, never shorter than the task's own."""
+    own = task.get('timeout')
+    return max(own or 0, args.timeout) if args.mode == 'best' else (own or args.timeout)
+
+
+def run_conditions(args, harness):
+    """How this run is run, recorded in meta.json (see run_conditions.py, which adds what the model actually did)."""
+    return dict(mode=args.mode, time_limit_s=args.timeout, thinking_asked=args.thinking,
+                harness=(f"agentbox {harness['version']} ({', '.join(e['part'] for e in harness['extensions'])})" if harness
+                         else 'bare pi' + (' + ' + args.extension if args.extension else '')))
 
 
 def run_tmp(key):
@@ -196,7 +215,7 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None, star
         t0 = time.time()
         with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
             try:
-                p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=task.get('timeout') or args.timeout)   # a task may set its own (arena-v2's rounds)
+                p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=task_limit(args, task))   # a task may set its own (arena-v2's rounds)
                 exit_code, timed_out = p.returncode, False
             except subprocess.TimeoutExpired:
                 exit_code, timed_out = None, True
@@ -350,7 +369,7 @@ def run(args):
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
             'terse': TERSE if args.terse else None, 'harness': harness,
-            'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': Path(getattr(T, 'SANDBOX', SANDBOX)).read_text(), 'suffix': SUFFIX}, indent=1))
+            'timeout_s': args.timeout, 'conditions': run_conditions(args, harness), 'extension': args.extension or None, 'sandbox': Path(getattr(T, 'SANDBOX', SANDBOX)).read_text(), 'suffix': SUFFIX}, indent=1))
     exts = []
     copied = set()
     for e in [e for e in args.extension.split(',') if e]:
@@ -386,7 +405,7 @@ def run(args):
             continue
         if args.model.startswith('deepseek/'):   # hosted DeepSeek: only off-peak (the task's limit + 10 min for fights and grading)
             import deepseek_proxy
-            deepseek_proxy.wait_offpeak((task.get('timeout') or args.timeout) + 600, log=lambda m: print(m, flush=True))
+            deepseek_proxy.wait_offpeak(task_limit(args, task) + 600, log=lambda m: print(m, flush=True))
         if tdir.exists():  # an interrupted attempt: keep it under attempts/
             (out_dir / 'attempts').mkdir(exist_ok=True)
             tdir.replace(out_dir / 'attempts' / f'{name}-{time.time_ns()}')
@@ -460,6 +479,7 @@ def main():
     r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
     r.add_argument('--escalate-model', default='', help='another pi model (e.g. ollama/qwen3.8:27b-mlx) for one more run when visible tests still fail')
     r.add_argument('--pair', action='store_true', help='two runs at once, then each sees the other\'s changes and test result and revises its own (2 rounds)')
+    r.add_argument('--mode', choices=['timed', 'best'], default='timed', help='best: each model\'s best possible result: --timeout is a safety cap (give hours), never shorter than a task\'s own limit')
     r.add_argument('--harness', choices=['bare', 'agentbox'], default='bare', help='bare: pi as it comes; agentbox: with agentbox\'s extensions and prompt lines for the model (`agentbox harness`)')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
