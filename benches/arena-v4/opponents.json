@@ -1,0 +1,53 @@
+{
+ "frozen": "2026-11-25",
+ "bots": [
+  {
+   "name": "000-py-starter",
+   "model": null,
+   "elo": 1238,
+   "sha256": "dfa3d6d9a79e1ef8"
+  },
+  {
+   "name": "001-qwen3-8-27b-mtp-q4_K_M",
+   "model": "ollama/qwen3.8:27b-mtp-q4_K_M",
+   "elo": 1205,
+   "sha256": "2d9a0cd79277c53c"
+  },
+  {
+   "name": "002-qwen3-8-27b-mlx",
+   "model": "ollama/qwen3.8:27b-mlx",
+   "elo": 1336,
+   "sha256": "d2ee1171e0f32473"
+  },
+  {
+   "name": "003-muse-glimmer-30b-nvfp4-dflash",
+   "model": "ollama/muse-glimmer:30b-nvfp4-dflash",
+   "elo": 1397,
+   "sha256": "274a927d5ba26abd"
+  },
+  {
+   "name": "004-deepseek-flash-max",
+   "model": "deepseek/flash-max",
+   "elo": 2122,
+   "sha256": "bcfb11147266e9dd"
+  },
+  {
+   "name": "005-deepseek-flash-max-v3",
+   "model": "deepseek/flash-max",
+   "elo": 2304,
+   "sha256": "441b3fb0b4d0c8db"
+  },
+  {
+   "name": "006-flint-40b",
+   "model": "ollama/flint:40b",
+   "elo": 1364,
+   "sha256": "dad0381ccfef8a92"
+  },
+  {
+   "name": "007-qwen3-6-35b-mlx",
+   "model": "ollama/qwen3.6:35b-mlx",
+   "elo": 1034,
+   "sha256": "12d4792996bf276a"
+  }
+ ]
+}

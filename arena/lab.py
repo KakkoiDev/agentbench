@@ -31,7 +31,7 @@ LAB = ARENA / 'lab'
 WS = LAB / 'workspace'
 STATE = LAB / 'state.json'
 HISTORY = LAB / 'history.jsonl'
-HARNESS_FILES = {'AGENT.md', 'eval', 'eval_tool.py', 'tune', 'tune_tool.py', 'replays', 'replays_tool.py', 'docs', 'skills', '__pycache__', 'eval-log.jsonl', 'strategy.before-tune.py'}
+HARNESS_FILES = {'hall-of-fame', 'AGENT.md', 'eval', 'eval_tool.py', 'tune', 'tune_tool.py', 'replays', 'replays_tool.py', 'docs', 'skills', '__pycache__', 'eval-log.jsonl', 'strategy.before-tune.py'}
 
 INSTRUCTION = ("You are continuing a long-running effort to build the strongest Victris Arena bot possible: one that dominates "
                "every other bot. Read NOTES.md first: it holds what every earlier session learned. strategy.py is the best bot so far; "
@@ -40,8 +40,16 @@ INSTRUCTION = ("You are continuing a long-running effort to build the strongest 
                "one of them: work on the worst matchup first (./eval shows each one and how the losses went). Study the best ladder "
                "bots with ./replays (scout, show, and mine to compare your bot with them), and use ./tune to search the numbers "
                "in strategy.py's TUNE block once the logic is right. You may think up to 1 s a turn (the ladder's limit, 300 s a match): "
-               "the best ladder bots search ahead, and skills/arena-search/SKILL.md explains how. Keep only changes that win more, and update NOTES.md with "
+               "the best ladder bots search ahead, and skills/arena-search/SKILL.md explains how. hall-of-fame/ holds the code of the ten best "
+               "bots of all time: read them, take what works, combine and improve on it. Test every change with ./eval before you keep it; keep "
+               "only changes that win more. There is no time pressure: work until the bot is the best you can make. Update NOTES.md with "
                "what you tried and the ./eval numbers, for the next session.")
+
+
+def best_bots(n=10):
+    """The n best bots of all time, by Elo in the league table."""
+    t = json.loads(league.TABLE.read_text()) if league.TABLE.exists() else {'champions': []}
+    return [c['name'] for c in sorted(t['champions'], key=lambda c: -c['elo'])][:n]
 
 
 def state():
@@ -80,9 +88,18 @@ def _worst(st):
 
 def session(model, minutes=30, thinking='off'):
     import agent_bench, local_engines
+    # one session at a time: they share the persistent workspace (DeepSeek's sessions run beside the GPU queue, 2026-11-25)
+    LAB.mkdir(exist_ok=True)
+    lab_lock = (LAB / '.session.lock').open('w')
+    print('Waiting for the lab (one session at a time)…', flush=True)
+    fcntl.flock(lab_lock, fcntl.LOCK_EX)
     lock = (REPO / '.bench.lock').open('w')
-    print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
-    fcntl.flock(lock, fcntl.LOCK_EX)
+    if model.startswith('deepseek/'):   # 2026-11-25: DeepSeek's hosted model needs no GPU (the games run on the CPU), off-peak only
+        import deepseek_proxy
+        deepseek_proxy.wait_offpeak(minutes * 60 + 1800, log=lambda m: print(m, flush=True))
+    else:
+        print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
+        fcntl.flock(lock, fcntl.LOCK_EX)
     LAB.mkdir(exist_ok=True)
     setup()
     st = state()
@@ -93,11 +110,21 @@ def session(model, minutes=30, thinking='off'):
     home = agent_bench.pi_home()
     local_engines.add_providers(home / 'models.json')
     champ = league.reigning()
-    cmd = ['/usr/bin/sandbox-exec', '-f', str(ARENA / 'sandbox.sb'), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
+    # agent_bench's hardening on top of the arena profile: network only to the model's port, a private temp folder
+    key = sdir.name
+    prof = agent_bench.run_sandbox(home, model, key, base=ARENA / 'sandbox.sb')
+    # 2026-11-25: the lab is open book (its goal is the strongest bot, not a fair test): the champions are readable, so
+    # ./eval can play them, and the ten best by Elo are copied into the workspace to read, fight and build on
+    prof.write_text(prof.read_text() + f'(allow file-read* (subpath "{ARENA / "champions"}"))\n')
+    hof = ws / 'hall-of-fame'
+    hof.mkdir(exist_ok=True)
+    for name in best_bots(10):
+        shutil.copy(league.champions()[name], hof / f'{name}.py')
+    cmd = ['/usr/bin/sandbox-exec', '-f', str(prof), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
            '-D', f'HOME={Path.home()}', '-D', f'REPO={REPO}', 'pi', '-p', '--model', model, '--thinking', thinking, '--offline', '--no-session', '--no-approve',
            '--no-context-files', '--no-extensions', '--no-skills', '--no-prompt-templates', '--mode', 'json',
            INSTRUCTION.format(champ=champ, worst=_worst(st)) + agent_bench.SUFFIX]
-    env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), ARENA_BUDGET_MS='1000')
+    env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), ARENA_BUDGET_MS='1000', TMPDIR=str(agent_bench.run_tmp(key)) + '/')
     for start in range(4):   # retry pi's node dying at start-up under memory pressure (see agent_bench.attempt)
         t0 = time.time()
         with open(sdir / 'pi.jsonl', 'w') as so, open(sdir / 'pi.stderr', 'w') as se:
@@ -120,6 +147,12 @@ def session(model, minutes=30, thinking='off'):
     (sdir / 'grade.txt').write_text(g.stdout + g.stderr)
     line = next((l for l in g.stdout.splitlines() if l.startswith('ARENA_JSON ')), None)
     rec['grade'] = json.loads(line[11:]) if line else None
+    # 2026-11-25: every lab bot is also run in the gauntlet (arena-v4: every hall-of-fame bot at 55% and 70%)
+    gv = subprocess.run([str(workspace.PY), str(REPO / 'benches' / 'arena-v4' / 'tasks.py'), '--grade', str(bot)], cwd=REPO,
+                        capture_output=True, text=True, timeout=7200)
+    (sdir / 'gauntlet.txt').write_text(gv.stdout + gv.stderr)
+    gl = next((l for l in gv.stdout.splitlines() if l.startswith('ARENA_JSON ')), None)
+    rec['gauntlet'] = {k: v for k, v in json.loads(gl[11:]).items() if k in ('passed', 'total', 'win_rates')} if gl else None
     ok = bool(rec['grade']) and rec['grade']['timing']['errors'] == 0
     sc = league_score(bot) if ok else dict(mean=0, worst=0, by_opponent={})
     rec['after'], rec['after_worst'], rec['by_opponent'] = sc['mean'], sc['worst'], sc['by_opponent']

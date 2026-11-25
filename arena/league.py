@@ -9,7 +9,8 @@ Every game here uses the ladder's time rules (1 s a turn, 300 s a match), whatev
 Every bot that enters is kept (a byte-identical copy of a kept bot is not added twice) and plays every
 other kept bot and Victris's random and starter bots; the table's top Elo is the reigning champion.
 "Crowned" in the history means the newcomer beat the champion of the moment head to head (at least
-55% over the challenge games) and matched its score against the rest of the pool. Bots are never
+55% over the challenge games), matched its score against the rest of the pool, and beat every earlier generation
+and Victris's starter at least 55% (2026-11-25: no regressions against the hall of fame). Bots are never
 removed: the goal is one bot that beats every earlier generation. History: arena/league-history.jsonl.
 """
 import argparse, json, math, shutil, sys, time
@@ -23,6 +24,7 @@ HOUSE = {'random': 'random', 'ts-starter': 'ts-starter'}
 TABLE = HERE / 'league.json'
 HISTORY = HERE / 'league-history.jsonl'
 CHALLENGE_SEEDS, CHALLENGE_GAMES = 5000, 120
+CROWN_EVERY = 0.55   # a champion beats every earlier generation at least this often
 
 
 def champions():
@@ -99,9 +101,14 @@ def challenge(bot, label, model='', run='', notes='', keep=True):
     theirs = score(champs[champ], exclude=(champ,))
     mine_wo = {k: v for k, v in mine['by_opponent'].items() if k != champ}
     mine_mean = sum(mine_wo.values()) / max(1, len(mine_wo))
-    crowned = head['win_rate'] >= 0.55 and mine_mean >= theirs['mean']
+    # 2026-11-25 (hall of fame): bots can beat each other in a circle, so a new champion must beat every earlier
+    # generation and Victris's starter at least 55%, not only the champion of the moment; the ones it doesn't are kept
+    # in the history as regressions
+    regressions = sorted(k for k, v in mine['by_opponent'].items() if k != 'random' and k != champ and v < CROWN_EVERY)
+    crowned = head['win_rate'] >= 0.55 and mine_mean >= theirs['mean'] and not regressions
     entry = dict(when=time.strftime('%F %T'), label=label, model=model, run=run, vs_reigning=champ, head_to_head=head['win_rate'],
-                 pool=mine['by_opponent'], pool_mean=mine['mean'], reigning_pool_mean=theirs['mean'], crowned=crowned)
+                 pool=mine['by_opponent'], pool_mean=mine['mean'], reigning_pool_mean=theirs['mean'], crowned=crowned,
+                 regressions=regressions)
     text = Path(bot).read_bytes()
     twin = next((n for n, f in champs.items() if f.read_bytes() == text), None)
     if twin:
@@ -120,7 +127,7 @@ def challenge(bot, label, model='', run='', notes='', keep=True):
 
 
 def challenge_run(run_dir, label, model=''):
-    """After an arena-v1/v2 bench run: the best round's bot challenges (most hidden tests passed, then the higher
+    """After an arena bench run (v1 to v4, v4-open): the best round's bot challenges (most hidden tests passed, then the higher
     mean hidden win rate, then the later round)."""
     run_dir = Path(run_dir)
     best = None
@@ -132,11 +139,11 @@ def challenge_run(run_dir, label, model=''):
         rates = json.loads(line[len('ARENA_JSON '):])['win_rates'] if line else {}
         key = (rec.get('hidden_passed', 0), sum(rates.values()) / max(1, len(rates)))
         if bot.exists() and (best is None or key >= best[0]):
-            best = (key, bot, r.parent.name)
+            best = (key, bot, r.parent.name, rec.get('hidden_total'))
     if not best:
         return dict(error=f'no graded round with a strategy.py in {run_dir}')
     entry = challenge(best[1], label, model, run=f'{run_dir.name}/{best[2]}',
-                      notes=f'best round of the {run_dir.name.split("-")[0]}-{run_dir.name.split("-")[1]} bench ({best[0][0]}/10 hidden tests)')
+                      notes=f'best round of the {run_dir.name.split("-deepseek")[0].split("-ollama")[0]} run {run_dir.name} ({best[0][0]}/{best[3]} hidden tests)')
     if entry.get('kept_as'):
         table()
     return entry
