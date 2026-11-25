@@ -56,7 +56,9 @@ MODELS = {
     'mtplx/bonsai-2-27b': dict(path=str(M / 'mtplx/bonsai-2-27b-optimized-speed'), reasoning=True, depth=1),
     'omlx/qwen3.8-27b-oq3h-mtp': dict(path=str(M / 'omlx/qwen3.8-27b-oq3h-mtp'), reasoning=True),
     'slotstream/qwen3.8-flash-next:4bit': dict(path=str(M / 'qwen3.8-flash-next-mlx-4bit'), reasoning=True),
-    'ds4/glm-5.3-flash-q2': dict(path=str(M / 'ds4/GLM-5.3-Flash-Q2.gguf'), reasoning=True),
+    # with the default 14GB expert cache GLM's 8.2 GiB of static weights stayed pageable (ds4 locks them only if static + experts +
+    # prefill reserve fit ~7/8 of the working set): every token re-read them from the SSD, 0.05 tok/s (smoke test 2026-11-22)
+    'ds4/glm-5.3-flash-q2': dict(path=str(M / 'ds4/GLM-5.3-Flash-Q2.gguf'), reasoning=True, cache='6GB'),
     'ds4/qwen3.8-flash-next-q2': dict(path=str(M / 'ds4/Qwen3.8-Flash-Next-Q2.gguf'), reasoning=True),
     'ds4/deepseek-v4.1-flash-q2': dict(path=str(M / 'ds4/DeepSeek-V4.1-Flash-1017-IQ2_XXS-Q2_K-imatrix.gguf'), reasoning=True, ctx=8192, cache='300'),   # at ctx 16384 / 12GB it needed 25.17 GiB vs a 24.96 GiB budget
 }
@@ -77,6 +79,12 @@ def api_key(engine):
     return f.read_text().strip()
 
 
+def window(engine, i):
+    """pi's contextWindow where the server has a hard limit (ds4's --ctx), so pi compacts before the server refuses;
+    the other engines have none, and stay as their earlier benches ran."""
+    return {'contextWindow': MODELS[f'{engine}/{i}'].get('ctx', 16384)} if engine == 'ds4' else {}
+
+
 def add_providers(models_json):
     """Add a pi provider for each local engine to this pi config (a bench's private copy)."""
     p = Path(models_json)
@@ -87,7 +95,17 @@ def add_providers(models_json):
             continue
         cfg['providers'][engine] = {'api': 'openai-completions', 'apiKey': api_key(engine), 'baseUrl': f"http://127.0.0.1:{e['port']}/v1",
                                     'compat': {'supportsStore': False, 'supportsStrictMode': False},
-                                    'models': [{'id': i, 'reasoning': MODELS[f'{engine}/{i}'].get('reasoning', False)} for i in ids]}
+                                    'models': [dict({'id': i, 'reasoning': MODELS[f'{engine}/{i}'].get('reasoning', False)}, **window(engine, i)) for i in ids]}
+    # DeepSeek's hosted model through the loopback proxy (benches/deepseek_proxy.py, which holds the key). `flash` follows pi's own
+    # --thinking (off, high, max: thinkingFormat deepseek), so a run's meta.json records the real setting (2026-11-25); the fixed
+    # aliases flash-max / flash-high / flash-off set the effort in the proxy and ignore pi's (the first runs, r1 to r3)
+    cfg['providers']['deepseek'] = {'api': 'openai-completions', 'apiKey': 'proxy', 'baseUrl': 'http://127.0.0.1:8096/v1',
+                                    'compat': {'supportsStore': False, 'supportsStrictMode': False, 'thinkingFormat': 'deepseek',
+                                               'supportsReasoningEffort': True, 'requiresReasoningContentOnAssistantMessages': True},
+                                    'models': [{'id': 'flash', 'reasoning': True, 'contextWindow': 1000000, 'maxTokens': 131072,
+                                                'thinkingLevelMap': {'minimal': None, 'low': None, 'medium': None, 'high': 'high', 'xhigh': None, 'max': 'max'}}]
+                                              + [{'id': i, 'reasoning': False, 'contextWindow': 1000000, 'maxTokens': 131072}
+                                                 for i in ('flash-max', 'flash-high', 'flash-off')]}
     p.write_text(json.dumps(cfg, indent=2))
 
 

@@ -24,7 +24,8 @@ import argparse, fcntl, json, os, re, shutil, subprocess, sys, tempfile, time, u
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / 'benches' / 'dropbox'))
+BENCHES = Path(os.environ.get('BENCHES_DIR') or ROOT / 'benches')   # the bench folders (tasks, hidden tests, graders); BENCHES_DIR when they live in another checkout (2026-11-25)
+sys.path.insert(0, str(BENCHES / 'dropbox'))
 sys.path.insert(0, str(ROOT / 'benches'))
 import cases  # noqa: E402
 import local_engines  # noqa: E402
@@ -365,12 +366,16 @@ def run_mini(args):
 def run_family(args):
     """Multi-step jobs in a made-up family folder (benches/dropbox/family.py), each from a fresh copy."""
     import family
-    hard = args.suite in ('hard', 'expert')
+    hard = args.suite in ('hard', 'expert', 'master', 'grandmaster')
     if args.suite == 'hard':
         import family_hard as family  # graded in steps (points), see benches/dropbox/family_hard.py
     elif args.suite == 'expert':
         import family_expert as family  # harder still, graded in steps, see benches/dropbox/family_expert.py
-    job_name = {'hard': 'family-hard', 'expert': 'family-expert'}.get(args.suite, 'family')
+    elif args.suite == 'master':
+        import family_master as family  # harder than expert (2026-11-24, DeepSeek's level), see benches/dropbox/family_master.py
+    elif args.suite == 'grandmaster':
+        import family_grandmaster as family  # harder than master (2026-11-25), see benches/dropbox/family_grandmaster.py
+    job_name = {'hard': 'family-hard', 'expert': 'family-expert', 'master': 'family-master', 'grandmaster': 'family-grandmaster'}.get(args.suite, 'family')
     d = out_dir(job_name + (f'-{args.tag}' if args.tag else ''), args.model)
     state = Path(tempfile.mkdtemp(prefix='family-bench-')).resolve()
     mini = load_mini(state, args.mini_py)
@@ -433,10 +438,10 @@ def regrade(args):
     for f in sorted((ROOT / 'results').glob('dropbox-*/results.json')):
         data = json.loads(f.read_text())
         s = data.get('summary') or {}
-        if s.get('job') in ('family-hard', 'family-expert'):
-            import family_expert
-            import family_hard
-            suite = family_hard if s['job'] == 'family-hard' else family_expert
+        if s.get('job') in ('family-hard', 'family-expert', 'family-master', 'family-grandmaster'):
+            import family_expert, family_grandmaster, family_hard, family_master
+            suite = {'family-hard': family_hard, 'family-expert': family_expert, 'family-master': family_master,
+                     'family-grandmaster': family_grandmaster}[s['job']]
             hb = {t['id']: t for t in suite.TASKS}
             for r in data['rows']:
                 saved = f.parent / 'cases' / r['id'] / 'files'
@@ -534,7 +539,7 @@ def main():
     f.add_argument('--only', help='comma-separated job ids')
     f.add_argument('--concurrency', type=int, default=1)
     f.add_argument('--tag', default='')
-    f.add_argument('--suite', choices=['standard', 'hard', 'expert'], default='standard',
+    f.add_argument('--suite', choices=['standard', 'hard', 'expert', 'master', 'grandmaster'], default='standard',
                    help='hard: benches/dropbox/family_hard.py, expert: benches/dropbox/family_expert.py, both graded in points')
     sub.add_parser('report')
     sub.add_parser('regrade', help='grade the saved runs again with the current checks')
@@ -545,12 +550,16 @@ def main():
         return report(args)
     if args.cmd == 'regrade':
         return regrade(args)
-    lock = None if args.no_lock else take_lock()
-    unload_all()
+    # a hosted model (deepseek/, benches/deepseek_proxy.py) uses no GPU: it runs beside the local queue, so no lock and no unloading
+    remote = (getattr(args, 'model', '') or '').startswith('deepseek/')
+    lock = None if args.no_lock or remote else take_lock()
+    if not remote:
+        unload_all()
     try:
         {'translate': run_translate, 'captions': run_captions, 'mini': run_mini, 'family': run_family}[args.cmd](args)
     finally:
-        unload_all()
+        if not remote:
+            unload_all()
         if lock:
             lock.close()
 

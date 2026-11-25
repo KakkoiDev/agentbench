@@ -18,6 +18,10 @@
   (regex #"^/dev/tty")
   (regex #"^/dev/fd/"))
 
+; 2026-11-25: the whole home folder is off limits but for what a run needs (DeepSeek's agentic-v5 rerun searched
+; ~/models, ~/Library, ~/.cache and ~/pi-local-harness-data for the exercises' answers). Stat (metadata) stays allowed,
+; so node and Python can resolve paths; listing and reading do not. The rules below re-open what is needed.
+(deny file-read* (subpath (param "HOME")))
 (deny file-read*
   (subpath (string-append (param "HOME") "/Code"))
   (subpath (string-append (param "HOME") "/Documents"))
@@ -34,7 +38,13 @@
   (subpath (string-append (param "REPO") "/arena/export")))
 (allow file-read*
   (subpath (param "WORKSPACE"))
-  (subpath (param "SESSIONS")))
+  (subpath (param "SESSIONS"))
+  (subpath (string-append (param "HOME") "/.local/share/uv/python")))   ; the venv's Python
+; Metadata only (stat, no contents, no listing) under ~/Code: node resolves its working directory through the
+; workspace's parent folders at start-up, and without this pi died before its first step whenever the workspace
+; sat in REPO/results (every arena run from 2026-11-22 to 11-23, scored as 0-tool failures).
+(allow file-read-metadata
+  (subpath (param "HOME")))
 
 (deny file-read*
   (subpath (string-append (param "HOME") "/.ssh"))
@@ -47,5 +57,5 @@
 
 (deny network-outbound)
 (allow network-outbound
-  (remote ip "localhost:*")
+  (remote ip "localhost:*")   ; agent_bench narrows this to the model's own port (2026-11-25)
   (remote unix-socket))

@@ -8,10 +8,11 @@ Each task is one /api/chat request with the image, temperature 0. --think off se
 tokens); --think on sends think=true (limit 4096). Results: results/<bench>-<model>-<think>/results.json with the
 answer, grade, tokens, time and the Ollama-reported model size. Takes the lab's .bench.lock.
 """
-import argparse, base64, fcntl, json, re, subprocess, time, unicodedata, urllib.request
+import argparse, base64, fcntl, json, os, re, subprocess, time, unicodedata, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+BENCHES = Path(os.environ.get('BENCHES_DIR') or ROOT / 'benches')   # the bench folders (tasks, hidden tests, graders); BENCHES_DIR when they live in another checkout (2026-11-25)
 URL = 'http://127.0.0.1:11434'
 GROUPS = {'ocr': 'OCR', 'ocr-receipt': 'OCR', 'ocr-japanese': 'OCR', 'ocr-french': 'OCR', 'handwriting': 'OCR',
           'chart': 'charts', 'count': 'counting', 'position': 'layout', 'ui': 'UI', 'table': 'tables', 'multi-step': 'multi-step'}
@@ -57,12 +58,13 @@ def available_mib():
 
 
 def run(args):
-    bench = ROOT / 'benches' / args.bench
+    bench = BENCHES / args.bench
     tasks = json.loads((bench / 'tasks.json').read_text())['tasks']
     slug = args.model.replace(':', '-').replace('.', '-').replace('/', '-')
     out = ROOT / 'results' / f'{args.bench}-{slug}-think-{args.think}'
     out.mkdir(parents=True, exist_ok=True)
-    caps = api('show', {'model': args.model}).get('capabilities', [])
+    remote = args.model.startswith('deepseek/')   # DeepSeek's hosted model through benches/deepseek_proxy.py (OpenAI format)
+    caps = ['vision', 'thinking'] if remote else api('show', {'model': args.model}).get('capabilities', [])
     if 'vision' not in caps:
         raise SystemExit(f'{args.model} does not accept images (capabilities {caps})')
     if args.think == 'on' and 'thinking' not in caps:
@@ -77,7 +79,18 @@ def run(args):
             body['think'] = args.think == 'on'
         t0 = time.time()
         try:
-            r = api('chat', body, timeout=args.timeout)
+            if remote:
+                ob = dict(model=args.model.split('/', 1)[1], messages=[dict(role='user', content=[
+                    dict(type='image_url', image_url=dict(url='data:image/' + Path(t['image']).suffix.lstrip('.').replace('jpg', 'jpeg') + ';base64,' + img)),
+                    dict(type='text', text=t['question'])])])
+                o = json.load(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8096/v1/chat/completions', json.dumps(ob).encode(),
+                                                                           {'Content-Type': 'application/json'}), timeout=args.timeout))
+                m = o['choices'][0]['message']
+                r = dict(message=dict(content=m.get('content') or '', thinking=m.get('reasoning_content') or ''),
+                         eval_count=o['usage'].get('completion_tokens'), prompt_eval_count=o['usage'].get('prompt_tokens'),
+                         done_reason=o['choices'][0].get('finish_reason'))
+            else:
+                r = api('chat', body, timeout=args.timeout)
             answer, err = r.get('message', {}).get('content', ''), None
         except Exception as e:  # keep going; a failed request is a wrong answer
             r, answer, err = {}, '', str(e)[:300]
@@ -88,7 +101,7 @@ def run(args):
                          correct=ok, error=err, wall_s=round(wall, 2), eval_tokens=r.get('eval_count'), prompt_tokens=r.get('prompt_eval_count'),
                          thinking_chars=len(r.get('message', {}).get('thinking') or ''), done_reason=r.get('done_reason')))
         print(f"[{i}/{len(tasks)}] {t['id']}: {'ok ' if ok else 'BAD'} {wall:.1f}s {r.get('eval_count')} tok  {answer[:60]!r}", flush=True)
-    ps = [m for m in api('ps').get('models', []) if m['name'] == args.model]
+    ps = [] if remote else [m for m in api('ps').get('models', []) if m['name'] == args.model]
     rec = dict(bench=args.bench, model=args.model, think=args.think, capabilities=caps, finished=time.strftime('%Y-%m-%dT%H:%M:%S%z'),
                ollama_size_mib=round(ps[0]['size'] / 2**20) if ps else None, min_available_mib=round(min(avail, default=0)),
                system_num_parallel_note='system Ollama restarted with OLLAMA_NUM_PARALLEL=4 on 2026-11-16 before these runs', rows=rows)
@@ -169,8 +182,9 @@ def main():
     if a.cmd == 'report':
         return report(a)
     with (ROOT / '.bench.lock').open('a') as lock:
-        print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        if not a.model.startswith('deepseek/'):   # hosted: no GPU
+            print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
+            fcntl.flock(lock, fcntl.LOCK_EX)
         {'run': run, 'coload': coload}[a.cmd](a)
 
 

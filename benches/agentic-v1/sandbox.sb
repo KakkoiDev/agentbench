@@ -15,6 +15,28 @@
   (regex #"^/dev/tty")
   (regex #"^/dev/fd/"))
 
+; 2026-11-25: reads were open, and DeepSeek V4.1 Flash, stuck on an agentic-v5 task, searched the disk and read the
+; exercise's reference solution and tests in benches/ and other models' finished workspaces in results/. Now, as in
+; arena/sandbox.sb: nothing under ~/Code (benches, results, other repos), ~/Documents, ~/Desktop, ~/Downloads or
+; Claude Code's transcripts, except this run's own workspace and pi session folder.
+; 2026-11-25: the whole home folder is off limits but for what a run needs (DeepSeek's agentic-v5 rerun searched
+; ~/models, ~/Library, ~/.cache and ~/pi-local-harness-data for the exercises' answers). Stat (metadata) stays allowed,
+; so node and Python can resolve paths; listing and reading do not. The rules below re-open what is needed.
+(deny file-read* (subpath (param "HOME")))
+(deny file-read*
+  (subpath (string-append (param "HOME") "/Code"))
+  (subpath (string-append (param "HOME") "/Documents"))
+  (subpath (string-append (param "HOME") "/Desktop"))
+  (subpath (string-append (param "HOME") "/Downloads"))
+  (subpath (string-append (param "HOME") "/.claude")))
+(allow file-read*
+  (subpath (param "WORKSPACE"))
+  (subpath (param "SESSIONS"))
+  (subpath (string-append (param "HOME") "/.local/share/uv/python")))   ; the venv's Python
+; metadata only (no contents, no listing): node resolves its working directory through the parent folders at start-up
+(allow file-read-metadata
+  (subpath (param "HOME")))
+
 (deny file-read*
   (subpath (string-append (param "HOME") "/.ssh"))
   (subpath (string-append (param "HOME") "/.gnupg"))
@@ -26,5 +48,5 @@
 
 (deny network-outbound)
 (allow network-outbound
-  (remote ip "localhost:*")
+  (remote ip "localhost:*")   ; agent_bench narrows this to the model's own port (2026-11-25)
   (remote unix-socket))

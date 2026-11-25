@@ -11,23 +11,24 @@ Kept per run, under results/BENCH-NAME/TASK/ (BENCH defaults to agentic-v1): pi.
 pi.stderr, workspace/ (final files), changes.diff, visible.txt, hidden.txt and
 result.json. Runs are resumable and take the lab's .bench.lock (one GPU job at a time).
 """
-import argparse, concurrent.futures, difflib, re, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
+import argparse, urllib.request, concurrent.futures, difflib, re, fcntl, importlib.util, json, os, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+BENCHES = Path(os.environ.get('BENCHES_DIR') or ROOT / 'benches')   # the bench folders (tasks, hidden tests, graders); BENCHES_DIR when they live in another checkout (2026-11-25)
 
 
 def load_bench(name):
     """The task module of a bench folder (benches/<name>/tasks.py): agentic-v1 or the held-out agentic-v2 and agentic-v3."""
-    spec = importlib.util.spec_from_file_location(f'{name.replace("-", "_")}_tasks', ROOT / 'benches' / name / 'tasks.py')
+    spec = importlib.util.spec_from_file_location(f'{name.replace("-", "_")}_tasks', BENCHES / name / 'tasks.py')
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
 
 
-T = load_bench('agentic-v1')  # replaced by --bench in main()
+T = load_bench('agentic-v1') if (BENCHES / 'agentic-v1' / 'tasks.py').exists() else None  # replaced by --bench in main()
 
-SANDBOX = ROOT / 'benches' / 'agentic-v1' / 'sandbox.sb'
+SANDBOX = BENCHES / 'agentic-v1' / 'sandbox.sb'
 PI_HOME = ROOT / 'results' / 'agentic-pi-home'
 TERSE = ("Be terse. Keep your reasoning short: decide and act with a tool call instead of deliberating. "
          "When you are done, reply in one or two lines.")
@@ -52,7 +53,47 @@ def pi_home(ollama_url=''):
         cfg['providers']['ollama']['baseUrl'] = ollama_url.rstrip('/') + '/v1'
         (home / 'models.json').write_text(json.dumps(cfg, indent=2))
     (home / 'settings.json').write_text(json.dumps({'quietStartup': 'header'}))
+    sync_context_windows(home / 'models.json', ollama_url or 'http://127.0.0.1:11434')
     return home
+
+
+GGUF_CTX = 32768   # the context Ollama gives GGUF (llama.cpp runner) models here; MLX/safetensors models get their full length
+
+
+def sync_context_windows(models_json, ollama_url):
+    """Give pi every installed Ollama model with the context Ollama really serves. Found 2026-11-24: GGUF models run
+    at 32,768 tokens; past that Ollama silently drops the oldest messages, the task included (qwen3.8 27b mtp's
+    template then failed with "no user query found"; huihui's listed 262,144, so pi never compacted). With the
+    real window pi compacts the conversation itself before Ollama would cut it."""
+    try:
+        names = [l.split()[0] for l in subprocess.run(['ollama', 'list'], capture_output=True, text=True, timeout=20).stdout.splitlines()[1:] if l.strip()]
+    except Exception:
+        return
+    cfg = json.loads(Path(models_json).read_text())
+    models = cfg.setdefault('providers', {}).setdefault('ollama', {}).setdefault('models', [])
+    by_id = {m['id']: m for m in models}
+    changed = False
+    for name in names:
+        try:
+            req = urllib.request.Request(ollama_url.rstrip('/') + '/api/show', data=json.dumps({'model': name}).encode())
+            info = json.load(urllib.request.urlopen(req, timeout=20))
+        except Exception:
+            continue
+        trained = next((v for k, v in info.get('model_info', {}).items() if k.endswith('context_length')), None)
+        set_ctx = re.search(r'num_ctx\s+(\d+)', info.get('parameters') or '')   # the model's own setting wins (2026-11-24: 64k on the GGUF 27Bs)
+        ctx = int(set_ctx.group(1)) if set_ctx else GGUF_CTX if info.get('details', {}).get('format') == 'gguf' else trained
+        if not ctx:
+            continue
+        m = by_id.get(name)
+        if m is None:
+            m = dict(id=name)   # only the window: pi ran these as custom ids before, keep their other defaults
+            models.append(m)
+            changed = True
+        if m.get('contextWindow') != ctx:
+            m['contextWindow'] = ctx
+            changed = True
+    if changed:
+        Path(models_json).write_text(json.dumps(cfg, indent=2))
 
 
 def summarize(events_path):
@@ -97,6 +138,39 @@ def diff(task, workspace):
     return ''.join(out)
 
 
+def run_sandbox(home, model, key):
+    """The task's sandbox profile with network narrowed to the model's own server (2026-11-25: DeepSeek's agentic-v5 rerun,
+    allowed every localhost port, asked the local Ollama to recall an exercise's tests; a local model could as well have
+    called the paid DeepSeek proxy). The port comes from the provider's baseUrl in the pi home's models.json."""
+    text = Path(getattr(T, 'SANDBOX', SANDBOX)).read_text()
+    try:
+        prov = json.loads((home / 'models.json').read_text())['providers'][model.split('/', 1)[0]]
+        port = int(prov['baseUrl'].split('://', 1)[1].split('/', 1)[0].rsplit(':', 1)[1])
+    except (OSError, KeyError, ValueError, IndexError) as e:
+        sys.exit(f'cannot find the port of {model} in {home / "models.json"} ({e}): not running with every localhost port open')
+    assert text.count('(remote ip "localhost:*")') == 1, 'sandbox has no single localhost rule to narrow'
+    text = text.replace('(remote ip "localhost:*")', f'(remote ip "localhost:{port}")')
+    # 2026-11-25: /tmp is shared with every other run and with this Mac's other tools (DeepSeek's react rerun found and read
+    # an earlier run's /tmp/react.py; Claude sessions keep their scratch there). Each run gets its own temp folder (TMPDIR)
+    # and the rest of /tmp and /var/folders is closed, for reading and writing.
+    tmp = run_tmp(key)
+    text += f'''
+(deny file-read* file-write* (subpath "/private/tmp") (subpath "/private/var/folders"))
+(allow file-read-metadata (literal "/private/tmp") (literal "/tmp") (literal "/private/var/folders"))
+(allow file-read* file-write* (subpath "{tmp}"))
+(allow file-read* file-write* (subpath "{os.path.realpath(subprocess.run(['getconf', 'DARWIN_USER_CACHE_DIR'], capture_output=True, text=True).stdout.strip()).rstrip('/')}"))
+'''   # node will not start without the per-user cache folder
+    out = home / f'sandbox-{key}.sb'
+    out.write_text(text)
+    return out
+
+
+def run_tmp(key):
+    d = Path('/private/tmp/agent-bench-tmp') / key
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None, start_from=None, instruction=None):
     """One pi run of one task in tdir/workspace; returns its result record."""
     key = f'{args.name}-{name}-{time.time_ns()}'  # log names stay apart when attempts run at once
@@ -108,21 +182,39 @@ def attempt(args, task, name, tdir, home, exts, extra_env=None, model=None, star
     else:
         ws.mkdir(parents=True)
         T.write_files(task, ws)
-    cmd = ['/usr/bin/sandbox-exec', '-f', str(getattr(T, 'SANDBOX', SANDBOX)), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
+    cmd = ['/usr/bin/sandbox-exec', '-f', str(run_sandbox(home, model, key)), '-D', f'WORKSPACE={ws}', '-D', f'SESSIONS={home}',
            '-D', f'HOME={Path.home()}', '-D', f'REPO={ROOT}', 'pi', '-p', '--model', model, '--thinking', args.thinking, '--offline',
            '--no-session', '--no-approve', '--no-context-files', '--no-extensions', '--no-skills',
-           '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', TERSE] if args.terse else []), '--mode', 'json', (instruction or task['instruction']) + SUFFIX]
-    env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), **(extra_env or {}))
+           '--no-prompt-templates', *[x for e in exts for x in ('-e', e)], *(['--append-system-prompt', '\n\n'.join(x for x in (TERSE if args.terse else None, getattr(args, 'harness_prompt', None)) if x)] if args.terse or getattr(args, 'harness_prompt', None) else []), '--mode', 'json', (instruction or task['instruction']) + SUFFIX]
+    env = dict(os.environ, PI_OFFLINE='1', PI_CODING_AGENT_DIR=str(home), TMPDIR=str(run_tmp(key)) + '/', **(extra_env or {}))
     if exts:  # the extensions' own logs of what they did, kept with the run (written where the sandbox allows)
         env['PI_GUARD_LOG'] = str(home / f'guard-{key}.jsonl')
         env['PI_CODING_LOG'] = str(home / f'boost-{key}.jsonl')
-    t0 = time.time()
-    with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
-        try:
-            p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=args.timeout)
-            exit_code, timed_out = p.returncode, False
-        except subprocess.TimeoutExpired:
-            exit_code, timed_out = None, True
+    # 2026-11-23: under memory pressure (swap nearly full) pi's node sometimes died at start-up with only a native
+    # stack trace, and the task scored as a 0-tool failure. Such a start-up crash is retried (up to 4 starts).
+    for start in range(4):
+        t0 = time.time()
+        with open(tdir / 'pi.jsonl', 'w') as so, open(tdir / 'pi.stderr', 'w') as se:
+            try:
+                p = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=so, stderr=se, timeout=task.get('timeout') or args.timeout)   # a task may set its own (arena-v2's rounds)
+                exit_code, timed_out = p.returncode, False
+            except subprocess.TimeoutExpired:
+                exit_code, timed_out = None, True
+        crashed = (exit_code not in (0, None) and time.time() - t0 < 10 and (tdir / 'pi.jsonl').stat().st_size == 0
+                   and 'Native stack trace' in (tdir / 'pi.stderr').read_text(errors='replace'))
+        if not crashed:
+            break
+        print(f'  pi crashed at start-up (start {start + 1}); retrying in 30 s', flush=True)
+        time.sleep(30)
+    err = (tdir / 'pi.stderr').read_text(errors='replace')
+    # 2026-11-24: DeepSeek's account ran out of credit mid-run (HTTP 402 at the first request) and 25 tasks scored 0 with no tool
+    # call. A provider refusal on the first request (bad key, no credit, budget cap) is a harness error too.
+    first_err = re.search(r'"errorMessage":"(40[12]|429)\b', (tdir / 'pi.jsonl').read_text(errors='replace')[:200000])
+    if first_err and '"tool_execution_start"' not in (tdir / 'pi.jsonl').read_text(errors='replace'):
+        sys.exit(f'the model provider refused the request (HTTP {first_err.group(1)}: no credit, bad key or budget cap); stopping the run')
+    if exit_code not in (0, None) and (tdir / 'pi.jsonl').stat().st_size == 0 and re.search(r'Failed to load extension|Unknown model|No API key|sandbox-exec: ', err):
+        # a harness error, not the model's: stop the run rather than score it (and leave no result.json, so a rerun redoes it)
+        sys.exit(f'pi could not start ({err.strip().splitlines()[0][:300]}); stopping the run')
     wall = time.time() - t0
     vis_ok, vis_out = T.run_visible(ws)
     passed, total, hid_out = T.run_hidden(task, ws)
@@ -228,13 +320,28 @@ def run(args):
     out_dir = ROOT / 'results' / f'{args.bench}-{args.name}'
     out_dir.mkdir(parents=True, exist_ok=True)
     lock = (ROOT / '.bench.lock').open('w')
-    if not args.no_lock:  # --no-lock is only for plumbing tests with a stand-in pi
+    if not args.no_lock and not args.model.startswith('deepseek/'):  # --no-lock: plumbing tests; deepseek/ is hosted, no GPU
         print('Waiting for .bench.lock (one GPU job at a time)…', flush=True)
         fcntl.flock(lock, fcntl.LOCK_EX)
     home = pi_home(args.ollama_url)
     sys.path.insert(0, str(ROOT / 'benches'))
     import local_engines
     local_engines.add_providers(home / 'models.json')  # mlxlm/, mtplx/, ds4/... next to ollama/
+    # 2026-11-25: pi matches an unknown model id to a similar one without a word (deepseek/flash ran as flash-off when the
+    # config lacked it), so check the id is in the bench's pi config exactly
+    prov, _, mid = args.model.partition('/')
+    known = [m['id'] for m in json.loads((home / 'models.json').read_text()).get('providers', {}).get(prov, {}).get('models', [])]
+    if known and mid not in known:
+        msg = f'{args.model} is not in {home}/models.json ({prov}: {", ".join(known[:12])}): pi would run a similar model instead'
+        if prov == 'deepseek':
+            sys.exit(msg)
+        print('WARNING: ' + msg, flush=True)
+    harness = None
+    if args.harness == 'agentbox':   # 2026-11-25: run the model exactly as agentbox would (its extensions and prompt lines)
+        cmd = ['agentbox', 'harness', '--model', args.model, '--json'] + (['--thinking', args.thinking] if args.thinking != 'off' else [])
+        harness = json.loads(subprocess.run(cmd, capture_output=True, text=True, check=True).stdout)
+        args.extension = ','.join([e['path'] for e in harness['extensions']] + [e for e in args.extension.split(',') if e])
+        args.harness_prompt = '\n\n'.join(pr['text'] for pr in harness['prompts']) or None
     meta = out_dir / 'meta.json'
     if not meta.exists():
         meta.write_text(json.dumps({
@@ -242,9 +349,28 @@ def run(args):
             'pi_version': subprocess.run(['pi', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_version': subprocess.run(['ollama', '--version'], capture_output=True, text=True).stdout.strip(),
             'ollama_url': args.ollama_url or 'http://127.0.0.1:11434',
-            'terse': TERSE if args.terse else None,
+            'terse': TERSE if args.terse else None, 'harness': harness,
             'timeout_s': args.timeout, 'extension': args.extension or None, 'sandbox': Path(getattr(T, 'SANDBOX', SANDBOX)).read_text(), 'suffix': SUFFIX}, indent=1))
-    exts = [e for e in args.extension.split(',') if e]
+    exts = []
+    copied = set()
+    for e in [e for e in args.extension.split(',') if e]:
+        # copied into the run's pi home: the sandboxes deny reads in most of the repo (2026-11-24: arena-v3's pi could not load
+        # benches/pi-ext/command-timeout and every round ran with 0 tools)
+        src = Path(e).expanduser().resolve()
+        # 2026-11-25: an extension inside an npm package (agentbox's pi-core parts) imports its dependencies from the
+        # package's node_modules, so copy the whole package and keep the extension's place in it
+        pkg = next((p for p in src.parents if (p / 'package.json').exists() and (p / 'node_modules').is_dir()), None)
+        if pkg:
+            dst = home / 'extensions-copy' / pkg.name
+            if pkg not in copied:   # once per run, fresh: several extensions can come from the same package
+                shutil.rmtree(dst, ignore_errors=True)
+                shutil.copytree(pkg, dst, symlinks=True, ignore=shutil.ignore_patterns('.git', 'test', '__pycache__'))
+                copied.add(pkg)
+            exts.append(str(dst / src.relative_to(pkg)))
+        else:
+            dst = home / 'extensions-copy' / src.parent.name
+            shutil.copytree(src.parent, dst, dirs_exist_ok=True)
+            exts.append(str(dst / src.name))
     names = [n for n in T.TASKS if not args.only or n in args.only.split(',')]
     if args.rerun:  # measure again: earlier task runs move to attempts/rerun-<time>/ (kept, never deleted)
         dest = out_dir / 'attempts' / f'rerun-{time.strftime("%Y%m%dT%H%M%S")}'
@@ -258,6 +384,9 @@ def run(args):
         if (tdir / 'result.json').exists():
             print(f'[{i}/{len(names)}] {name}: done before, skipped', flush=True)
             continue
+        if args.model.startswith('deepseek/'):   # hosted DeepSeek: only off-peak (the task's limit + 10 min for fights and grading)
+            import deepseek_proxy
+            deepseek_proxy.wait_offpeak((task.get('timeout') or args.timeout) + 600, log=lambda m: print(m, flush=True))
         if tdir.exists():  # an interrupted attempt: keep it under attempts/
             (out_dir / 'attempts').mkdir(exist_ok=True)
             tdir.replace(out_dir / 'attempts' / f'{name}-{time.time_ns()}')
@@ -331,6 +460,7 @@ def main():
     r.add_argument('--escalate', default='', help='gpt-oss effort (e.g. high) for one more run when visible tests still fail')
     r.add_argument('--escalate-model', default='', help='another pi model (e.g. ollama/qwen3.8:27b-mlx) for one more run when visible tests still fail')
     r.add_argument('--pair', action='store_true', help='two runs at once, then each sees the other\'s changes and test result and revises its own (2 rounds)')
+    r.add_argument('--harness', choices=['bare', 'agentbox'], default='bare', help='bare: pi as it comes; agentbox: with agentbox\'s extensions and prompt lines for the model (`agentbox harness`)')
     r.add_argument('--extension', default='', help='pi extensions to load for the run, comma-separated, e.g. ~/Code/pi-core/local-model-guard/index.ts')
     p = sub.add_parser('report')
     p.add_argument('--names', required=True)
