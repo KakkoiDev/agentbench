@@ -265,11 +265,13 @@ class StreamedExperts(nn.Module):
             lut = np.zeros(NUM_EXPERTS, np.uint32)
             for e in group:
                 lut[e] = self._where[e]
-            if len(group) == len(unique):
-                return self._run(x, mx.array(lut[ids]), indices.shape)
-            # Several groups: unsorted. The sorted kernel rounds differently when a group's masked rows pile onto
-            # one slot (measured: up to 0.006 per layer, 0.8 on the logits after 48 visits); unsorted is exact.
+            # Unsorted: the GPU's sorted expert kernel rounds a row differently depending on which rows share its
+            # tiles, so slot numbers other than the in-memory ones (and a group's masked rows piling onto one slot)
+            # change the result (measured: up to 0.006 per layer, 0.7-1.1 on the logits after 48 visits). Unsorted
+            # gives exactly the in-memory run's numbers; only long prompt chunks get slower.
             y = self._run(x, mx.array(lut[ids]), indices.shape, allow_sort=False)
+            if len(group) == len(unique):
+                return y
             mask = mx.array(np.isin(ids, group))[..., None]
             y = mx.where(mask, y, mx.zeros_like(y))
             out = y if out is None else out + y

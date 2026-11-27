@@ -59,7 +59,7 @@ class DraftBlock:
         entry.update_and_fetch(self.rotate(keys, pos), self.heads(features, "v_ctx"))
 
     def attend(self, x, entry):
-        key, value = entry.state
+        key, value = entry.keys_and_values()  # the committed context (this mlx-lm's state also carries the offset)
         if self.window:
             key, value = key[:, :, -self.window:], value[:, :, -self.window:]
         q = self.rotate(self.normalize(self.heads(x, "q"), "self_attn.q_norm"), entry.offset)

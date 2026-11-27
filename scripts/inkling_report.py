@@ -232,6 +232,28 @@ def mtp_rows(rows):
                  num_cols=(1, 2, 3, 4, 5, 6, 7))
 
 
+def mtp_verdict(s):
+    """Best plain streamed speed vs best draft-head speed, per cache size, from the rows."""
+    plain = {}
+    for k in ("v1", "v2", "v3"):
+        for r in s[k]:
+            if not r.get("resident") and r["slots"] < 128:
+                plain[r["slots"]] = max(plain.get(r["slots"], 0), r["decode_tok_s_second_half"])
+    mtp, mb = {}, {}
+    for r in s["mtp"]:
+        if not r.get("resident") and r["decode_tok_s"] > mtp.get(r["slots"], 0):
+            mtp[r["slots"]], mb[r["slots"]] = r["decode_tok_s"], r["mb_read_per_token"]
+    both = sorted(set(plain) & set(mtp))
+    if not both:
+        return ""
+    parts = "; ".join(f"{n} per layer: {f1(mtp[n])} tok/s with drafts against {f1(plain[n])} without" for n in both)
+    return (f'<p>With experts on the SSD the draft head did not pay off here: {parts}. Several tokens checked together '
+            f'need more different experts per layer than one token (consecutive tokens share few), so they overflow a '
+            f'small cache; rejected drafts are run again (this port has no cheaper rollback); and checking several '
+            f'tokens costs this port more than one even in memory. Drafted text also drifts from plain greedy after '
+            f'some 60 tokens, in memory too; most likely the multi-token pass rounding differently from one token at a time (not yet checked).</p>')
+
+
 def page(data):
     m, g, q = data["mlx"], data["gguf"], data["qwen"]
     s = data["stream"]
@@ -314,7 +336,7 @@ Guesses that turn out wrong cost extra reads (counted in MB read per token).</p>
         body.append(f"""<h3>With the draft head</h3><p class="note">Inkling ships a draft head (a 3-layer block drafter
 with a Markov head) that proposes up to 7 tokens; the model checks them in one pass, so each expert read serves several
 tokens. Drafter ported from <a href="https://github.com/youssofal/mtplx">MTPLX</a> 2.13.3 (Apache 2.0). Code:
-<a href="{REPO}benches/expert-stream/mtp.py">mtp.py</a>.</p>{mtp_rows(s["mtp"])}""")
+<a href="{REPO}benches/expert-stream/mtp.py">mtp.py</a>.</p>{mtp_rows(s["mtp"])}{mtp_verdict(s)}""")
     body.append(f"""</section>
 <section class="sec" aria-labelledby="how"><div class="sec-h"><h2 id="how">How it was measured</h2></div><ul class="list">
 <li>One 32 GB Mac mini M6, one job at a time, Ollama 0.40.18.</li>
