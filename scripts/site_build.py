@@ -688,6 +688,16 @@ LEARNINGS = [
 ]
 
 
+def reports_list():
+    """Reports in site/reports (written by their own scripts, e.g. inkling_report.py), linked by their titles."""
+    found = sorted((Path(__file__).resolve().parents[1] / "site" / "reports").glob("*.html"))
+    items = []
+    for f in found:
+        m = re.search(r"<title>(.*?)</title>", f.read_text())
+        items.append(f'<li><a href="reports/{E(f.name)}">{m[1] if m else E(f.stem)}</a></li>')
+    return f'<h3>Reports</h3><ul class="list">{"".join(items)}</ul>' if items else ""
+
+
 def learnings_page(S):
     secs = []
     for title, tips in LEARNINGS:
@@ -714,7 +724,7 @@ def learnings_page(S):
 </ol>
 <h3>The code</h3><ul class="list">{code}</ul></section>
 <section class="sec" aria-labelledby="more"><div class="sec-h"><h2 id="more">More</h2></div>
-<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. October's work is still published in full: the <a href="glm.html">GLM report</a>, <a href="bench.html">quiz answers</a>, <a href="comparison.html">quiz comparison</a>, <a href="glm-speed.html">GLM speed runs</a>, <a href="findings.html">GLM findings</a> and <a href="concurrency.html">requests at once</a>.</p></section>
+<p>The <a href="local-ai.html">full research note</a> has every finding with its tables, methods and limits. October's work is still published in full: the <a href="glm.html">GLM report</a>, <a href="bench.html">quiz answers</a>, <a href="comparison.html">quiz comparison</a>, <a href="glm-speed.html">GLM speed runs</a>, <a href="findings.html">GLM findings</a> and <a href="concurrency.html">requests at once</a>.</p>{reports_list()}</section>
 """
     return shell("Learnings: running local AI on a 32 GB Mac mini M6", body, "learnings.html",
                  desc="Tips and observations from benching local models on a Mac mini M6 32 GB: thinking, memory, harness, coding agents, speech, translation.")
