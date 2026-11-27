@@ -42,6 +42,13 @@ F_NOCACHE = getattr(fcntl, "F_NOCACHE", 48)
 NVFP4_SCALE = 6.0 * 448.0  # e2m1 max x e4m3 max, as in the port's checkpoint.sanitize
 NUM_EXPERTS = 128
 REF_STEPS = 64
+LFU_DECAY = 0.995  # --lfu-decay: how fast LFU forgets (1.0: never)
+GUESS_FIRST = False  # --guess-first: queue the guesses before this call's own misses (v3 order)
+AHEAD = 1  # --ahead: visits read ahead
+LOSSY = ""  # --lossy: "" (exact), "skip", "skiplow", "sub" or "topk" (see route())
+SKIP_SHARE = 0.1  # --skip-share: skiplow drops a missing expert only below this share of its row's router weight
+SUB_ALPHA = 0.8  # --sub-alpha: a cached stand-in needs this share of the missing expert's router score
+TOPK = 8  # --topk: experts per token in "topk" mode
 GROUP = 0  # --group: force expert groups of this size on long prompt chunks (exactness check)  # decode steps whose logits --ref compares
 PROMPT = ("Write a Python function `parse_duration(s)` that parses ISO 8601 durations such as 'P3DT4H5M' and "
           "returns the total number of seconds. Handle weeks, fractional seconds and invalid input. "
@@ -117,7 +124,8 @@ class Slots:
 
 
 class Stats:
-    KEYS = ("reads", "bytes", "hits", "lookups", "read_s", "wait_s", "put_s", "prefetched", "prefetch_used")
+    KEYS = ("reads", "bytes", "hits", "lookups", "read_s", "wait_s", "put_s", "prefetched", "prefetch_used", "picks",
+            "dropped", "substituted", "absorbed")
 
     def __init__(self):
         for k in self.KEYS:
@@ -154,7 +162,7 @@ class StreamedExperts(nn.Module):
     def fill(self, experts):
         """Put these experts in slots, evicting ones not in `experts`."""
         st = self._stats
-        self._uses *= 0.995
+        self._uses *= LFU_DECAY
         self._uses[experts] += 1
         need = [e for e in experts if e not in self._where]
         st.lookups += len(experts)
@@ -188,6 +196,8 @@ class StreamedExperts(nn.Module):
         for f in futures:
             f.result()
         st.prefetch_used += len(ahead)
+        if not LOSSY:
+            self._pending.clear()  # guesses for this call that were not needed
         t2 = time.perf_counter()
         self._gu.put(slots, need, gu_w, gu_s)
         self._dn.put(slots, need, dn_w, dn_s)
@@ -198,12 +208,100 @@ class StreamedExperts(nn.Module):
         for e, s in zip(need, slots):
             self._where[e] = s
 
+    def absorb(self):
+        """Lossy modes: experts whose background read finished go into the cache (no waiting)."""
+        done = [e for e, (fut, _) in self._pending.items() if fut.done() and e not in self._where]
+        for e in done[:self.n // 2]:  # never refill more than half the cache at once
+            _, bufs = self._pending.pop(e)
+            free = sorted(set(range(self.n)) - set(self._where.values()))
+            slot = free[0] if free else self._where.pop(self._victim(set()))
+            self._gu.put([slot], [e], bufs[0][None], bufs[1][None])
+            self._dn.put([slot], [e], bufs[2][None], bufs[3][None])
+            self._where[e] = slot
+            self._stats.absorbed += 1
+
+    def route(self, hidden, selected, weights, gate, scores_all=None):
+        """Lossy routing for decode rows (8 rows or fewer; a prompt stays exact). Returns new (selected, weights).
+        - skip: a picked expert that is not cached is left out and the others' weights scaled up to the same sum;
+          it is read in the background and joins the cache for later tokens.
+        - sub: a picked expert that is not cached is replaced by the best-scoring cached expert not already picked,
+          when its router score is at least SUB_ALPHA of the missing one's (else it is read as usual); weights are
+          the router's, renormalized over the new set. Missing ones are read in the background.
+        - topk: only the TOPK highest-weighted experts of the 8, renormalized to the same sum."""
+        if not LOSSY or ids_rows(selected) > 8:
+            return selected, weights
+        self.absorb()
+        ids, w = np.array(selected).astype(np.int64), np.array(weights.astype(mx.float32))
+        flat_ids, flat_w = ids.reshape(-1, ids.shape[-1]), w.reshape(-1, w.shape[-1])
+        st = self._stats
+        if LOSSY == "topk":
+            order = np.argsort(-flat_w, axis=-1)[:, :TOPK]
+            new_ids = np.take_along_axis(flat_ids, order, -1)
+            new_w = np.take_along_axis(flat_w, order, -1)
+            new_w *= flat_w.sum(-1, keepdims=True) / new_w.sum(-1, keepdims=True)
+            st.picks += flat_ids.size
+            st.dropped += flat_ids.size - new_ids.size
+            shape = (*ids.shape[:-1], TOPK)
+            return mx.array(new_ids.reshape(shape).astype(np.uint32)), mx.array(new_w.reshape(shape))
+        cached = set(self._where)
+        if LOSSY == "sub":
+            scores = np.array(scores_all).reshape(-1, scores_all.shape[-1])  # computed with the router, one GPU wait
+            biased = scores + np.array(gate.e_score_correction_bias)
+        missing_all = set()
+        for r in range(flat_ids.shape[0]):
+            row = flat_ids[r]
+            st.picks += len(row)
+            miss = [j for j, e in enumerate(row) if e not in cached]
+            if not miss or len(miss) == len(row):
+                continue  # all cached, or nothing to fall back on: exact for this row
+            if LOSSY == "skiplow":
+                # Drop only the missing experts that carry little of this token's weight; read the others as usual.
+                # Dropped ones are not fetched: they matter little, and their reads would compete with the ones
+                # the model waits on.
+                total = flat_w[r].sum()
+                low = [j for j in miss if flat_w[r, j] < SKIP_SHARE * total]
+                keep_any = [e for j, e in enumerate(row) if j not in low]
+                if low and keep_any:
+                    stand_in = keep_any[0]
+                    for j in low:
+                        flat_w[r, j] = 0.0
+                        row[j] = stand_in
+                    flat_w[r] *= total / flat_w[r].sum()
+                    st.dropped += len(low)
+                continue
+            missing_all.update(int(row[j]) for j in miss)
+            if LOSSY == "skip":
+                total = flat_w[r].sum()
+                stand_in = next(e for e in row if e in cached)
+                for j in miss:
+                    flat_w[r, j] = 0.0
+                    row[j] = stand_in  # weight 0: no effect, no read
+                flat_w[r] *= total / flat_w[r].sum()
+                st.dropped += len(miss)
+            else:
+                taken = set(int(e) for e in row)
+                cands = sorted((e for e in cached if e not in taken), key=lambda e: -biased[r, e])
+                changed = False
+                for j in miss:
+                    e = int(row[j])
+                    if cands and biased[r, cands[0]] >= SUB_ALPHA * biased[r, e]:
+                        row[j] = cands.pop(0)
+                        st.substituted += 1
+                        changed = True
+                if changed:
+                    sc = scores[r, row]
+                    flat_w[r] = sc / (sc.sum() + 1e-20) * gate.routed_scaling_factor
+        if missing_all:
+            self.prefetch(sorted(missing_all))  # background: they join the cache later (absorb)
+        return mx.array(flat_ids.reshape(ids.shape).astype(np.uint32)), mx.array(flat_w.reshape(w.shape))
+
     def prefetch(self, experts):
         """Start reading these experts (a guess for this layer's next call) unless cached or already on their way."""
-        object.__setattr__(self, "_pending", {e: v for e, v in self._pending.items() if e in experts})  # drop old guesses
         for e in experts:
             if e in self._where or e in self._pending:
                 continue
+            if len(self._pending) >= self.n:  # bounded: at most one cache's worth of reads in flight per layer
+                break
             gu_w, gu_s = self._gu.buffers(1)
             dn_w, dn_s = self._dn.buffers(1)
             bufs = (gu_w[0], gu_s[0], dn_w[0], dn_s[0])
@@ -238,22 +336,30 @@ class StreamedExperts(nn.Module):
             # Read ahead: the next visit's router applied to this hidden state guesses its experts (the hidden state
             # changes little from one layer to the next), so their reads overlap this layer's GPU work.
             visit = ctx["visit"]
-            ctx["visit"] = (visit + 1) % len(ctx["order"])
-            nxt = ctx["order"][ctx["visit"]]
+            n_visits = len(ctx["order"])
+            ctx["visit"] = (visit + 1) % n_visits
             if ids_rows(indices) <= 8:
-                router = nxt._router
                 flat = x.reshape(-1, x.shape[-1]).astype(mx.float32)
-                scores = mx.sigmoid(flat @ router.weight.T) + router.e_score_correction_bias
-                guess = mx.argpartition(-scores, kth=router.top_k - 1, axis=-1)[..., :router.top_k]
+                guess = []
+                for d in range(1, AHEAD + 1):
+                    nxt = ctx["order"][(visit + d) % n_visits]
+                    router = nxt._router
+                    scores = mx.sigmoid(flat @ router.weight.T) + router.e_score_correction_bias
+                    guess.append((nxt, mx.argpartition(-scores, kth=router.top_k - 1, axis=-1)[..., :router.top_k]))
         t = time.perf_counter()
-        if guess is not None:
-            mx.eval(indices, guess)
+        if guess:
+            mx.eval(indices, [g for _, g in guess])
         ids = np.array(indices)  # waits for the router: the reads need to know which experts
         self._stats.wait_s += time.perf_counter() - t
-        if guess is not None:
-            g = [int(e) for e in np.unique(np.array(guess))]
-            if len(g) <= nxt.n:
-                nxt.prefetch(g)
+        if guess:
+            # Read this call's own misses first (fill below waits for them), then the guesses: queued the other way,
+            # the guesses delayed the reads this layer waits on when the SSD is the limit.
+            object.__setattr__(self, "_guess", [(nxt, [int(e) for e in np.unique(np.array(g))]) for nxt, g in guess])
+            if GUESS_FIRST:  # the v3 order: guesses queued before this call's own misses (more reads in flight)
+                for nxt, gl in self._guess:
+                    if len(gl) <= nxt.n:
+                        nxt.prefetch(gl)
+                object.__setattr__(self, "_guess", None)
         unique = [int(e) for e in np.unique(ids)]
         out = None
         # More experts than slots (a prompt chunk): go through them in groups that fit, through the same cache and
@@ -262,6 +368,12 @@ class StreamedExperts(nn.Module):
         for g in range(0, len(unique), size):
             group = unique[g:g + size]
             self.fill(group)
+            if not LOSSY:
+                self._pending.clear()
+            for nxt, gl in getattr(self, "_guess", None) or []:
+                if len(gl) <= nxt.n:
+                    nxt.prefetch(gl)
+            object.__setattr__(self, "_guess", None)
             lut = np.zeros(NUM_EXPERTS, np.uint32)
             for e in group:
                 lut[e] = self._where[e]
@@ -281,6 +393,28 @@ class StreamedExperts(nn.Module):
 
 def ids_rows(indices):
     return int(np.prod(indices.shape[:-1]))
+
+
+from mlx_lm.models.inkling2.layers import SparseMoeBlock  # noqa: E402
+
+_moe_call = SparseMoeBlock.__call__
+
+
+def _streamed_moe_call(self, hidden_states):
+    """The port's MoE block, with a lossy mode's routing change between the router and the experts."""
+    if not LOSSY or not isinstance(self.experts, StreamedExperts) or self.experts._resident:
+        return _moe_call(self, hidden_states)
+    selected, weights = self.gate(hidden_states)
+    scores_all = None
+    if LOSSY == "sub" and ids_rows(selected) <= 8:
+        scores_all = mx.sigmoid(hidden_states.astype(mx.float32) @ self.gate.weight.T)
+        mx.eval(selected, weights, scores_all)
+    selected, weights = self.experts.route(hidden_states, selected, weights, self.gate, scores_all)
+    states = self.experts(hidden_states, selected).astype(mx.float32) * weights[..., None]
+    return states.sum(axis=-2).astype(hidden_states.dtype)
+
+
+SparseMoeBlock.__call__ = _streamed_moe_call
 
 
 class _Placeholder(nn.Module):
@@ -378,13 +512,23 @@ def main():
     ap.add_argument("--workers", type=int, default=16, help="parallel SSD reads")
     ap.add_argument("--ref", default="", help="npz of the resident run's tokens and logits (it writes it)")
     ap.add_argument("--prefetch", action="store_true", help="read the next layer's guessed experts ahead")
+    ap.add_argument("--guess-first", action="store_true")
+    ap.add_argument("--ahead", type=int, default=1, help="visits to read ahead (with --prefetch)")
+    ap.add_argument("--lfu-decay", type=float, default=0.995)
+    ap.add_argument("--lossy", choices=("", "skip", "skiplow", "sub", "topk"), default="")
+    ap.add_argument("--skip-share", type=float, default=0.1)
+    ap.add_argument("--sub-alpha", type=float, default=0.8)
+    ap.add_argument("--topk", type=int, default=8)
     ap.add_argument("--group", type=int, default=0, help="force expert groups of this size (check)")
     ap.add_argument("--prefill-chunk", type=int, default=0, help="prompt tokens per forward (0: all at once)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     assert not a.resident or a.slots == NUM_EXPERTS
-    global GROUP
-    GROUP = a.group
+    global GROUP, AHEAD, LFU_DECAY, GUESS_FIRST, LOSSY, SUB_ALPHA, TOPK
+    GROUP, AHEAD, LFU_DECAY, GUESS_FIRST = a.group, a.ahead, a.lfu_decay, a.guess_first
+    LOSSY, SUB_ALPHA, TOPK = a.lossy, a.sub_alpha, a.topk
+    global SKIP_SHARE
+    SKIP_SHARE = a.skip_share
 
     t0 = time.perf_counter()
     model, layers, stats, dense_gb, plan = load(a)
@@ -411,6 +555,7 @@ def main():
 
     kept = [np.array(logits[0].astype(mx.float32))]  # logits of the first REF_STEPS + 1 positions
     out, times = [int(y.item())], []
+    agree = [] if forced is None else [out[0] == forced[0]]
     for step in range(a.tokens - 1):
         if forced is not None and step < len(forced) - 1:
             y = mx.array([forced[step]])  # feed the reference token so both runs see the same text
@@ -420,6 +565,8 @@ def main():
         mx.eval(y)
         times.append(time.perf_counter() - t)
         out.append(int(y.item()))
+        if forced is not None and step + 1 < len(forced):
+            agree.append(out[-1] == forced[step + 1])  # same next token as the exact model, on the same text
         if step < REF_STEPS:
             kept.append(np.array(logits[0].astype(mx.float32)))
     s = stats.snap()
@@ -437,11 +584,15 @@ def main():
         decode_tok_s=round(n / sum(times), 2), decode_tok_s_second_half=round(len(half) / sum(half), 2),
         ms_per_token=round(sum(half) / len(half) * 1000, 1),
         ms_read=per("read_s"), ms_router_wait=per("wait_s"), ms_cache_write=per("put_s"),
-        hit_rate=round(dec["hits"] / max(dec["lookups"], 1), 3), prefetch=getattr(a, "prefetch", False),
+        hit_rate=round(dec["hits"] / max(dec["lookups"], 1), 3), prefetch=getattr(a, "prefetch", False), ahead=a.ahead, lfu_decay=a.lfu_decay, guess_first=a.guess_first,
         prefetch_used_share=round(dec["prefetch_used"] / dec["prefetched"], 3) if dec["prefetched"] else None,
         mb_read_per_token=round(dec["bytes"] / 1e6 / n, 1),
         disk_gb_s=round(dec["bytes"] / 1e9 / dec["read_s"], 2) if dec["read_s"] else None,
-        text=tok.decode(out)[:300],
+        text=tok.decode(out)[:300], lossy=a.lossy, sub_alpha=a.sub_alpha if a.lossy == "sub" else None,
+        skip_share=a.skip_share if a.lossy == "skiplow" else None,
+        topk=a.topk if a.lossy == "topk" else None,
+        dropped_share=round(dec["dropped"] / dec["picks"], 3) if dec["picks"] else None,
+        substituted_share=round(dec["substituted"] / dec["picks"], 3) if dec["picks"] else None,
     )
     if a.resident and a.ref:
         np.savez(a.ref, tokens=np.array(out), logits=np.stack(kept))
@@ -451,6 +602,12 @@ def main():
         same = (np.stack(kept).argmax(-1) == r.argmax(-1))
         res.update(ref_max_logit_diff=round(float(diff.max()), 4), ref_prompt_logit_diff=round(float(diff[0]), 4),
                    ref_first_argmax_mismatch=None if same.all() else int(np.argmin(same)))
+        k = np.stack(kept).astype(np.float64)
+        rr = r.astype(np.float64)
+        lp = rr - rr.max(-1, keepdims=True); lp -= np.log(np.exp(lp).sum(-1, keepdims=True))
+        lq = k - k.max(-1, keepdims=True); lq -= np.log(np.exp(lq).sum(-1, keepdims=True))
+        res.update(agreement=round(float(np.mean(agree)), 4) if agree else None,
+                   kl_mean=round(float((np.exp(lp) * (lp - lq)).sum(-1).mean()), 5))
     line = json.dumps(res)
     print(line)
     if a.out:
