@@ -49,6 +49,8 @@ LOSSY = ""  # --lossy: "" (exact), "skip", "skiplow", "sub" or "topk" (see route
 SKIP_SHARE = 0.1  # --skip-share: skiplow drops a missing expert only below this share of its row's router weight
 SUB_ALPHA = 0.8  # --sub-alpha: a cached stand-in needs this share of the missing expert's router score
 TOPK = 8  # --topk: experts per token in "topk" mode
+SCRATCH = 0  # --prefill-scratch: full-layer buffers for prompt chunks (0: off, through the slots; 1: on; 2: also read
+#              the next visit's experts ahead into a second buffer)
 GROUP = 0  # --group: force expert groups of this size on long prompt chunks (exactness check)  # decode steps whose logits --ref compares
 PROMPT = ("Write a Python function `parse_duration(s)` that parses ISO 8601 durations such as 'P3DT4H5M' and "
           "returns the total number of seconds. Handle weeks, fractional seconds and invalid input. "
@@ -133,6 +135,46 @@ class Stats:
 
     def snap(self):
         return {k: getattr(self, k) for k in self.KEYS}
+
+
+_scratch = {}  # layer kind (tensor shapes) -> [(mx arrays, writable numpy views of them)]
+
+
+def scratch_buffers(gu, dn, avoid=None):
+    """A full 128-expert buffer set for a layer kind, other than `avoid` (None when only `avoid` exists).
+
+    Prompt chunks (2048 tokens touch nearly every expert) used to go through the slots in groups: each group re-ran
+    the matmul on every row (masked), so with 16 slots a chunk cost 8x the compute, unsorted, plus a GPU wait per
+    group. Instead the chunk's experts are read straight into a full-size buffer at their own rows, and the layer runs
+    once with the router's own ids, the same call as the in-memory model (so it is bit-identical to it). The arrays
+    are MLX arrays read into through numpy views of their memory (no copy). Safe because a buffer is only written
+    after the router wait of a later layer, which means the GPU has finished the layer that read it."""
+    key = (gu.src.w_shape, gu.src.s_shape, dn.src.w_shape, dn.src.s_shape)
+    have = _scratch.setdefault(key, [])
+    for b in have:
+        if b is not avoid:
+            return b
+    if len(have) >= SCRATCH:
+        return None
+    arrays = tuple(mx.zeros((NUM_EXPERTS, *shape), dt) for shape, dt in (
+        (gu.src.w_shape, mx.uint32), (gu.src.s_shape, mx.uint8), (dn.src.w_shape, mx.uint32), (dn.src.s_shape, mx.uint8)))
+    mx.eval(*arrays)
+    views = tuple(np.asarray(memoryview(t)) for t in arrays)
+    for t, v in zip(arrays, views):
+        assert v.flags.writeable and v.nbytes == t.nbytes and v.flags.c_contiguous
+    have.append((arrays, views))
+    return have[-1]
+
+
+def runs(experts, cap=8):
+    """Sorted experts as runs of consecutive ids (one read each), at most `cap` per run."""
+    out = []
+    for e in sorted(experts):
+        if out and e == out[-1][-1] + 1 and len(out[-1]) < cap:
+            out[-1].append(e)
+        else:
+            out.append([e])
+    return out
 
 
 class StreamedExperts(nn.Module):
@@ -313,6 +355,65 @@ class StreamedExperts(nn.Module):
             self._stats.prefetched += 1
             self._stats.bytes += self._gu.src.expert_bytes + self._dn.src.expert_bytes
 
+    def read_full(self, experts, buf):
+        """Start reading these experts into a full-size buffer, at their own rows. Returns the futures."""
+        views = buf[1]
+        futs = []
+        for run in runs(experts):
+            lo, hi = run[0], run[-1] + 1
+            for src, w, s in ((self._gu.src, views[0], views[1]), (self._dn.src, views[2], views[3])):
+                futs.append(self._pool.submit(src.read_into, w[lo:hi], s[lo:hi], lo))
+        return futs
+
+    def prefill(self, x, indices, unique, guess):
+        """A prompt chunk: the layer's experts read into a full-size buffer, one matmul with the router's own ids."""
+        ctx = self._ctx if self._ctx is not None else {}
+        st = self._stats
+        have, futs, buf = set(), [], None
+        pend = ctx.pop("scratch", None)
+        if pend is not None:
+            target, p_set, p_futs, p_buf = pend
+            if target is self:
+                have, futs, buf = p_set, p_futs, p_buf
+            else:
+                for f in p_futs:  # a wrong guess: finish its reads before that buffer can be handed out again
+                    f.result()
+        if buf is None:
+            buf = scratch_buffers(self._gu, self._dn)
+        t = time.perf_counter()
+        need = [e for e in unique if e not in have]
+        futs = futs + self.read_full(need, buf)
+        # The next visit's guessed experts into another buffer, queued after this layer's own reads.
+        for nxt, gl in guess or []:
+            nb = scratch_buffers(nxt._gu, nxt._dn, avoid=buf)
+            if nb is not None:
+                ctx["scratch"] = (nxt, set(gl), nxt.read_full(gl, nb), nb)
+                st.prefetched += len(gl)
+                st.bytes += len(gl) * (nxt._gu.src.expert_bytes + nxt._dn.src.expert_bytes)
+            break
+        for f in futs:
+            f.result()
+        st.read_s += time.perf_counter() - t
+        st.lookups += len(unique)
+        st.prefetch_used += len(set(unique) & have)
+        st.reads += len(need)
+        st.bytes += len(need) * (self._gu.src.expert_bytes + self._dn.src.expert_bytes)
+        gu_w, gu_s, dn_w, dn_s = buf[0]
+        do_sort = indices.size >= 64  # as the in-memory model does
+        idx, inv = indices, None
+        if do_sort:
+            x, idx, inv = _gather_sort(x, indices)
+        kw = dict(transpose=True, sorted_indices=do_sort)
+        g, d = self._gu.src, self._dn.src
+        y = mx.gather_qmm(x, gu_w, gu_s, None, rhs_indices=idx, group_size=g.group_size, bits=g.bits, mode=g.mode,
+                          global_scale=self._gu.all_gs, **kw)
+        y = self.act_fn(y[..., 0::2], y[..., 1::2])
+        y = mx.gather_qmm(y, dn_w, dn_s, None, rhs_indices=idx, group_size=d.group_size, bits=d.bits, mode=d.mode,
+                          global_scale=self._dn.all_gs, **kw)
+        if do_sort:
+            y = _scatter_unsort(y, inv, indices.shape)
+        return y.squeeze(-2)
+
     def _run(self, x, idx, indices_shape, allow_sort=True):
         do_sort = allow_sort and idx.size >= 64
         inv = None
@@ -331,7 +432,7 @@ class StreamedExperts(nn.Module):
         if self._resident:
             return self._run(x, indices, indices.shape)
         ctx = self._ctx
-        guess = None
+        guess = pguess = None
         if ctx is not None:
             # Read ahead: the next visit's router applied to this hidden state guesses its experts (the hidden state
             # changes little from one layer to the next), so their reads overlap this layer's GPU work.
@@ -346,9 +447,15 @@ class StreamedExperts(nn.Module):
                     router = nxt._router
                     scores = mx.sigmoid(flat @ router.weight.T) + router.e_score_correction_bias
                     guess.append((nxt, mx.argpartition(-scores, kth=router.top_k - 1, axis=-1)[..., :router.top_k]))
+            elif SCRATCH >= 2:  # a prompt chunk: the next visit's router on this hidden state, as in decoding
+                nxt = ctx["order"][(visit + 1) % n_visits]
+                router = nxt._router
+                flat = x.reshape(-1, x.shape[-1]).astype(mx.float32)
+                scores = mx.sigmoid(flat @ router.weight.T) + router.e_score_correction_bias
+                pguess = [(nxt, mx.argpartition(-scores, kth=router.top_k - 1, axis=-1)[..., :router.top_k])]
         t = time.perf_counter()
-        if guess:
-            mx.eval(indices, [g for _, g in guess])
+        if guess or pguess:
+            mx.eval(indices, [g for _, g in guess or pguess])
         ids = np.array(indices)  # waits for the router: the reads need to know which experts
         self._stats.wait_s += time.perf_counter() - t
         if guess:
@@ -361,6 +468,9 @@ class StreamedExperts(nn.Module):
                         nxt.prefetch(gl)
                 object.__setattr__(self, "_guess", None)
         unique = [int(e) for e in np.unique(ids)]
+        if SCRATCH and len(unique) > self.n:
+            pg = [(nxt, [int(e) for e in np.unique(np.array(g))]) for nxt, g in pguess or []]
+            return self.prefill(x, indices, unique, pg)
         out = None
         # More experts than slots (a prompt chunk): go through them in groups that fit, through the same cache and
         # kernels as decoding; each (token, choice) is computed once, with its own expert, and the rest masked.
@@ -521,20 +631,25 @@ def main():
     ap.add_argument("--topk", type=int, default=8)
     ap.add_argument("--group", type=int, default=0, help="force expert groups of this size (check)")
     ap.add_argument("--prefill-chunk", type=int, default=0, help="prompt tokens per forward (0: all at once)")
+    ap.add_argument("--prefill-scratch", type=int, default=0, choices=(0, 1, 2),
+                    help="prompt chunks through full-layer buffers (1), and read the next visit ahead (2)")
+    ap.add_argument("--prompt-tokens", type=int, default=0, help="repeat the prompt to this many tokens (prefill speed)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     assert not a.resident or a.slots == NUM_EXPERTS
     global GROUP, AHEAD, LFU_DECAY, GUESS_FIRST, LOSSY, SUB_ALPHA, TOPK
     GROUP, AHEAD, LFU_DECAY, GUESS_FIRST = a.group, a.ahead, a.lfu_decay, a.guess_first
     LOSSY, SUB_ALPHA, TOPK = a.lossy, a.sub_alpha, a.topk
-    global SKIP_SHARE
-    SKIP_SHARE = a.skip_share
+    global SKIP_SHARE, SCRATCH
+    SKIP_SHARE, SCRATCH = a.skip_share, a.prefill_scratch
 
     t0 = time.perf_counter()
     model, layers, stats, dense_gb, plan = load(a)
     load_s = time.perf_counter() - t0
     tok = tokenizer(layers, Path(__file__).parent / ".tokenizer")
     ids = tok.encode(PROMPT)  # no chat template in Ollama's tokenizer files: plain continuation, speed only
+    if a.prompt_tokens:
+        ids = (ids * (a.prompt_tokens // len(ids) + 1))[:a.prompt_tokens]
 
     ref = None
     if a.ref and not a.resident:
@@ -580,7 +695,8 @@ def main():
         expert_cache_gb=round(sum(l.mlp.experts._gu.nbytes + l.mlp.experts._dn.nbytes
                                   for l in model.model.language_model.layers) / 1e9, 2),
         dense_gb=round(dense_gb, 2), peak_gb=round(mx.get_peak_memory() / 1e9, 2), load_s=round(load_s, 1),
-        prefill_tok_s=round(len(ids) / prefill_s, 1),
+        prefill_tok_s=round(len(ids) / prefill_s, 1), prefill_s=round(prefill_s, 2), prefill_scratch=a.prefill_scratch,
+        prefill_gb_read=round(after_prefill["bytes"] / 1e9, 2),
         decode_tok_s=round(n / sum(times), 2), decode_tok_s_second_half=round(len(half) / sum(half), 2),
         ms_per_token=round(sum(half) / len(half) * 1000, 1),
         ms_read=per("read_s"), ms_router_wait=per("wait_s"), ms_cache_write=per("put_s"),

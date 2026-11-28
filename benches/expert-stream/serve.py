@@ -156,6 +156,7 @@ class Engine:
     def __init__(self, a):
         stream.LOSSY, stream.SUB_ALPHA, stream.TOPK, stream.SKIP_SHARE = a.lossy, a.sub_alpha, a.topk, a.skip_share
         stream.GUESS_FIRST, stream.AHEAD, stream.LFU_DECAY = a.guess_first, a.ahead, a.lfu_decay
+        stream.SCRATCH = a.prefill_scratch
         self.model, layers, self.stats, _, _ = stream.load(a)
         self.tok = stream.tokenizer(layers, Path(__file__).parent / ".tokenizer")
         self.eos = {200006}
@@ -356,6 +357,7 @@ def main():
     ap.add_argument("--sub-alpha", type=float, default=0.8)
     ap.add_argument("--topk", type=int, default=8)
     ap.add_argument("--workers", type=int, default=16)
+    ap.add_argument("--prefill-scratch", type=int, default=0, choices=(0, 1, 2))
     a = ap.parse_args()
     engine = Engine(a)
     # One thread: MLX's GPU streams belong to the thread that loaded the model (a request thread fails with

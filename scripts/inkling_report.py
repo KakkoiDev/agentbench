@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from site_build import E, REPO, shell, table  # noqa: E402
+import compare_runs as CR  # noqa: E402
 
 SETUPS = {  # what was run, and where its results are
     "mlx": dict(name="Inkling MLX", detail="inkling-2-mini:26b-a5b-nvfp4, Ollama's MLX runner",
@@ -101,7 +102,49 @@ def collect(res):
             if Path(f).exists():
                 rows += jlines(f)
         stream[name] = rows
+    for name in ("best", "lossy", "lossy2", "prefill"):
+        f = res / f"expert-stream-{name}.jsonl"
+        stream[name] = jlines(f) if f.exists() else []
     data["stream"] = stream
+
+    def runs(pat):
+        return sorted(x for x in glob.glob(str(res / pat)) if Path(x).is_dir() and (Path(x) / "results.json").exists())
+
+    def minutes(dirs):
+        return [round(sum(float(r.get("seconds", 0)) for r in json.load(open(Path(d) / "results.json"))["rows"]) / 60)
+                for d in dirs]
+
+    def cmp(a_pat, b_pat):
+        a, b = runs(a_pat), runs(b_pat)
+        if not a or not b:
+            return None
+        r = CR.compare(a, b)
+        r.update(a_minutes=minutes(a), b_minutes=minutes(b))
+        return r
+
+    # The streamed servers' own per-request lines: decode and prompt speed, output tokens, share of time on prompts.
+    eng = {}
+    for m in ("s32", "lossy", "s32-p2"):
+        f = res / "engine-logs" / f"stream-inkling-{m}.log"
+        rs = [r for r in jlines(f) if "prompt_new" in r] if f.exists() else []
+        if rs:
+            dec_s = sum(r["out"] / r["decode_tok_s"] for r in rs if r["decode_tok_s"])
+            pre_s = sum(r["prompt_s"] for r in rs)
+            eng[m] = dict(calls=len(rs), out=sum(r["out"] for r in rs), decode_tok_s=round(sum(r["out"] for r in rs) / dec_s, 1),
+                          prompt_tok_s=round(sum(r["prompt_new"] for r in rs) / pre_s, 1),
+                          prompt_share=round(pre_s / (pre_s + dec_s), 2), out_per_call=round(sum(r["out"] for r in rs) / len(rs)))
+    data["engine"] = eng
+    # Real benches, paired by item (scripts/compare_runs.py): exact against lossy, and the faster prompt reading.
+    benches = {"mini_en": ("dropbox-mini-en-stream2-r*-stream-inkling-{}", "Assistant (mini), English"),
+               "mini_lang": ("dropbox-mini-lang-stream2-r*-stream-inkling-{}", "Assistant (mini), Japanese and French"),
+               "expert": ("dropbox-family-expert-stream-inkling-{0}-expert-stream2-r*-stream-inkling-{0}", "Expert checks (3 jobs)")}
+    data["paired"] = {
+        "lossy": {k: dict(label=lab, **(cmp(pat.format("s32"), pat.format("lossy")) or {})) for k, (pat, lab) in benches.items()},
+        "prefill": {k: dict(label=lab, **(cmp(pat.format("s32"), pat.format("s32-p2")) or {})) for k, (pat, lab) in benches.items()},
+        # earlier single-run claims, now with error bars (hidden tests per task)
+        "coding_mlx_gguf": CR.compare([str(res / SETUPS["gguf"]["coding"])], [str(res / SETUPS["mlx"]["coding"])]),
+        "coding_qwen_mlx": CR.compare([str(res / SETUPS["mlx"]["coding"])], [str(res / SETUPS["qwen"]["coding"])]),
+    }
     return data
 
 
@@ -219,6 +262,87 @@ def stream_rows(rows, with_ref=False):
     return table(head, out, num_cols=(1, 2, 3, 4, 5, 6))
 
 
+def pts(x):
+    return f"{x * 100:+.1f}"
+
+
+def diff_cell(c):
+    sc = c.get("score")
+    if not sc:
+        return "", "", ""
+    ci = f'{pts(sc["diff"])} &plusmn; {sc["se"] * 100:.1f} <span class="note">(95% CI {pts(sc["ci95"][0])} to {pts(sc["ci95"][1])}; '
+    ci += ("significant" if sc["significant"] else "not significant") + ")</span>"
+    return f'{sc["a"] * 100:.1f}%', f'{sc["b"] * 100:.1f}%', ci
+
+
+def paired_table(rows, a_name, b_name):
+    out = []
+    for c in rows.values():
+        if not c.get("score"):
+            continue
+        a, b, d = diff_cell(c)
+        out.append([E(c["label"]), a, b, d, f'{c["a_runs"]} / {c["b_runs"]}',
+                    " + ".join(map(str, c["a_minutes"])), " + ".join(map(str, c["b_minutes"]))])
+    return table(["Bench", a_name, b_name, f"{b_name} minus {a_name}, points", "Runs",
+                  f"{a_name}: minutes per run", f"{b_name}: minutes per run"], out, num_cols=(1, 2, 4))
+
+
+LOSSY_NAMES = {"skip": "skip a missing expert, fetch it in the background",
+               "skiplow": "skip missing experts under {:.0%} of the router weight, no fetch",
+               "sub": "substitute a cached expert scoring at least {:.0%} of the missing one",
+               "topk": "only the top {} of 8 experts"}
+
+
+def lossy_rows(rows, exact):
+    out = []
+    for r in sorted(rows, key=lambda r: (r["slots"], r["lossy"], -(r.get("agreement") or 0))):
+        name = LOSSY_NAMES[r["lossy"]]
+        arg = {"skiplow": r.get("skip_share"), "sub": r.get("sub_alpha"), "topk": r.get("topk")}.get(r["lossy"])
+        name = name.format(arg) if arg is not None else name
+        ex = exact.get(r["slots"])
+        out.append([E(name), str(r["slots"]), f1(r["decode_tok_s_second_half"]), f1(ex) if ex else "",
+                    f'{r["agreement"] * 100:.1f}%', f'{r["kl_mean"]:.3f}',
+                    f'{round(r["dropped_share"] * 100)}%' if r.get("dropped_share") is not None else ""])
+    return table(["Lossy mode", "Experts kept", "Decode tok/s", "Exact, same cache", "Same next token as exact",
+                  "KL vs exact", "Experts dropped"], out, num_cols=(1, 2, 3, 4, 5, 6))
+
+
+def prefill_rows(rows):
+    out = []
+    for r in rows:
+        if r.get("resident"):
+            continue
+        mode = {0: "before: through the cache, in groups", 1: "full-layer buffer",
+                2: "full-layer buffer, next layer read ahead"}[r.get("prefill_scratch", 0)]
+        d = r.get("ref_max_logit_diff")
+        out.append([f'{r["slots"]} per layer', E(mode), f1(r["prefill_tok_s"]), f1(r["prefill_s"]),
+                    f1(r["prefill_gb_read"]), f1(r["peak_gb"]), "0 (identical)" if d == 0 else f1(d)])
+    return table(["Experts kept", "Prompt reading", "Prompt tok/s", "Seconds", "GB read", "Peak GB",
+                  "Largest logit difference vs in-memory"], out, num_cols=(2, 3, 4, 5, 6))
+
+
+def prefill_engine(e):
+    if "s32" not in e or "s32-p2" not in e:
+        return ""
+    a, b = e["s32"], e["s32-p2"]
+    return (f'<p class="note">In the assistant benches (pi with mini, 32 experts kept, exact both), from the server\'s own '
+            f'request lines: prompt speed {f1(a["prompt_tok_s"])} before, {f1(b["prompt_tok_s"])} tok/s after (most new '
+            f'chunks there are a few hundred tokens, which still read whole layers); prompt reading went from '
+            f'{round(a["prompt_share"] * 100)}% to {round(b["prompt_share"] * 100)}% of the model\'s time, so decoding '
+            f'(about {f1(b["decode_tok_s"])} tok/s) is now the limit. Paired by item, with error bars:</p>')
+
+
+def lossy_engine(e):
+    if "s32" not in e or "lossy" not in e:
+        return ""
+    a, b = e["s32"], e["lossy"]
+    return (f'<p class="note">Lossy matched exact on the assistant cases but lost the medical schedule job (out of time '
+            f'in both runs). Over all of each server\'s requests it was also slower: decode {f1(b["decode_tok_s"])} against {f1(a["decode_tok_s"])} tok/s, '
+            f'prompts {f1(b["prompt_tok_s"])} against {f1(a["prompt_tok_s"])}, the smaller cache costing more than the '
+            f'skipped reads saved. With 3 expert jobs the gap is within the error bar, but nothing argues for lossy '
+            f'here.</p>')
+
+
 def mtp_rows(rows):
     out = []
     for r in rows:
@@ -272,6 +396,11 @@ def page(data):
         f'<li><strong>Hardest coding: Qwen 3.8 27B</strong> passed {q["coding"]["hidden"]}/{q["coding"]["hidden_total"]} '
         f'hidden tests against Inkling MLX {m["coding"]["hidden"]} and GGUF {g["coding"]["hidden"]}, but its output is '
         f'the slowest and it serves one request at a time.</li>',
+        f'<li><strong>But none of these coding gaps is significant yet.</strong> With error bars over the 5 tasks, '
+        f'Qwen against Inkling MLX is {pts(data["paired"]["coding_qwen_mlx"]["score"]["diff"])} &plusmn; '
+        f'{data["paired"]["coding_qwen_mlx"]["score"]["se"] * 100:.0f} points of hidden tests, and Inkling MLX against '
+        f'GGUF {pts(data["paired"]["coding_mlx_gguf"]["score"]["diff"])} &plusmn; '
+        f'{data["paired"]["coding_mlx_gguf"]["score"]["se"] * 100:.0f}: single runs on 5 tasks cannot tell them apart.</li>',
         '<li><strong>Inkling loses its hard coding tasks to overthinking</strong>: single thinking turns of 60k to 100k '
         'characters with no action, until the time limit. An overthink bench is testing fixes (results to come).</li>',
     ]
@@ -287,6 +416,26 @@ def page(data):
             f'<li><strong>Inkling fits a small Mac by streaming its experts from the SSD.</strong> Best decode speed '
             f'by experts kept: {parts}. With everything in memory the same code writes '
             f'{f1(resident["decode_tok_s_second_half"])} tok/s at {f1(resident["peak_gb"])} GB.</li>')
+    pf = [r for r in s["prefill"] if not r.get("resident")]
+    p2 = data["paired"]["prefill"]["expert"]
+    if pf and p2.get("score"):
+        old = {r["slots"]: r["prefill_tok_s"] for r in pf if r.get("prefill_scratch", 0) == 0}
+        new = {r["slots"]: r["prefill_tok_s"] for r in pf if r.get("prefill_scratch") == 2}
+        bullets.append(
+            f'<li><strong>Streamed prompts are now read {min(new[n] / old[n] for n in old if n in new):.0f} to '
+            f'{max(new[n] / old[n] for n in old if n in new):.0f} times faster, exactly.</strong> A 2,048-token prompt: '
+            + "; ".join(f"{n} per layer {f1(old[n])} to {f1(new[n])} tok/s" for n in sorted(set(old) & set(new)))
+            + f'. In the assistant benches that cuts the time per task (expert jobs: '
+            f'{" + ".join(map(str, p2["a_minutes"]))} min per run before, {" + ".join(map(str, p2["b_minutes"]))} after) '
+            f'with the same scores.</li>')
+    lo = data["paired"]["lossy"]["expert"]
+    e = data["engine"]
+    if lo.get("score") and "lossy" in e and "s32" in e:
+        bullets.append(
+            f'<li><strong>Exact beats lossy.</strong> Skipping low-weight experts looked faster in a speed test, but on '
+            f'the expert jobs it scored {lo["score"]["b"] * 100:.0f}% against {lo["score"]["a"] * 100:.0f}% for exact, '
+            f'ran out of time on one job in both runs, and was slower in use: decode {f1(e["lossy"]["decode_tok_s"])} '
+            f'against {f1(e["s32"]["decode_tok_s"])} tok/s for exact with 32 experts kept.</li>')
     body = [f"""
 <nav class="crumb note" aria-label="Breadcrumb"><a href="../learnings.html">Learnings</a> / Reports / Inkling 2 Mini</nav>
 <div class="ptitle"><h1>Inkling 2 Mini: MLX, GGUF or Qwen, and streaming its experts</h1>
@@ -337,17 +486,51 @@ Guesses that turn out wrong cost extra reads (counted in MB read per token).</p>
 with a Markov head) that proposes up to 7 tokens; the model checks them in one pass, so each expert read serves several
 tokens. Drafter ported from <a href="https://github.com/youssofal/mtplx">MTPLX</a> 2.13.3 (Apache 2.0). Code:
 <a href="{REPO}benches/expert-stream/mtp.py">mtp.py</a>.</p>{mtp_rows(s["mtp"])}{mtp_verdict(s)}""")
+    if s["best"]:
+        body.append(f"""<h3>All exact improvements together</h3><p class="note">LFU with looped layers weighted, this
+layer's own misses read first and the next layer's guesses after them, no extra copies; 512 tokens, 2 runs each. The
+text is identical to the in-memory run's.</p>{stream_rows(s["best"], with_ref=True)}""")
+    if s["prefill"]:
+        body.append(f"""<h3>Reading the prompt</h3><p>Decoding needs 8 experts per layer, but a 2,048-token prompt chunk
+needs nearly all 128. Before, the chunk went through the cache in groups of experts that fit, and each group ran the
+layer on every row with the others masked: 8 times the work at 16 slots, unsorted, and a wait after each group. Now the
+chunk's experts are read straight into one full-size buffer at their own rows (into the GPU's memory, no copy) and the
+layer runs once with the router's own expert ids, the same call as the in-memory model. It reads every expert once per
+layer pass (about 26 GB for a 2,048-token chunk), so it is limited by the SSD, not by the GPU.</p>
+<p class="note">A 2,048-token prompt, then 64 tokens fed from the in-memory run. The old way was not exact on long
+prompts either (the same next tokens, but logits off by up to 10.8); the new way is bit-identical.</p>{prefill_rows(s["prefill"])}
+{prefill_engine(data["engine"])}
+{paired_table(data["paired"]["prefill"], "Before", "After")}""")
+    if s["lossy"] or s["lossy2"]:
+        exact = {}
+        for r in s["best"]:
+            exact[r["slots"]] = max(exact.get(r["slots"], 0), r["decode_tok_s_second_half"])
+        body.append(f"""<h3>Exact or lossy</h3><p>Exact streaming gives the in-memory model's answers, bit for bit. Lossy
+modes change the answers to read less: they leave out or replace experts that are not in the cache. First measured
+against the exact model's 256 tokens (the same text fed to both): how often it picks the same next token, and the KL
+divergence of its next-token distribution.</p>{lossy_rows(s["lossy"] + s["lossy2"], exact)}
+<p class="note">Only skip-low at 15% was clearly faster than exact at the same cache size, at 94% agreement. Against
+exact with 32 experts kept (2 GB more memory), and on the real benches (3 runs of each mini suite, 2 of the expert
+jobs, alternating the two setups, 2,400 s per task):</p>
+{paired_table(data["paired"]["lossy"], "Exact, 32 kept", "Skip-low 15%, 16 kept")}
+{lossy_engine(data["engine"])}""")
     body.append(f"""</section>
 <section class="sec" aria-labelledby="how"><div class="sec-h"><h2 id="how">How it was measured</h2></div><ul class="list">
 <li>One 32 GB Mac mini M6, one job at a time, Ollama 0.40.18.</li>
 <li>Speed: a 4.7k-token prompt, then fixed 256-token answers for requests at once.</li>
 <li>Coding: <a href="{REPO}benches/agentic-v4">agentic suite v4</a>, 5 tasks, 52 hidden tests. Agents at once: suite v1, 3 tasks, all started together.</li>
-<li>Single runs: one run per setup unless the table says otherwise, so a task's result can change on a rerun.</li>
+<li>Single runs: one run per setup unless the table says otherwise, so a task's result can change on a rerun.
+From 27 November comparisons are paired by item with error bars (Miller, <a href="https://arxiv.org/abs/2411.00640">Adding
+Error Bars to Evals</a>; Student's t over items): <a href="{REPO}scripts/compare_runs.py">compare_runs.py</a>,
+<a href="{REPO}docs/23-error-bars.md">method</a>.</li>
+<li>Streamed benches: the open mlx-lm port behind an OpenAI-compatible server
+(<a href="{REPO}benches/expert-stream/serve.py">serve.py</a>), 2,400 s per task, since experts from the SSD are about
+3 times slower than in memory.</li>
 <li>Data: <a href="../data/reports/inkling.json">inkling.json</a>; page built by <a href="{REPO}scripts/inkling_report.py">inkling_report.py</a>.</li>
 </ul></section>""")
     return shell("Inkling 2 Mini: MLX, GGUF or Qwen, and streaming its experts", "".join(body), "learnings.html", depth=1,
                  desc="Inkling 2 Mini on a 32 GB Mac mini: MLX vs GGUF vs Qwen 3.8 27B on speed, requests at once and hard "
-                      "coding, and decode speed with its experts streamed from the SSD.")
+                      "coding, and Inkling with its experts streamed from the SSD: decode and prompt speed, exact against lossy.")
 
 
 def main():

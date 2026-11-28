@@ -260,7 +260,7 @@ def load_mini(state, mini_py=None):
     env = dict(DROPBOX_MINI_URL='http://127.0.0.1:9', DROPBOX_MINI_TOKEN='bench', DROPBOX_MINI_STATE=str(state),
                DROPBOX_MINI_WORKSPACE=str(state / 'root' / 'files'), DROPBOX_MINI_ROOT=str(state / 'root'),  # a stand-in DropBox folder: mini's sandbox shields ROOT, so it must not contain STATE
                DROPBOX_MINI_PROFILE=str(Path(mini_py).parent / 'mini-sandbox.sb' if mini_py else DROPBOX / 'mini' / 'mini-sandbox.sb'),
-               DROPBOX_MINI_SKILLS=str(DROPBOX / 'mini' / 'skills'), DROPBOX_MINI_TIMEOUT='600')
+               DROPBOX_MINI_SKILLS=str(DROPBOX / 'mini' / 'skills'), DROPBOX_MINI_TIMEOUT=os.environ.get('BENCH_MINI_TIMEOUT', '600'))  # streamed models are ~3x slower: they get more time (best result, not speed)
     os.environ.update(env)
     import importlib.util
     spec = importlib.util.spec_from_file_location('dropbox_mini', mini_py or DROPBOX / 'mini' / 'mini.py')

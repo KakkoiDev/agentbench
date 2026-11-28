@@ -45,6 +45,10 @@ ENGINES = {   # engine -> port, the command that serves one model, and its envir
                 # GLM's default memory reserve is a flat 32 GiB (sized for 128 GB+ hosts), so on 32 GB its guard budget is 0:
                 # reserve 8 GiB for macOS and the benches instead (GLM-5.3-Flash with SSD streaming needs about 5.3 GiB)
                 env={'DS4_GLM_MEMORY_GUARD_RESERVE_GB': '8'}),
+    # Inkling 2 Mini with its experts streamed from the SSD (benches/expert-stream/serve.py, the mlx-lm Inkling 2 port's venv).
+    'stream': dict(port=8097, cmd=lambda m: [str(Path.home() / 'Code/mlx-lm-inkling2/.venv/bin/python'),
+                                             str(ROOT / 'benches/expert-stream/serve.py'), '--port', '8097',
+                                             '--model-id', m['id']] + m['args'], env=OFFLINE),
 }
 
 M = ROOT / 'models'
@@ -61,6 +65,19 @@ MODELS = {
     'ds4/glm-5.3-flash-q2': dict(path=str(M / 'ds4/GLM-5.3-Flash-Q2.gguf'), reasoning=True, cache='6GB'),
     'ds4/qwen3.8-flash-next-q2': dict(path=str(M / 'ds4/Qwen3.8-Flash-Next-Q2.gguf'), reasoning=True),
     'ds4/deepseek-v4.1-flash-q2': dict(path=str(M / 'ds4/DeepSeek-V4.1-Flash-1017-IQ2_XXS-Q2_K-imatrix.gguf'), reasoning=True, ctx=8192, cache='300'),   # at ctx 16384 / 12GB it needed 25.17 GiB vs a 24.96 GiB budget
+    # streamed Inkling: exact (same answers as in memory) and lossy (substitute missing experts with cached ones)
+    'stream/inkling-s32': dict(path=str(Path.home() / 'Models/ollama/manifests-v2/ollama.com/library/inkling-2-mini/26b-a5b-nvfp4'), reasoning=True,
+                               args=['--slots', '32', '--loop-weighted', '--policy', 'lfu', '--prefetch']),
+    # 2026-11-28: prompt chunks through full-layer buffers with read-ahead (prefill 27 -> 425 tok/s at 32 slots, exact)
+    'stream/inkling-s32-p2': dict(path=str(Path.home() / 'Models/ollama/manifests-v2/ollama.com/library/inkling-2-mini/26b-a5b-nvfp4'), reasoning=True,
+                                  args=['--slots', '32', '--loop-weighted', '--policy', 'lfu', '--prefetch', '--prefill-scratch', '2']),
+    'stream/inkling-s32-sub': dict(path=str(Path.home() / 'Models/ollama/manifests-v2/ollama.com/library/inkling-2-mini/26b-a5b-nvfp4'), reasoning=True,
+                                   args=['--slots', '32', '--loop-weighted', '--policy', 'lfu', '--prefetch',
+                                         '--lossy', 'sub', '--sub-alpha', '0.8']),
+    # the lossy setup picked by benches/expert-stream/choose_lossy.py (fastest at 16 slots with >= 95% agreement)
+    'stream/inkling-lossy': dict(path=str(Path.home() / 'Models/ollama/manifests-v2/ollama.com/library/inkling-2-mini/26b-a5b-nvfp4'), reasoning=True,
+                                 args=(json.loads((ROOT / 'results/expert-stream-lossy-choice.json').read_text())['args']
+                                       if (ROOT / 'results/expert-stream-lossy-choice.json').exists() else ['--slots', '16'])),
 }
 for _k, _m in MODELS.items():
     _m['id'] = _k.split('/', 1)[1]
